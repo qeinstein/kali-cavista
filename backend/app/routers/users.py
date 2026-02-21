@@ -1,12 +1,31 @@
+"""User router — profile, device token, location."""
+
 from fastapi import APIRouter, Depends
 from app.core.security import get_current_user
 from app.models.user import User
-from app.schemas.user import UserResponse
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/user", tags=["User"])
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user_profile(user: User = Depends(get_current_user)):
-    """Get the authenticated user's profile."""
-    return user
+@router.get("/profile")
+async def get_profile(user: User = Depends(get_current_user)):
+    """Fetch user profile & baseline."""
+    pass
+
+
+@router.put("/profile")
+async def update_profile(user: User = Depends(get_current_user)):
+    """Update profile & preferences."""
+    pass
+
+
+@router.post("/device-token")
+async def register_device_token(user: User = Depends(get_current_user)):
+    """Register FCM push token."""
+    pass
+
+
+@router.put("/location")
+async def update_location(user: User = Depends(get_current_user)):
+    """Update location for weather."""
+    pass
