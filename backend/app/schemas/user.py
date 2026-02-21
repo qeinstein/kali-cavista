@@ -45,3 +45,47 @@ class TokenResponse(BaseModel):
 
 class SuccessResponse(BaseModel):
     success: bool = True
+
+
+class BaselineResponse(BaseModel):
+    mealsPerDay: int
+    activityLevel: str
+    waterTargetMl: int
+    timezone: str
+
+    model_config = {"from_attributes": True}
+
+
+class BaselineUpdate(BaseModel):
+    mealsPerDay: Optional[int] = None
+    activityLevel: Optional[str] = None
+    waterTargetMl: Optional[int] = None
+
+
+class ProfileResponse(BaseModel):
+    id: str
+    name: Optional[str]
+    email: str
+    baseline: BaselineResponse
+
+    model_config = {"from_attributes": True}
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    baseline: Optional[BaselineUpdate] = None
+
+
+class ProfileUpdateResponse(BaseModel):
+    success: bool = True
+    user: ProfileResponse
+
+
+class DeviceTokenRequest(BaseModel):
+    fcmToken: str
+    platform: str  # "android" | "ios"
+
+
+class LocationUpdate(BaseModel):
+    lat: float
+    lon: float
