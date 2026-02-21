@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./nutrisense.db"
+    DATABASE_MIGRATION_URL: str = ""  
 
     CORS_ORIGINS: str = '["http://localhost:3000","http://localhost:5173"]'
 

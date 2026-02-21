@@ -10,7 +10,6 @@ from app.routers import auth, users, meals, hydration, predictions, insights, he
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown lifecycle."""
     await init_db()
     yield
 
