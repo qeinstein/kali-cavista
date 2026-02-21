@@ -3,30 +3,10 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { containerVariants, itemVariants } from "./variants";
-import Antigravity from "./Antigravity";
 
 export default function Hero() {
-    const letters = [
-        { char: 'S', word: 'Sovereign', pos: 'top-right' },
-        { char: 'P', word: 'Preventive', pos: 'top-left' },
-        { char: 'A', word: 'AI', pos: 'bottom-right' },
-        { char: 'G', word: 'Grid', pos: 'bottom-left' }
-    ];
-
     return (
         <section id="hero" className="w-full relative overflow-hidden bg-background">
-            {/* Background Animation */}
-            <div className="absolute inset-0 z-0">
-                <Antigravity
-                    count={250}
-                    color="#2D6A4F"
-                    particleSize={1.5}
-                    magnetRadius={15}
-                    ringRadius={12}
-                    autoAnimate={true}
-                />
-            </div>
-
             {/* SPAG Layout Container */}
             <div className="relative z-10 w-full min-h-[calc(100vh-72px)] flex flex-col items-center justify-center pointer-events-none">
 
@@ -46,140 +26,209 @@ export default function Hero() {
                     </div>
                 </motion.div>
 
-                {/* Central Letter Stack */}
+                {/* Central Horizontal Character Container (SVG Unified) */}
                 <motion.div
-                    className="flex flex-col items-center gap-4 md:gap-8"
+                    className="flex flex-row items-center gap-6 md:gap-12"
                     variants={containerVariants}
                     initial="hidden"
                     animate="show"
                 >
-                    {letters.map((item, index) => (
+                    {[
+                        { char: 'S', d: "M 82,34 C 82,20 70,13 54,13 C 34,13 18,26 18,44 C 18,62 34,72 60,80 C 84,88 94,100 88,118 C 82,134 68,143 50,143 C 32,143 18,134 18,122" },
+                        { char: 'P', d: "M 32,13 C 30,50 34,100 32,143 M 32,13 C 85,13 95,40 85,55 C 75,70 50,85 32,90" },
+                        { char: 'A', d: "M 55,13 C 40,40 25,100 18,143 M 55,13 C 70,40 85,100 92,143 M 32,95 C 45,95 65,95 78,95" },
+                        { char: 'G', d: "M 88,40 C 80,18 64,13 54,13 C 30,13 18,45 18,78 C 18,111 30,143 54,143 C 78,143 90,123 90,103 L 55,103" }
+                    ].map(({ char, d }) => (
                         <motion.span
-                            key={item.char}
-                            variants={itemVariants}
-                            className="text-6xl md:text-9xl font-black text-foreground select-none relative z-20"
+                            key={char}
+                            variants={{
+                                hidden: { opacity: 0 },
+                                show: {
+                                    opacity: 1,
+                                    transition: { duration: 0.5 }
+                                }
+                            }}
+                            className="select-none relative z-20 flex items-center justify-center"
                         >
-                            {item.char}
+                            <svg
+                                className="w-[124px] h-[184px] md:w-[155px] md:h-[230px]"
+                                viewBox="0 0 110 165"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <motion.path
+                                    d={d}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+                                />
+                            </svg>
                         </motion.span>
                     ))}
                 </motion.div>
 
-                {/* Corner Words */}
-                <div className="absolute inset-x-8 inset-y-12 md:inset-x-24 md:inset-y-32 h-full">
-                    {/* Top Left - Preventive */}
+                {/* Corner Words (BALANCED EXPANSION) */}
+                <div className="absolute inset-0 w-full h-full pointer-events-none">
+                    {/* Top Left - Sovereign */}
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1 }}
-                        className="absolute top-0 left-0 text-2xl md:text-4xl font-bold text-primary"
-                    >
-                        Preventive
-                    </motion.div>
-
-                    {/* Top Right - Sovereign */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1 }}
-                        className="absolute top-0 right-0 text-2xl md:text-4xl font-bold text-primary"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: 1,
+                            y: [-3, 3],
+                        }}
+                        transition={{
+                            opacity: { delay: 1, duration: 0.5 },
+                            y: { repeat: Infinity, repeatType: "reverse", duration: 4, ease: "easeInOut" }
+                        }}
+                        style={{ left: '25%', top: '25%' }}
+                        className="absolute -translate-x-[calc(100%+28px)] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
                         Sovereign
                     </motion.div>
 
-                    {/* Bottom Left - Grid */}
+                    {/* Top Right - Preventive */}
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1 }}
-                        className="absolute bottom-0 left-0 text-2xl md:text-4xl font-bold text-primary"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: 1,
+                            y: [3, -3],
+                        }}
+                        transition={{
+                            opacity: { delay: 1.2, duration: 0.5 },
+                            y: { repeat: Infinity, repeatType: "reverse", duration: 4.5, ease: "easeInOut" }
+                        }}
+                        style={{ left: '75%', top: '25%' }}
+                        className="absolute translate-x-[28px] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
-                        Grid
+                        Preventive
                     </motion.div>
 
-                    {/* Bottom Right - AI */}
+                    {/* Bottom Left - AI */}
                     <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1 }}
-                        className="absolute bottom-0 right-0 text-2xl md:text-4xl font-bold text-primary"
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: 1,
+                            y: [3, -3],
+                        }}
+                        transition={{
+                            opacity: { delay: 1.4, duration: 0.5 },
+                            y: { repeat: Infinity, repeatType: "reverse", duration: 4.2, ease: "easeInOut" }
+                        }}
+                        style={{ left: '25%', top: '75%' }}
+                        className="absolute -translate-x-[calc(100%+28px)] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
                         AI
                     </motion.div>
+
+                    {/* Bottom Right - Grid */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{
+                            opacity: 1,
+                            y: [-3, 3],
+                        }}
+                        transition={{
+                            opacity: { delay: 1.6, duration: 0.5 },
+                            y: { repeat: Infinity, repeatType: "reverse", duration: 4.8, ease: "easeInOut" }
+                        }}
+                        style={{ left: '75%', top: '75%' }}
+                        className="absolute translate-x-[28px] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
+                    >
+                        Grid
+                    </motion.div>
                 </div>
 
-                {/* SVG Arrows Overlay */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none z-15 overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                {/* SVG Arrows Overlay (BALANCED RECALIBRATION) */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none z-15 overflow-fill" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orientation="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" className="text-primary/40" />
                         </marker>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="0.8" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
                     </defs>
 
-                    {/* Arrow S -> Sovereign (Top Right) */}
+                    {/* From S -> Top Left (Sovereign) */}
                     <motion.path
                         initial={{ pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         transition={{ delay: 1.5, duration: 1 }}
-                        d="M 50 35 L 75 35 L 75 30"
+                        d="M 38 45 L 38 25 L 25 25"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="0.5"
+                        strokeWidth="0.15"
                         strokeDasharray="1 1"
                         className="text-primary/30"
+                        filter="url(#glow)"
                         markerEnd="url(#arrowhead)"
                     />
 
-                    {/* Arrow P -> Preventive (Top Left) */}
+                    {/* From P -> Top Right (Preventive) */}
                     <motion.path
                         initial={{ pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         transition={{ delay: 1.8, duration: 1 }}
-                        d="M 50 45 L 25 45 L 25 30"
+                        d="M 46 45 L 46 25 L 75 25"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="0.5"
+                        strokeWidth="0.15"
                         strokeDasharray="1 1"
                         className="text-primary/30"
+                        filter="url(#glow)"
                         markerEnd="url(#arrowhead)"
                     />
 
-                    {/* Arrow A -> AI (Bottom Right) */}
+                    {/* From A -> Bottom Left (AI) */}
                     <motion.path
                         initial={{ pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         transition={{ delay: 2.1, duration: 1 }}
-                        d="M 50 55 L 75 55 L 75 70"
+                        d="M 54 55 L 54 75 L 25 75"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="0.5"
+                        strokeWidth="0.15"
                         strokeDasharray="1 1"
                         className="text-primary/30"
+                        filter="url(#glow)"
                         markerEnd="url(#arrowhead)"
                     />
 
-                    {/* Arrow G -> Grid (Bottom Left) */}
+                    {/* From G -> Bottom Right (Grid) */}
                     <motion.path
                         initial={{ pathLength: 0, opacity: 0 }}
                         animate={{ pathLength: 1, opacity: 1 }}
                         transition={{ delay: 2.4, duration: 1 }}
-                        d="M 50 65 L 25 65 L 25 70"
+                        d="M 62 55 L 62 75 L 75 75"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="0.5"
+                        strokeWidth="0.15"
                         strokeDasharray="1 1"
                         className="text-primary/30"
+                        filter="url(#glow)"
                         markerEnd="url(#arrowhead)"
                     />
                 </svg>
 
-                {/* CTA Button Overlay */}
+                {/* CTA Button Overlay (GLASSY) */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 3 }}
                     className="absolute bottom-12 pointer-events-auto"
                 >
-                    <Link href="/dashboard" className="group relative bg-primary hover:bg-primary-hover text-white px-8 md:px-12 py-4 md:py-6 rounded-2xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl active:scale-95 block">
+                    <Link
+                        href="/dashboard"
+                        className="group relative bg-primary/10 backdrop-blur-xl border border-primary/20 text-primary px-8 md:px-12 py-4 md:py-6 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-primary/20 hover:bg-primary/20 active:scale-95 block"
+                    >
                         <span className="relative z-10 flex items-center gap-2">
                             Enter Dashboard
                             <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
