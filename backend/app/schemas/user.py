@@ -1,14 +1,19 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
 
 
-# ── Request Schemas ──────────────────────────────────────────────
 class UserCreate(BaseModel):
     email: str
     password: str
-    full_name: Optional[str] = None
-    timezone: str = "UTC"
+    name: str
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return v
 
 
 class UserLogin(BaseModel):
@@ -16,18 +21,71 @@ class UserLogin(BaseModel):
     password: str
 
 
-# ── Response Schemas ─────────────────────────────────────────────
+class TokenRefresh(BaseModel):
+    token: str
+
+
 class UserResponse(BaseModel):
-    id: int
+    id: str
+    name: Optional[str]
     email: str
-    full_name: Optional[str]
-    timezone: str
-    is_active: bool
-    created_at: datetime
 
     model_config = {"from_attributes": True}
 
 
+class AuthResponse(BaseModel):
+    """Response for register and login — token + nested user."""
+    token: str
+    user: UserResponse
+
+
 class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    token: str
+
+
+class SuccessResponse(BaseModel):
+    success: bool = True
+
+
+class BaselineResponse(BaseModel):
+    mealsPerDay: int
+    activityLevel: str
+    waterTargetMl: int
+    timezone: str
+
+    model_config = {"from_attributes": True}
+
+
+class BaselineUpdate(BaseModel):
+    mealsPerDay: Optional[int] = None
+    activityLevel: Optional[str] = None
+    waterTargetMl: Optional[int] = None
+
+
+class ProfileResponse(BaseModel):
+    id: str
+    name: Optional[str]
+    email: str
+    baseline: BaselineResponse
+
+    model_config = {"from_attributes": True}
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    baseline: Optional[BaselineUpdate] = None
+
+
+class ProfileUpdateResponse(BaseModel):
+    success: bool = True
+    user: ProfileResponse
+
+
+class DeviceTokenRequest(BaseModel):
+    fcmToken: str
+    platform: str  # "android" | "ios"
+
+
+class LocationUpdate(BaseModel):
+    lat: float
+    lon: float

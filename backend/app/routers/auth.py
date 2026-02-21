@@ -1,49 +1,108 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
-from app.core.security import hash_password, verify_password, create_access_token
-from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse
+from app.core.errors import DuplicateError, UnauthorizedError
+from app.core.security import (
+    hash_password, verify_password, create_access_token,
+    decode_token, get_current_user, oauth2_scheme,
+)
+from app.models.user import User, BlacklistedToken
+from app.schemas.user import (
+    UserCreate, UserLogin, TokenRefresh,
+    UserResponse, AuthResponse, TokenResponse, SuccessResponse,
+)
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/token", include_in_schema=False)
+async def oauth2_token(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    """OAuth2 form login for Swagger UI. Uses username field as email."""
+    result = await db.execute(select(User).where(User.email == form.username))
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(form.password, user.hashed_password):
+        raise UnauthorizedError("Invalid email or password")
+
+    token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)):
-    """Register a new user account."""
-    # Check if email is already taken
+    """Creates a new user account. Returns a JWT token and user profile."""
     result = await db.execute(select(User).where(User.email == payload.email))
     if result.scalar_one_or_none():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered",
-        )
+        raise DuplicateError("Email already registered")
 
     user = User(
         email=payload.email,
         hashed_password=hash_password(payload.password),
-        full_name=payload.full_name,
-        timezone=payload.timezone,
+        name=payload.name,
     )
     db.add(user)
     await db.flush()
     await db.refresh(user)
-    return user
+
+    token = create_access_token(data={"sub": str(user.id)})
+    return AuthResponse(
+        token=token,
+        user=UserResponse(id=str(user.id), name=user.name, email=user.email),
+    )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=AuthResponse)
 async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
-    """Authenticate and receive a JWT access token."""
+    """Authenticates an existing user. Returns a fresh JWT token."""
     result = await db.execute(select(User).where(User.email == payload.email))
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
+        raise UnauthorizedError("Invalid email or password")
 
     token = create_access_token(data={"sub": str(user.id)})
-    return TokenResponse(access_token=token)
+    return AuthResponse(
+        token=token,
+        user=UserResponse(id=str(user.id), name=user.name, email=user.email),
+    )
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_token(payload: TokenRefresh, db: AsyncSession = Depends(get_db)):
+    """Issues a new token before the current one expires."""
+    old_payload = decode_token(payload.token)
+    user_id = old_payload.get("sub")
+    jti = old_payload.get("jti")
+
+    if not user_id:
+        raise UnauthorizedError("Invalid token")
+
+    # Blacklist the old token
+    if jti:
+        db.add(BlacklistedToken(jti=jti))
+
+    # Issue a fresh one
+    new_token = create_access_token(data={"sub": user_id})
+    return TokenResponse(token=new_token)
+
+
+@router.post("/logout", response_model=SuccessResponse)
+async def logout(
+    token: str = Depends(oauth2_scheme),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Invalidates the current token server-side."""
+    payload = decode_token(token)
+    jti = payload.get("jti")
+
+    if jti:
+        db.add(BlacklistedToken(jti=jti))
+
+    return SuccessResponse(success=True)

@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.routers import auth, tracking, users, predictions
+from app.core.errors import register_error_handlers
+from app.routers import auth, users, meals, hydration, predictions, insights, health, notifications, chat
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown lifecycle."""
     await init_db()
     yield
 
@@ -29,10 +29,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+register_error_handlers(app)
+
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
-app.include_router(tracking.router, prefix=settings.API_V1_PREFIX)
+app.include_router(meals.router, prefix=settings.API_V1_PREFIX)
+app.include_router(hydration.router, prefix=settings.API_V1_PREFIX)
 app.include_router(predictions.router, prefix=settings.API_V1_PREFIX)
+app.include_router(insights.router, prefix=settings.API_V1_PREFIX)
+app.include_router(health.router, prefix=settings.API_V1_PREFIX)
+app.include_router(notifications.router, prefix=settings.API_V1_PREFIX)
+app.include_router(chat.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health", tags=["Health"])
