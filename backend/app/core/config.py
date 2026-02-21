@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     SECRET_KEY: str = "change-me"
     API_V1_PREFIX: str = "/api/v1"
+    API_URL: str = "http://localhost:8000"
+    API_VERSION: str = "v1"
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./nutrisense.db"
 
@@ -24,6 +26,9 @@ class Settings(BaseSettings):
     OPENWEATHER_API_KEY: str = ""
     OPENROUTER_API_KEY: str = ""
     GROQ_API_KEY: str = ""
+    ELEVENLABS_API_KEY: str = ""
+    ELEVENLABS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Default voice
+    TTS_SERVICE: str = "elevenlabs"  # Options: elevenlabs, google, local
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
