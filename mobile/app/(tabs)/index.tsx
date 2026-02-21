@@ -8,24 +8,21 @@ import {
     TouchableOpacity,
     Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore } from '../../src/store/useAppStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import HungerTimer from '../../src/components/HungerTimer';
 import HydrationScore from '../../src/components/HydrationScore';
 import TodayTimeline from '../../src/components/TodayTimeline';
+import ActivityChip from '../../src/components/ActivityChip';
 import MealBottomSheet from '../../src/components/MealBottomSheet';
 import WaterToast from '../../src/components/WaterToast';
+import WeatherChip from '../../src/components/WeatherChip';
+import VoiceCheckInCard from '../../src/components/VoiceCheckInCard';
+import PulseScannerSimulation from '../../src/components/PulseScannerSimulation';
+import ActivityService from '../../src/services/ActivityService';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
-
-// ─── Mock API data ────────────────────────────────────────────────────────────
-// GET /hydration/score → realistic mock response
-const MOCK_HYDRATION = {
-    score: 68,           // 0–100
-    lastWaterAgo: '1h 40m ago',
-    outsideTemp: 33,
-    nextDrinkIn: '45m',
-};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -58,8 +55,10 @@ export default function HomeScreen() {
     const userName = useAuthStore((s) => s.user?.name ?? 'there');
 
     const hydrationScore = useAppStore((s) => s.hydrationScore);
+    const lastHeartRate = useAppStore((s) => s.lastHeartRate);
 
     const [mealSheetOpen, setMealSheetOpen] = useState(false);
+    const [pulseScannerOpen, setPulseScannerOpen] = useState(false);
     const [waterToastVisible, setWaterToastVisible] = useState(false);
     const waterToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -74,6 +73,11 @@ export default function HomeScreen() {
 
     const fabScale = useRef(new Animated.Value(0)).current;
     const fabOpacity = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        ActivityService.start();
+        return () => ActivityService.stop();
+    }, []);
 
     useEffect(() => {
         fetchPrediction();
@@ -107,7 +111,21 @@ export default function HomeScreen() {
         [waterLogs, today],
     );
 
+    const activityLevel = useAppStore((s) => s.activityLevel);
+    const [lastLevel, setLastLevel] = useState(activityLevel);
+    const [toastMsg, setToastMsg] = useState('+250ml logged!');
+
+    useEffect(() => {
+        if ((activityLevel === 'Active' || activityLevel === 'Intense') && lastLevel !== activityLevel) {
+            setToastMsg("You're active right now — drink water soon");
+            setWaterToastVisible(true);
+            setTimeout(() => setWaterToastVisible(false), 3000);
+        }
+        setLastLevel(activityLevel);
+    }, [activityLevel]);
+
     const handleLogWater = () => {
+        setToastMsg('+250ml logged!');
         logWater(250);
         if (waterToastTimer.current) clearTimeout(waterToastTimer.current);
         setWaterToastVisible(true);
@@ -141,14 +159,22 @@ export default function HomeScreen() {
                 {/* ── Header ── */}
                 <Animated.View style={[styles.header, animatedStyle(0)]}>
                     <View style={styles.headerText}>
-                        <Text style={styles.greeting}>
-                            {getGreeting()}, {userName.split(' ')[0]} 👋
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={styles.greeting}>
+                                {getGreeting()}, {userName.split(' ')[0]}
+                            </Text>
+                            <Ionicons name="sparkles" size={18} color={Colors.teal} />
+                        </View>
                         <Text style={styles.dateText}>{formatDate()}</Text>
                     </View>
                     <View style={styles.avatarCircle}>
-                        <Text style={{ fontSize: 22 }}>🧬</Text>
+                        <Ionicons name="person" size={24} color={Colors.textPrimary} />
                     </View>
+                </Animated.View>
+
+                {/* ── Real-time Activity Chip ── */}
+                <Animated.View style={animatedStyle(0)}>
+                    <ActivityChip />
                 </Animated.View>
 
                 {/* ── Quick stats row ── */}
@@ -163,10 +189,15 @@ export default function HomeScreen() {
                     </View>
                     <View style={styles.statCard}>
                         <Text style={[styles.statValue, { color: Colors.green }]}>
-                            {prediction ? `${Math.round(prediction.confidence * 100)}%` : '–'}
+                            {lastHeartRate ? `${lastHeartRate} BPM` : '–'}
                         </Text>
-                        <Text style={styles.statLabel}>AI Conf.</Text>
+                        <Text style={styles.statLabel}>Heart Rate</Text>
                     </View>
+                </Animated.View>
+
+                {/* ── Daily Check-in ── */}
+                <Animated.View style={animatedStyle(1)}>
+                    <VoiceCheckInCard />
                 </Animated.View>
 
                 {/* ── Hunger Timer Card ── */}
@@ -182,20 +213,37 @@ export default function HomeScreen() {
                 <Animated.View style={animatedStyle(3)}>
                     <HydrationScore
                         score={hydrationScore}
-                        lastWaterAgo={MOCK_HYDRATION.lastWaterAgo}
-                        outsideTemp={MOCK_HYDRATION.outsideTemp}
-                        nextDrinkIn={MOCK_HYDRATION.nextDrinkIn}
+                        outsideTemp={useAppStore.getState().weather?.temp ?? 33}
                     />
+                    <WeatherChip />
                 </Animated.View>
+
+                {/* ── Pulse Check Action ── */}
+                <Animated.View style={[styles.pulseAction, animatedStyle(4)]}>
+                    <TouchableOpacity
+                        style={styles.pulseBtn}
+                        onPress={() => setPulseScannerOpen(true)}
+                    >
+                        <Ionicons name="heart" size={24} color={Colors.danger} />
+                        <Text style={styles.pulseBtnText}>Check Pulse</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+
+                <PulseScannerSimulation
+                    visible={pulseScannerOpen}
+                    onClose={() => setPulseScannerOpen(false)}
+                />
 
                 {/* ── Today's Timeline ── */}
                 <Animated.View style={animatedStyle(4)}>
                     <TodayTimeline meals={meals} waterLogs={waterLogs} />
                 </Animated.View>
 
-                {/* ── Prevention Tip ── */}
                 <View style={styles.tipCard}>
-                    <Text style={styles.tipHeader}>💡 Today's Insight</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs }}>
+                        <Ionicons name="bulb-outline" size={18} color={Colors.textPrimary} />
+                        <Text style={styles.tipHeader}>Today's Insight</Text>
+                    </View>
                     <Text style={styles.tipBody}>
                         Eating within 30 minutes of waking stabilises blood sugar and reduces afternoon
                         energy crashes by up to 40%.
@@ -213,7 +261,7 @@ export default function HomeScreen() {
                     onPress={() => setMealSheetOpen(true)}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.fabEmoji}>🍽️</Text>
+                    <Ionicons name="restaurant" size={20} color={Colors.white} />
                     <Text style={styles.fabLabel}>I Just Ate</Text>
                 </TouchableOpacity>
 
@@ -222,7 +270,7 @@ export default function HomeScreen() {
                     onPress={handleLogWater}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.fabEmoji}>💧</Text>
+                    <Ionicons name="water" size={20} color={Colors.white} />
                     <Text style={styles.fabLabel}>I Drank Water</Text>
                 </TouchableOpacity>
             </Animated.View>
@@ -239,7 +287,7 @@ export default function HomeScreen() {
             />
 
             {/* Water logged instant toast */}
-            <WaterToast visible={waterToastVisible} />
+            <WaterToast visible={waterToastVisible} message={toastMsg} />
         </SafeAreaView>
     );
 }
@@ -363,10 +411,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#2563EB',
         shadowColor: '#2563EB',
     },
-    fabEmoji: { fontSize: 20 },
     fabLabel: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.bold,
         color: Colors.white,
+    },
+    pulseAction: {
+        marginBottom: Spacing.lg,
+    },
+    pulseBtn: {
+        backgroundColor: Colors.card,
+        borderRadius: Radius.lg,
+        padding: Spacing.lg,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        borderWidth: 1,
+        borderColor: Colors.border,
+    },
+    pulseBtnText: {
+        fontSize: FontSize.md,
+        fontWeight: FontWeight.bold,
+        color: Colors.textPrimary,
     },
 });

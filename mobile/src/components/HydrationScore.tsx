@@ -1,36 +1,36 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppStore } from '../store/useAppStore';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
+import Svg, { Circle } from 'react-native-svg';
 
 interface Props {
     score?: number;        // 0–100 integer
-    lastWaterAgo?: string; // e.g. "1h 40m ago"
     outsideTemp?: number;  // e.g. 33
-    nextDrinkIn?: string;  // e.g. "45m"
 }
 
 const SIZE = 130;
+const RADIUS = 54;
 const STROKE = 10;
-const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+// Animated wrapper for SVG Circle
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function HydrationScore({
     score = 68,
-    lastWaterAgo = '1h 40m ago',
     outsideTemp = 33,
-    nextDrinkIn = '45m',
 }: Props) {
+    const lastWaterTimestamp = useAppStore((s) => s.lastWaterTimestamp);
     const animScore = useRef(new Animated.Value(0)).current;
 
-    const color =
-        score > 70 ? Colors.green :
-            score > 40 ? Colors.warning : Colors.danger;
-    const label =
-        score > 70 ? 'Well Hydrated' :
-            score > 40 ? 'Drink Soon' : 'Dehydration Risk!';
-    const dimColor =
-        score > 70 ? Colors.greenDim :
-            score > 40 ? Colors.warningDim : Colors.dangerDim;
+    const [lastDrinkStr, setLastDrinkStr] = useState('');
+    const [nextDrinkStr, setNextDrinkStr] = useState('');
+
+    const progressColor = Colors.warning;
+    const statusColor = score > 70 ? Colors.green : score > 40 ? Colors.warning : Colors.danger;
+    const label = score > 70 ? 'Well Hydrated' : score > 40 ? 'Drink Soon' : 'Dehydration Risk!';
 
     useEffect(() => {
         Animated.timing(animScore, {
@@ -40,82 +40,113 @@ export default function HydrationScore({
         }).start();
     }, [score]);
 
-    // ─── Dual half-arc ring approach ────────────────────────────────────────────
-    // We split the ring into two halves. For scores 0–50, only the right half
-    // rotates (0–180°). For scores 51–100, the right half is fully filled and
-    // the left half rotates from 180° to 360°.
-    const fraction = score / 100;
-    const rightRotate = animScore.interpolate({
-        inputRange: [0, 0.5, 1],
-        outputRange: ['0deg', '180deg', '180deg'],
-    });
-    const leftRotate = animScore.interpolate({
-        inputRange: [0, 0.5, 1],
-        outputRange: ['0deg', '0deg', '180deg'],
+    // strokeDashoffset: CIRCUMFERENCE = empty, 0 = full ring
+    const strokeDashoffset = animScore.interpolate({
+        inputRange: [0, 1],
+        outputRange: [CIRCUMFERENCE, 0],
     });
 
+    useEffect(() => {
+        const updateTimers = () => {
+            if (!lastWaterTimestamp) {
+                setLastDrinkStr('No logs yet');
+                setNextDrinkStr('Drink now');
+                return;
+            }
+
+            const now = new Date();
+            const last = new Date(lastWaterTimestamp);
+            const diffMs = now.getTime() - last.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) setLastDrinkStr('just now');
+            else if (diffMins < 60) setLastDrinkStr(`${diffMins}m ago`);
+            else setLastDrinkStr(`${Math.floor(diffMins / 60)}h ${diffMins % 60}m ago`);
+
+            let intervalMins = 120;
+            if (score > 80) intervalMins = 120;
+            else if (score > 50) intervalMins = 90;
+            else intervalMins = 45;
+
+            const remaining = intervalMins - diffMins;
+            if (remaining <= 0) setNextDrinkStr('Drink now');
+            else if (remaining < 60) setNextDrinkStr(`${remaining}m`);
+            else setNextDrinkStr(`${Math.floor(remaining / 60)}h ${remaining % 60}m`);
+        };
+
+        updateTimers();
+        const interval = setInterval(updateTimers, 60000);
+        return () => clearInterval(interval);
+    }, [lastWaterTimestamp, score]);
+
     return (
-        <View style={[styles.card, { borderColor: color + '44' }]}>
+        <View style={[styles.card, { borderColor: statusColor + '44' }]}>
             <View style={styles.headerRow}>
-                <Text style={styles.icon}>💧</Text>
+                <Ionicons name="water" size={18} color={Colors.warning} />
                 <Text style={styles.cardTitle}>Hydration Score</Text>
-                <View style={[styles.badge, { backgroundColor: dimColor }]}>
-                    <Text style={[styles.badgeText, { color }]}>{label}</Text>
+                <View style={[styles.badge, { backgroundColor: statusColor + '22' }]}>
+                    <Text style={[styles.badgeText, { color: statusColor }]}>{label}</Text>
                 </View>
             </View>
 
             <View style={styles.body}>
-                {/* Circular progress ring - dual half-arc technique */}
+                {/* SVG Ring Chart */}
                 <View style={styles.ringWrap}>
-                    {/* Background full circle */}
-                    <View style={[styles.ringOuter, { borderColor: Colors.border }]} />
-
-                    {/* Right half (0°–180°) — always visible when score > 0 */}
-                    <View style={[styles.halfClip, styles.halfClipRight]}>
-                        <Animated.View
-                            style={[
-                                styles.halfArc,
-                                {
-                                    borderColor: color,
-                                    transform: [{ rotate: rightRotate as unknown as string }],
-                                },
-                            ]}
+                    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+                        {/* Grey background track */}
+                        <Circle
+                            cx={SIZE / 2}
+                            cy={SIZE / 2}
+                            r={RADIUS}
+                            stroke={Colors.border}
+                            strokeWidth={STROKE}
+                            fill="none"
                         />
-                    </View>
-
-                    {/* Left half (180°–360°) — only visible when score > 50 */}
-                    <View style={[styles.halfClip, styles.halfClipLeft]}>
-                        <Animated.View
-                            style={[
-                                styles.halfArc,
-                                styles.halfArcLeft,
-                                {
-                                    borderColor: fraction > 0.5 ? color : 'transparent',
-                                    transform: [{ rotate: leftRotate as unknown as string }],
-                                },
-                            ]}
+                        {/* Animated orange progress arc */}
+                        <AnimatedCircle
+                            cx={SIZE / 2}
+                            cy={SIZE / 2}
+                            r={RADIUS}
+                            stroke={progressColor}
+                            strokeWidth={STROKE}
+                            fill="none"
+                            strokeDasharray={CIRCUMFERENCE}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            rotation="-90"
+                            origin={`${SIZE / 2}, ${SIZE / 2}`}
                         />
-                    </View>
+                    </Svg>
 
-                    {/* Score in centre */}
+                    {/* Score centered inside ring */}
                     <View style={styles.scoreCenter}>
-                        <Text style={[styles.scoreValue, { color }]}>{score}</Text>
+                        <Text style={[styles.scoreValue, { color: statusColor }]}>
+                            {Math.round(score)}
+                        </Text>
                         <Text style={styles.scoreUnit}>/100</Text>
                     </View>
                 </View>
 
-                {/* Right side details */}
+                {/* Detail rows */}
                 <View style={styles.details}>
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailIcon}>🕐</Text>
-                        <Text style={styles.detailText}>Last water {lastWaterAgo}</Text>
+                        <Ionicons name="time-outline" size={14} color={Colors.textMuted} />
+                        <Text style={styles.detailText}>Last drink {lastDrinkStr}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailIcon}>🌡️</Text>
+                        <Ionicons name="thermometer-outline" size={14} color={Colors.textMuted} />
                         <Text style={styles.detailText}>{outsideTemp}°C outside</Text>
                     </View>
-                    <View style={[styles.nextDrinkChip, { backgroundColor: color + '22', borderColor: color + '55' }]}>
-                        <Text style={[styles.nextDrinkText, { color }]}>💧 Drink again in {nextDrinkIn}</Text>
+                    <View style={[
+                        styles.nextDrinkChip,
+                        { backgroundColor: statusColor + '22', borderColor: statusColor + '44' }
+                    ]}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Ionicons name="water" size={14} color={statusColor} />
+                            <Text style={[styles.nextDrinkText, { color: statusColor }]}>
+                                {nextDrinkStr == 'Drink now' ? 'Drink now' : `Drink again in ${nextDrinkStr}`}
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -137,7 +168,6 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.md,
     },
-    icon: { fontSize: 17 },
     cardTitle: {
         flex: 1,
         fontSize: FontSize.sm,
@@ -161,54 +191,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    ringOuter: {
-        position: 'absolute',
-        width: SIZE,
-        height: SIZE,
-        borderRadius: SIZE / 2,
-        borderWidth: STROKE,
-    },
-    // Dual half-arc ring styles
-    halfClip: {
-        position: 'absolute',
-        width: SIZE,
-        height: SIZE / 2,
-        overflow: 'hidden',
-    },
-    halfClipRight: {
-        top: 0,
-    },
-    halfClipLeft: {
-        bottom: 0,
-    },
-    halfArc: {
-        position: 'absolute',
-        width: SIZE,
-        height: SIZE,
-        borderRadius: SIZE / 2,
-        borderWidth: STROKE,
-        borderBottomColor: 'transparent',
-        borderLeftColor: 'transparent',
-        top: 0,
-    },
-    halfArcLeft: {
-        borderTopColor: 'transparent',
-        borderRightColor: 'transparent',
-        borderBottomColor: Colors.border, // reset override from halfArc
-        borderLeftColor: Colors.border,   // reset override from halfArc
-        top: -SIZE / 2,
-    },
     scoreCenter: {
+        position: 'absolute',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     scoreValue: {
         fontSize: 36,
         fontWeight: FontWeight.extrabold,
         lineHeight: 40,
+        textAlign: 'center',
     },
     scoreUnit: {
         fontSize: FontSize.xs,
         color: Colors.textMuted,
+        textAlign: 'center',
     },
     details: {
         flex: 1,
@@ -219,7 +216,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
     },
-    detailIcon: { fontSize: 14 },
     detailText: {
         fontSize: FontSize.xs,
         color: Colors.textSecondary,

@@ -13,7 +13,10 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import NotificationPreviewCard from '../../src/components/NotificationPreviewCard';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
+import { sendTestNotification } from '../../src/services/notifications';
+import { Alert } from 'react-native';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -149,12 +152,12 @@ export default function SettingsScreen() {
                             <NotificationPreviewCard
                                 type="hunger"
                                 title="Pre-Hunger Alert"
-                                message="Your body usually gets hungry around now after a light breakfast. Prep something! 🍎"
+                                message="Your body usually gets hungry around now after a light breakfast. Prep something!"
                             />
                             <NotificationPreviewCard
                                 type="hydration"
                                 title="Hydration Warning"
-                                message="It's 35°C and you haven't had water in 2.5 hours. Score hit 38% — drink now. 💧"
+                                message="It's 35°C and you haven't had water in 2.5 hours. Score hit 38% — drink now."
                             />
                             <NotificationPreviewCard
                                 type="pattern"
@@ -163,7 +166,14 @@ export default function SettingsScreen() {
                             />
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.testBtn} activeOpacity={0.7}>
+                    <TouchableOpacity
+                        style={styles.testBtn}
+                        activeOpacity={0.7}
+                        onPress={async () => {
+                            await sendTestNotification();
+                            Alert.alert('Success', 'Test notification sent!');
+                        }}
+                    >
                         <Text style={styles.testBtnText}>Send Test Notification</Text>
                     </TouchableOpacity>
                 </View>

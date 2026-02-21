@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 
@@ -17,7 +18,7 @@ const { width } = Dimensions.get('window');
 interface Question {
     question: string;
     field: 'mealsPerDay' | 'activityLevel' | 'waterGoal';
-    emoji: string;
+    icon: string;
     options: { label: string; sub?: string }[];
 }
 
@@ -25,7 +26,7 @@ const QUESTIONS: Question[] = [
     {
         question: 'How many meals do you eat per day?',
         field: 'mealsPerDay',
-        emoji: '🍽️',
+        icon: 'restaurant',
         options: [
             { label: '2', sub: 'Two meals' },
             { label: '3', sub: 'Three meals' },
@@ -35,7 +36,7 @@ const QUESTIONS: Question[] = [
     {
         question: 'How active are you?',
         field: 'activityLevel',
-        emoji: '🏃',
+        icon: 'fitness',
         options: [
             { label: 'Sedentary', sub: 'Mostly desk-based' },
             { label: 'Moderate', sub: 'Some walks & exercise' },
@@ -45,7 +46,7 @@ const QUESTIONS: Question[] = [
     {
         question: 'Daily water goal?',
         field: 'waterGoal',
-        emoji: '💧',
+        icon: 'water',
         options: [
             { label: '1L', sub: '1,000 ml' },
             { label: '1.5L', sub: '1,500 ml' },
@@ -125,7 +126,7 @@ export default function SurveyScreen() {
                 {/* Question header */}
                 <View style={styles.qHeader}>
                     <View style={styles.qEmojiWrap}>
-                        <Text style={styles.qEmoji}>{current.emoji}</Text>
+                        <Ionicons name={current.icon as any} size={32} color={Colors.green} />
                     </View>
                     <Text style={styles.stepLabel}>Question {step + 1} of {QUESTIONS.length}</Text>
                     <Text style={styles.question}>{current.question}</Text>
@@ -224,7 +225,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.green,
     },
-    qEmoji: { fontSize: 30 },
     stepLabel: {
         fontSize: FontSize.xs,
         color: Colors.green,

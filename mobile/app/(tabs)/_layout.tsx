@@ -1,18 +1,23 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize } from '../../src/constants/theme';
 
 interface TabIconProps {
-    emoji: string;
-    label: string;
+    name: React.ComponentProps<typeof Ionicons>['name'];
     focused: boolean;
 }
 
-function TabIcon({ emoji, label, focused }: TabIconProps) {
+function TabIcon({ name, focused }: TabIconProps) {
     return (
         <View style={styles.tabItem}>
-            <Text style={[styles.tabEmoji, focused && styles.tabEmojiFocused]}>{emoji}</Text>
-            <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
+            <Ionicons
+                name={name}
+                size={22}
+                color={focused ? Colors.green : Colors.textSecondary}
+                style={[!focused && { opacity: 0.45 }]}
+            />
+            {/* <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text> */}
         </View>
     );
 }
@@ -21,49 +26,54 @@ export default function TabsLayout() {
     return (
         <Tabs
             screenOptions={{
+                tabBarShowLabel: false,
                 headerShown: false,
                 tabBarStyle: styles.tabBar,
-                tabBarShowLabel: false,
                 animation: 'fade',
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon emoji="🏠" label="Home" focused={focused} />
+                        <TabIcon name={focused ? "home" : "home-outline"} focused={focused} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="log"
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon emoji="📝" label="Log" focused={focused} />
+                        <TabIcon name={focused ? "journal" : "journal-outline"} focused={focused} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="insights"
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon emoji="📊" label="Insights" focused={focused} />
+                        <TabIcon name={focused ? "stats-chart" : "stats-chart-outline"} focused={focused} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="chat"
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon emoji="🤖" label="Chat" focused={focused} />
+                        <TabIcon name={focused ? "chatbubbles" : "chatbubbles-outline"} focused={focused} />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="settings"
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon emoji="⚙️" label="Settings" focused={focused} />
+                        <TabIcon name={focused ? "settings" : "settings-outline"} focused={focused} />
                     ),
                 }}
             />
@@ -84,13 +94,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
-    },
-    tabEmoji: {
-        fontSize: 22,
-        opacity: 0.45,
-    },
-    tabEmojiFocused: {
-        opacity: 1,
     },
     tabLabel: {
         fontSize: FontSize.xs,

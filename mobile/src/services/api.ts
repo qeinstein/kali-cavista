@@ -7,17 +7,18 @@ const BASE_URL = "http://localhost:3000/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface MealPayload {
-  userId: string;
-  mealSize: "light" | "medium" | "heavy";
-  hungerLevelBefore?: number;
-  notes?: string;
-}
-
-export interface WaterPayload {
-  userId: string;
-  amountMl: number;
-}
+import {
+  WaterLog,
+  HeartRateLog,
+  HealthDataPayload,
+  WaterPayload,
+  MealPayload,
+  Prediction,
+  ActivityLevel,
+  MealSize,
+  MealLog, // Added MealLog
+  ChatMessage, // Added ChatMessage
+} from "../types/health";
 
 export interface PredictionResponse {
   nextHungerAt: string;
@@ -72,6 +73,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 // ─── Mock Implementations  ────────────────────────────────────────────────────
 
 const mockDelay = (ms = 400) => new Promise((r) => setTimeout(r, ms));
+
+export const syncHealthData = async (payload: HealthDataPayload) => {
+  if (USE_MOCK) {
+    await mockDelay();
+    console.log("[API Mock] Synchronized health data:", payload);
+    return { success: true };
+  }
+  return request("/health-data/sync", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+};
 
 export const logMeal = async (payload: MealPayload) => {
   if (USE_MOCK) {

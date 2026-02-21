@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 
 interface Props {
@@ -67,7 +68,7 @@ export default function HungerTimer({ nextMealAt, confidence = 0.81, isLoading }
             <View style={[styles.glow, { backgroundColor: accentColor }]} pointerEvents="none" />
 
             <View style={styles.headerRow}>
-                <Text style={styles.icon}>🔮</Text>
+                <Ionicons name="restaurant" size={17} color={Colors.teal} />
                 <Text style={styles.cardTitle}>Hunger Window</Text>
                 <View style={[styles.pill, { backgroundColor: accentColor + '22', borderColor: accentColor + '55' }]}>
                     <Text style={[styles.pillText, { color: accentColor }]}>LIVE</Text>
@@ -121,7 +122,6 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.md,
     },
-    icon: { fontSize: 17 },
     cardTitle: {
         flex: 1,
         fontSize: FontSize.sm,

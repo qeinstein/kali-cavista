@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 
 interface Props {
@@ -14,7 +15,7 @@ export default function NotificationPreviewCard({ type, title, message, time = '
         <View style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.appIcon}>
-                    <Text style={{ fontSize: 12 }}>🌿</Text>
+                    <Ionicons name="fitness" size={12} color={Colors.green} />
                 </View>
                 <Text style={styles.appName}>NUTRISENSE</Text>
                 <Text style={styles.dot}>•</Text>

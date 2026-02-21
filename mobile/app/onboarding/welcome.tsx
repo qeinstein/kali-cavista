@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
 
 const { height } = Dimensions.get('window');
@@ -77,7 +78,7 @@ export default function WelcomeScreen() {
                 <Animated.View style={[styles.logoWrap, { transform: [{ scale: scaleAnim }] }]}>
                     <View style={styles.logoCircleOuter}>
                         <View style={styles.logoCircle}>
-                            <Text style={styles.logoEmoji}>🧬</Text>
+                            <Ionicons name="fitness" size={40} color={Colors.green} />
                         </View>
                     </View>
                 </Animated.View>
@@ -94,12 +95,12 @@ export default function WelcomeScreen() {
                 {/* Features preview */}
                 <View style={styles.features}>
                     {[
-                        { icon: '🔮', text: 'Predicts hunger before it hits' },
-                        { icon: '💧', text: 'Tracks hydration intelligently' },
-                        { icon: '📊', text: 'Learns your personal patterns' },
+                        { icon: 'bulb-outline', text: 'Predicts hunger before it hits' },
+                        { icon: 'water-outline', text: 'Tracks hydration intelligently' },
+                        { icon: 'analytics-outline', text: 'Learns your personal patterns' },
                     ].map(({ icon, text }) => (
                         <View key={text} style={styles.featureRow}>
-                            <Text style={styles.featureIcon}>{icon}</Text>
+                            <Ionicons name={icon as any} size={22} color={Colors.green} />
                             <Text style={styles.featureText}>{text}</Text>
                         </View>
                     ))}
@@ -188,7 +189,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.greenLight,
     },
-    logoEmoji: { fontSize: 36 },
     appName: {
         fontSize: 38,
         fontWeight: FontWeight.extrabold,
@@ -226,7 +226,6 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         gap: Spacing.md,
     },
-    featureIcon: { fontSize: 20 },
     featureText: {
         fontSize: FontSize.sm,
         color: Colors.textSecondary,

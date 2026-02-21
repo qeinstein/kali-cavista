@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#1A1A2E"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.companiontracker.app"
@@ -33,11 +35,19 @@
         {
           "color": "#00D4AA"
         }
-      ]
+      ],
+      "react-native-health",
+      "react-native-google-fit"
     ],
     "scheme": "companion-tracker",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "77715446-7e79-47f2-88d9-fd61c39a98fa"
+      }
     }
   }
 }

@@ -74,3 +74,14 @@ export const scheduleHydrationAlert = async (): Promise<string> => {
 export const cancelAllNotifications = async () => {
   await Notifications.cancelAllScheduledNotificationsAsync();
 };
+
+export const sendTestNotification = async () => {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "🔔 Test Notification",
+      body: "Real-time alerts are now active! This is a test from your settings.",
+      data: { type: "test" },
+    },
+    trigger: null, // Send immediately
+  });
+};

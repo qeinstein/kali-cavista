@@ -1,33 +1,28 @@
 import { create } from "zustand";
+import {
+  MealLog,
+  WaterLog,
+  HeartRateLog,
+  Prediction,
+  ChatMessage,
+  ActivityLevel,
+  MealSize as HeartRateMealSize,
+  WeatherContext,
+  SleepLog,
+  WellbeingState,
+  HistoricalData,
+} from "../types/health";
 
-export type MealSize = "light" | "medium" | "heavy";
+export type MealSize = HeartRateMealSize;
 
-export interface MealLog {
-  id: string;
-  size: MealSize;
-  timestamp: string;
-  hungerLevelBefore?: number;
-}
-
-export interface WaterLog {
-  id: string;
-  amountMl: number;
-  timestamp: string;
-}
-
-export interface Prediction {
-  nextHungerAt: string; // ISO date string
-  hoursUntilHungry: number;
-  hydrationScore: number; // 0.0 – 1.0
-  confidence: number;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-  timestamp: string;
-}
+export {
+  MealLog,
+  WaterLog,
+  HeartRateLog,
+  Prediction,
+  ChatMessage,
+  ActivityLevel,
+};
 
 interface AppState {
   meals: MealLog[];
@@ -39,11 +34,49 @@ interface AppState {
   isSplashVisible: boolean;
   isAiTyping: boolean;
 
-  logMeal: (size: MealSize, hungerLevel?: number) => void;
+  // Heart Rate state
+  heartRateLogs: HeartRateLog[];
+  lastHeartRate: number | null;
+  heartRateStatus: "Resting" | "Elevated" | "High" | null;
+
+  // Simulation state
+  weather: WeatherContext | null;
+  sleepLogs: SleepLog[];
+  wellbeing: WellbeingState | null;
+  historicalData: HistoricalData | null;
+  isHistoricalSyncing: boolean;
+
+  // Activity state
+  steps: number;
+  activeMinutes: number;
+  activityLevel: ActivityLevel;
+  lastActivityUpdate: string;
+  lastWaterTimestamp: string | null;
+
+  logMeal: (size: "light" | "medium" | "heavy", hungerLevel?: number) => void;
   logWater: (amountMl: number) => void;
   fetchPrediction: () => Promise<void>;
   sendChatMessage: (content: string) => Promise<void>;
   setSplashVisible: (visible: boolean) => void;
+
+  // Activity actions
+  updateActivity: (
+    steps: number,
+    level: ActivityLevel,
+    activeMinutes: number,
+  ) => void;
+  depleteHydration: () => void;
+  addHeartRateReading: (
+    bpm: number,
+    status: "Resting" | "Elevated" | "High",
+  ) => void;
+
+  // Simulation actions
+  updateWeather: (weather: WeatherContext) => void;
+  addSleepLog: (log: SleepLog) => void;
+  updateWellbeing: (energy: number, stress: number, mood: string) => void;
+  setHistoricalSyncing: (syncing: boolean) => void;
+  setHistoricalData: (data: HistoricalData) => void;
 
   // Derived helpers
   getTodayMeals: () => MealLog[];
@@ -149,6 +182,102 @@ export const useAppStore = create<AppState>((set, get) => ({
   isSplashVisible: true,
   isAiTyping: false,
 
+  // Heart Rate state
+  heartRateLogs: [],
+  lastHeartRate: null,
+  heartRateStatus: null,
+
+  // Simulation state
+  weather: null,
+  sleepLogs: [],
+  wellbeing: null,
+  historicalData: null,
+  isHistoricalSyncing: false,
+
+  // Activity state
+  steps: 0,
+  activeMinutes: 0,
+  activityLevel: "Sedentary",
+  lastActivityUpdate: new Date().toISOString(),
+  lastWaterTimestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+
+  updateActivity: (steps, level, activeMinutes) => {
+    const prevState = get();
+
+    // Nudge for Intense activity transition
+    if (level === "Intense" && prevState.activityLevel !== "Intense") {
+      const nudgeMsg: ChatMessage = {
+        id: genId(),
+        role: "ai",
+        content: "You're active right now — drink water soon. 💧",
+        timestamp: new Date().toISOString(),
+      };
+      set((s) => ({
+        chatMessages: [...s.chatMessages, nudgeMsg],
+      }));
+    }
+
+    set({
+      steps,
+      activityLevel: level,
+      activeMinutes,
+      lastActivityUpdate: new Date().toISOString(),
+    });
+  },
+
+  depleteHydration: () => {
+    set((s) => {
+      // Base depletion: 1% every 10 mins (0.1% per min)
+      // Intense depletion: 2% every 10 mins (0.2% per min - increased by user request to ~30% boost)
+      // user requested: "Active/Intense increase by 30%" -> so if rest is 0.1, active is 0.13.
+      // but users also said: "At rest: loses 4 points per hour (0.066 per min)"
+      // Let's stick to the granular specs:
+      // At rest: 4 pts/hr (0.0667)
+      // Active: 6 pts/hr (0.1)
+      // Hot weather (>33C): +2 pts/hr (0.0333)
+
+      let ratePerHour =
+        s.activityLevel === "Intense" || s.activityLevel === "Active" ? 6 : 4;
+      if (s.weather && s.weather.temp > 33) {
+        ratePerHour += 2;
+      }
+
+      const ratePerMin = ratePerHour / 60;
+
+      return {
+        hydrationScore: Math.max(0, s.hydrationScore - ratePerMin),
+      };
+    });
+  },
+
+  updateWeather: (weather) => set({ weather }),
+  addSleepLog: (log) => set((s) => ({ sleepLogs: [log, ...s.sleepLogs] })),
+  updateWellbeing: (energy, stress, mood) =>
+    set({
+      wellbeing: {
+        energy,
+        stress,
+        mood,
+        lastCheckIn: new Date().toISOString(),
+      },
+    }),
+  setHistoricalSyncing: (syncing) => set({ isHistoricalSyncing: syncing }),
+  setHistoricalData: (data) => set({ historicalData: data }),
+
+  addHeartRateReading: (bpm, status) => {
+    const newLog: HeartRateLog = {
+      id: genId(),
+      bpm,
+      status,
+      timestamp: new Date().toISOString(),
+    };
+    set((s) => ({
+      heartRateLogs: [newLog, ...s.heartRateLogs],
+      lastHeartRate: bpm,
+      heartRateStatus: status,
+    }));
+  },
+
   logMeal: (size, hungerLevel) => {
     const newMeal: MealLog = {
       id: genId(),
@@ -175,7 +304,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     };
     set((s) => ({
       waterLogs: [...s.waterLogs, newLog],
-      hydrationScore: Math.min(100, s.hydrationScore + 2),
+      hydrationScore: Math.min(100, s.hydrationScore + 10),
+      lastWaterTimestamp: newLog.timestamp,
     }));
   },
 

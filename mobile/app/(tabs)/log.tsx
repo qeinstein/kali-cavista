@@ -5,6 +5,7 @@ import {
     ScrollView,
     StyleSheet,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore } from '../../src/store/useAppStore';
 import MealLogButton from '../../src/components/MealLogButton';
@@ -21,10 +22,14 @@ const SIZE_COLOR: Record<MealSize, string> = {
     medium: Colors.warning,
     heavy: Colors.danger,
 };
-const SIZE_EMOJI: Record<MealSize, string> = {
-    light: '🥗',
-    medium: '🍽️',
-    heavy: '🍖',
+
+const getMealIcon = (size: MealSize) => {
+    switch (size) {
+        case 'light': return 'cafe';
+        case 'medium': return 'restaurant';
+        case 'heavy': return 'fast-food';
+        default: return 'restaurant';
+    }
 };
 
 export default function LogScreen() {
@@ -60,15 +65,24 @@ export default function LogScreen() {
                 </Text>
 
                 {/* Meal Logger */}
-                <Text style={styles.sectionLabel}>🍽️ Meal</Text>
+                <View style={styles.sectionHeader}>
+                    <Ionicons name="restaurant" size={18} color={Colors.textPrimary} />
+                    <Text style={styles.sectionLabel}>Meal</Text>
+                </View>
                 <MealLogButton onLog={logMeal} />
 
                 {/* Water Logger */}
-                <Text style={styles.sectionLabel}>💧 Hydration</Text>
+                <View style={[styles.sectionHeader, { marginTop: Spacing.md }]}>
+                    <Ionicons name="water" size={18} color={Colors.textPrimary} />
+                    <Text style={styles.sectionLabel}>Hydration</Text>
+                </View>
                 <WaterLogButton onLog={logWater} totalTodayMl={todayWater} />
 
                 {/* Today's Meal History */}
-                <Text style={styles.sectionLabel}>📋 Today's Meals</Text>
+                <View style={[styles.sectionHeader, { marginTop: Spacing.lg }]}>
+                    <Ionicons name="list" size={18} color={Colors.textPrimary} />
+                    <Text style={styles.sectionLabel}>Today's Meals</Text>
+                </View>
                 {todayMeals.length === 0 ? (
                     <View style={styles.emptyCard}>
                         <Text style={styles.emptyText}>No meals logged yet today. Tap above to log your first meal!</Text>
@@ -79,20 +93,25 @@ export default function LogScreen() {
                         .reverse()
                         .map((meal) => (
                             <View key={meal.id} style={styles.logItem}>
-                                <Text style={styles.logItemEmoji}>{SIZE_EMOJI[meal.size]}</Text>
+                                <Ionicons name={getMealIcon(meal.size)} size={22} color={SIZE_COLOR[meal.size]} />
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.logItemTitle}>
-                                        {meal.size.charAt(0).toUpperCase() + meal.size.slice(1)} meal
-                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        <Text style={styles.logItemTitle}>
+                                            {meal.size.charAt(0).toUpperCase() + meal.size.slice(1)} meal
+                                        </Text>
+                                        <View style={[styles.sizeDot, { backgroundColor: SIZE_COLOR[meal.size] }]} />
+                                    </View>
                                     <Text style={styles.logItemTime}>{formatTime(meal.timestamp)}</Text>
                                 </View>
-                                <View style={[styles.sizeDot, { backgroundColor: SIZE_COLOR[meal.size] }]} />
                             </View>
                         ))
                 )}
 
                 {/* Water History */}
-                <Text style={styles.sectionLabel}>📋 Today's Water</Text>
+                <View style={[styles.sectionHeader, { marginTop: Spacing.lg }]}>
+                    <Ionicons name="list" size={18} color={Colors.textPrimary} />
+                    <Text style={styles.sectionLabel}>Today's Water</Text>
+                </View>
                 {todayWaterLogs.length === 0 ? (
                     <View style={styles.emptyCard}>
                         <Text style={styles.emptyText}>No water logged yet. Stay hydrated!</Text>
@@ -103,7 +122,7 @@ export default function LogScreen() {
                         .reverse()
                         .map((log) => (
                             <View key={log.id} style={styles.logItem}>
-                                <Text style={styles.logItemEmoji}>💧</Text>
+                                <Ionicons name="water" size={22} color="#3B9EFF" />
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.logItemTitle}>{log.amountMl} ml</Text>
                                     <Text style={styles.logItemTime}>{formatTime(log.timestamp)}</Text>
@@ -134,12 +153,16 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.lg,
     },
 
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: Spacing.sm,
+    },
     sectionLabel: {
         fontSize: FontSize.md,
         color: Colors.textPrimary,
         fontWeight: FontWeight.semibold,
-        marginBottom: Spacing.sm,
-        marginTop: Spacing.xs,
     },
 
     emptyCard: {
@@ -168,7 +191,6 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         gap: Spacing.sm,
     },
-    logItemEmoji: { fontSize: 22 },
     logItemTitle: {
         fontSize: FontSize.md,
         color: Colors.textPrimary,

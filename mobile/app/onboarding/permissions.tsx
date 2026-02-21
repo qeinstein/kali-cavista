@@ -9,23 +9,24 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
 
 const PERMISSIONS = [
     {
-        icon: '🏥',
+        icon: 'medical',
         title: 'Health Data',
         description: 'Track your meals & hydration to build your personal nutrition model',
         color: Colors.green,
     },
     {
-        icon: '📍',
+        icon: 'location',
         title: 'Location',
         description: 'Detect active commutes to dynamically adjust your hunger predictions',
         color: '#3498DB',
     },
     {
-        icon: '🔔',
+        icon: 'notifications',
         title: 'Notifications',
         description: 'Send smart nudges right when you\'re predicted to get hungry',
         color: Colors.warning,
@@ -50,7 +51,7 @@ export default function PermissionsScreen() {
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.headerIconWrap}>
-                        <Text style={styles.headerIcon}>🔐</Text>
+                        <Ionicons name="lock-closed" size={32} color={Colors.green} />
                     </View>
                     <Text style={styles.title}>Before we begin</Text>
                     <Text style={styles.subtitle}>
@@ -77,7 +78,7 @@ export default function PermissionsScreen() {
                             ]}
                         >
                             <View style={[styles.iconCircle, { backgroundColor: perm.color + '22' }]}>
-                                <Text style={styles.permIcon}>{perm.icon}</Text>
+                                <Ionicons name={perm.icon as any} size={24} color={perm.color} />
                             </View>
                             <View style={styles.permText}>
                                 <Text style={styles.permTitle}>{perm.title}</Text>
@@ -91,7 +92,7 @@ export default function PermissionsScreen() {
 
                     {/* Privacy note */}
                     <View style={styles.privacyNote}>
-                        <Text style={styles.privacyIcon}>🔒</Text>
+                        <Ionicons name="shield-checkmark" size={18} color={Colors.green} />
                         <Text style={styles.privacyText}>
                             Your data is encrypted and never sold. You can revoke access any time in Settings.
                         </Text>
@@ -131,7 +132,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.green,
     },
-    headerIcon: { fontSize: 32 },
     title: {
         fontSize: FontSize.xxl,
         fontWeight: FontWeight.bold,
@@ -165,7 +165,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    permIcon: { fontSize: 24 },
     permText: { flex: 1 },
     permTitle: {
         fontSize: FontSize.md,
@@ -197,7 +196,6 @@ const styles = StyleSheet.create({
         borderColor: Colors.green,
         marginTop: Spacing.xs,
     },
-    privacyIcon: { fontSize: 16 },
     privacyText: { flex: 1, fontSize: FontSize.xs, color: Colors.textSecondary, lineHeight: 17 },
     bottom: { paddingVertical: Spacing.lg, gap: Spacing.md, alignItems: 'center' },
     allowBtn: {

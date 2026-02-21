@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 
 export type InsightType = 'info' | 'warning' | 'alert';
@@ -22,9 +23,9 @@ interface Props extends InsightData {
 }
 
 const TYPE_CONFIG: Record<InsightType, { color: string; bg: string; icon: string }> = {
-    info: { color: Colors.green, bg: Colors.greenDim, icon: '💡' },
-    warning: { color: Colors.warning, bg: Colors.warningDim, icon: '⚠️' },
-    alert: { color: Colors.danger, bg: Colors.dangerDim, icon: '🔴' },
+    info: { color: Colors.green, bg: Colors.greenDim, icon: 'bulb-outline' },
+    warning: { color: Colors.warning, bg: Colors.warningDim, icon: 'warning-outline' },
+    alert: { color: Colors.danger, bg: Colors.dangerDim, icon: 'alert-circle-outline' },
 };
 
 export default function InsightCard({ id, type, title, body, onDismiss }: Props) {
@@ -54,7 +55,7 @@ export default function InsightCard({ id, type, title, body, onDismiss }: Props)
             <View style={[styles.card, { backgroundColor: cfg.bg }]}>
                 {/* Header row */}
                 <View style={styles.headerRow}>
-                    <Text style={styles.icon}>{cfg.icon}</Text>
+                    <Ionicons name={cfg.icon as any} size={16} color={cfg.color} style={{ marginTop: 1 }} />
                     <Text style={[styles.title, { color: cfg.color }]} numberOfLines={2}>
                         {title}
                     </Text>
@@ -63,7 +64,7 @@ export default function InsightCard({ id, type, title, body, onDismiss }: Props)
                         hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
                         style={styles.dismissBtn}
                     >
-                        <Text style={styles.dismissText}>✕</Text>
+                        <Ionicons name="close" size={16} color={Colors.textMuted} />
                     </TouchableOpacity>
                 </View>
 
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.xs,
     },
-    icon: { fontSize: 16, marginTop: 1 },
     title: {
         flex: 1,
         fontSize: FontSize.md,
@@ -106,11 +106,6 @@ const styles = StyleSheet.create({
     },
     dismissBtn: {
         paddingLeft: Spacing.xs,
-    },
-    dismissText: {
-        fontSize: 13,
-        color: Colors.textMuted,
-        fontWeight: FontWeight.bold,
     },
     body: {
         fontSize: FontSize.sm,

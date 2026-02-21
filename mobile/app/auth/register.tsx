@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 
@@ -74,7 +75,7 @@ export default function RegisterScreen() {
                         {/* Header */}
                         <View style={styles.header}>
                             <View style={styles.logoWrap}>
-                                <Text style={styles.logoEmoji}>🧬</Text>
+                                <Ionicons name="fitness" size={32} color={Colors.green} />
                             </View>
                             <Text style={styles.title}>Create Account</Text>
                             <Text style={styles.subtitle}>Join NutriSense and start tracking smarter</Text>
@@ -83,7 +84,10 @@ export default function RegisterScreen() {
                         {/* Error */}
                         {error ? (
                             <View style={styles.errorBanner}>
-                                <Text style={styles.errorText}>⚠️ {error}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <Ionicons name="alert-circle" size={16} color={Colors.danger} />
+                                    <Text style={styles.errorText}>{error}</Text>
+                                </View>
                             </View>
                         ) : null}
 
@@ -134,7 +138,7 @@ export default function RegisterScreen() {
                                         style={styles.eyeBtn}
                                         onPress={() => setShowPass(!showPass)}
                                     >
-                                        <Text style={styles.eyeIcon}>{showPass ? '🙈' : '👁️'}</Text>
+                                        <Ionicons name={showPass ? "eye-off" : "eye"} size={20} color={Colors.textMuted} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -166,7 +170,7 @@ export default function RegisterScreen() {
 
                         {/* Google */}
                         <TouchableOpacity style={styles.googleBtn} onPress={handleGoogle} activeOpacity={0.8}>
-                            <Text style={styles.googleIcon}>🇬</Text>
+                            <Ionicons name="logo-google" size={20} color={Colors.textPrimary} />
                             <Text style={styles.googleText}>Continue with Google</Text>
                         </TouchableOpacity>
 
@@ -205,7 +209,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.green,
     },
-    logoEmoji: { fontSize: 30 },
     title: {
         fontSize: FontSize.xxl,
         fontWeight: FontWeight.bold,
@@ -297,7 +300,6 @@ const styles = StyleSheet.create({
         borderColor: Colors.border,
         marginBottom: Spacing.xl,
     },
-    googleIcon: { fontSize: 18 },
     googleText: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.medium,

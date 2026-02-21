@@ -1,15 +1,23 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAppStore } from '../src/store/useAppStore';
 import { Colors, FontSize, FontWeight } from '../src/constants/theme';
+import ServiceOrchestrator from '../src/services/ServiceOrchestrator';
 
 export default function RootLayout() {
     const isSplashVisible = useAppStore((s) => s.isSplashVisible);
     const setSplashVisible = useAppStore((s) => s.setSplashVisible);
+    const isHistoricalSyncing = useAppStore((s) => s.isHistoricalSyncing);
     const fadeAnim = React.useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        ServiceOrchestrator.start();
+        return () => ServiceOrchestrator.stop();
+    }, []);
 
     useEffect(() => {
         if (isSplashVisible) {
@@ -19,7 +27,7 @@ export default function RootLayout() {
                     duration: 500,
                     useNativeDriver: true,
                 }).start(() => setSplashVisible(false));
-            }, 1500);
+            }, 800);
             return () => clearTimeout(timer);
         }
     }, [isSplashVisible]);
@@ -38,10 +46,10 @@ export default function RootLayout() {
 
             {isSplashVisible && (
                 <Animated.View style={[styles.splash, { opacity: fadeAnim }]}>
-                    <View style={styles.logoCircle}>
-                        <Text style={styles.logoEmoji}>🌿</Text>
+                    <View style={styles.logoRow}>
+                        <Ionicons name="fitness" size={24} color={Colors.green} />
+                        <Text style={styles.logoText}>NutriSense AI</Text>
                     </View>
-                    <Text style={styles.logoText}>NutriSense AI</Text>
                     <Text style={styles.tagline}>Your Metabolic Companion</Text>
                 </Animated.View>
             )}
@@ -57,23 +65,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         zIndex: 9999,
     },
-    logoCircle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: Colors.greenDim,
+    logoRow: {
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 20,
-    },
-    logoEmoji: {
-        fontSize: 50,
+        gap: 12,
+        marginBottom: 12,
     },
     logoText: {
         fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: '#FFFFFF',
-        letterSpacing: 1,
+        fontWeight: '800' as const,
+        color: Colors.green,
+        letterSpacing: -1,
     },
     tagline: {
         fontSize: FontSize.md,

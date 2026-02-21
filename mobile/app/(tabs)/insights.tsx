@@ -7,6 +7,7 @@ import {
     Animated,
     RefreshControl,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InsightCard, { InsightData } from '../../src/components/InsightCard';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
@@ -18,9 +19,9 @@ const MOCK_WEEKLY_SUMMARY = {
     narrative:
         'This week you logged 18 meals, hit your water target 4 out of 7 days, and your average gap between meals was 4.1 hours.',
     metrics: [
-        { emoji: '🍽️', label: '18 meals' },
-        { emoji: '💧', label: '4/7 days' },
-        { emoji: '⏱️', label: '4.1h avg gap' },
+        { icon: 'restaurant', label: '18 meals', color: Colors.green },
+        { icon: 'water', label: '4/7 days', color: '#3B9EFF' },
+        { icon: 'time-outline', label: '4.1h avg gap', color: Colors.warning },
     ],
 };
 
@@ -84,7 +85,7 @@ function WeeklySummaryCard() {
             <View style={styles.summaryGlow} pointerEvents="none" />
 
             <View style={styles.summaryHeaderRow}>
-                <Text style={styles.summaryIcon}>📊</Text>
+                <Ionicons name="analytics" size={18} color={Colors.green} />
                 <Text style={styles.summaryTitle}>Weekly Summary</Text>
                 <View style={styles.weekBadge}>
                     <Text style={styles.weekBadgeText}>This week</Text>
@@ -97,7 +98,7 @@ function WeeklySummaryCard() {
             <View style={styles.chipsRow}>
                 {MOCK_WEEKLY_SUMMARY.metrics.map((m) => (
                     <View key={m.label} style={styles.chip}>
-                        <Text style={styles.chipEmoji}>{m.emoji}</Text>
+                        <Ionicons name={m.icon as any} size={14} color={m.color} />
                         <Text style={styles.chipLabel}>{m.label}</Text>
                     </View>
                 ))}
@@ -254,7 +255,7 @@ export default function InsightsScreen() {
                 <Text style={styles.sectionLabel}>Prevention Signals</Text>
                 {insights.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Text style={styles.emptyIcon}>🎉</Text>
+                        <Ionicons name="sparkles-outline" size={36} color={Colors.textMuted} />
                         <Text style={styles.emptyText}>All caught up! No new signals.</Text>
                     </View>
                 ) : (
@@ -315,7 +316,6 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.sm,
     },
-    summaryIcon: { fontSize: 18 },
     summaryTitle: {
         flex: 1,
         fontSize: FontSize.md,
@@ -357,7 +357,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
     },
-    chipEmoji: { fontSize: 13 },
     chipLabel: {
         fontSize: FontSize.xs,
         color: Colors.textPrimary,
@@ -477,7 +476,6 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.xl,
         gap: Spacing.sm,
     },
-    emptyIcon: { fontSize: 36 },
     emptyText: {
         fontSize: FontSize.md,
         color: Colors.textSecondary,
