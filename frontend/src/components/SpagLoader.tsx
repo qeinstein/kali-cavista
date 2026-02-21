@@ -1,71 +1,79 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLoader } from "@/app/context/LoaderContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SpagLoader() {
-    const [phase, setPhase] = useState<"border" | "reveal">("border");
+  const [phase, setPhase] = useState<"border" | "reveal">("border");
+  const { isLoaderDone, completeLoader } = useLoader();
 
-    useEffect(() => {
-        // After border trace finishes (~1.8s), switch to reveal phase
-        const t = setTimeout(() => setPhase("reveal"), 1800);
-        return () => clearTimeout(t);
-    }, []);
+  useEffect(() => {
+    // Prevent re-triggering if loader is already complete (e.g. from fast navigation)
+    if (isLoaderDone) return;
 
-    return (
-        <div className="spag-root">
+    // Phase 1: Border trace lasts 1.6s
+    const t1 = setTimeout(() => setPhase("reveal"), 1600);
 
-            {/*
-       * ── BORDER TRACE ──
-       * A single thin blue line traces the perimeter of the screen
-       * using an SVG rect with stroke-dashoffset animation.
-       * The rect covers the full viewport (100vw × 100vh).
-       * Perimeter ≈ 2*(100+100) = 400 vw/vh units — handled via
-       * a viewBox that keeps the numbers simple.
-       */}
-            <svg
-                className="border-svg"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <defs>
-                    <style>{`
-            /*
-             * Perimeter of rect (1,1) → (99,99) in viewBox units:
-             * 2 * (98 + 98) = 392.  Use 400 to be safe.
-             * Trace starts from top-left, goes clockwise.
-             */
+    // Phase 2 (Reveal): S draws (1.2s) -> top cap (0.3s) -> bot cap (0.3s)
+    // Total animation = 1.6s (border) + 1.8s (S and caps) = 3.4s
+    // We complete the loader right as the bottom cap finishes drawing!
+    const t2 = setTimeout(() => completeLoader(), 3500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [isLoaderDone, completeLoader]);
+
+  // Don't render the loader AT ALL if it's strictly finished in context
+  return (
+    <AnimatePresence>
+      {!isLoaderDone && (
+        <motion.div
+          className="spag-root"
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+
+          {/* Border trace SVG */}
+          <svg
+            className="border-svg"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <style>{`
             .border-rect {
               fill: none;
-              stroke: #3B82F6;
+              stroke: #2D6A4F;
               stroke-width: 1.5;
               vector-effect: non-scaling-stroke;
               stroke-dasharray: 400;
               stroke-dashoffset: 400;
               stroke-linecap: butt;
-              animation: traceBorder 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.1s;
+              /* Traces the border over 1.5s */
+              animation: traceBorder 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0s;
             }
             @keyframes traceBorder {
               to { stroke-dashoffset: 0; }
             }
           `}</style>
-                </defs>
-                {/* Rect inset by 1 unit so the stroke stays just inside screen edge */}
-                <rect className="border-rect" x="0.75" y="0.75" width="98.5" height="98.5" rx="0" />
-            </svg>
+            </defs>
+            <rect className="border-rect" x="0.75" y="0.75" width="98.5" height="98.5" rx="0" />
+          </svg>
 
-            {/*
-       * ── S LETTER (center) ──
-       * Hidden while border traces, then fades + draws in.
-       */}
-            <svg
-                className={`spag-svg ${phase === "reveal" ? "spag-reveal" : ""}`}
-                viewBox="0 0 110 165"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-label="S"
-            >
-                <defs>
-                    <style>{`
+          {/* Main S and Outlines */}
+          <svg
+            className={`spag-svg ${phase === "reveal" ? "spag-reveal" : ""}`}
+            viewBox="0 0 110 165"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="S"
+          >
+            <defs>
+              <style>{`
             .spag-svg {
               opacity: 0;
               transition: opacity 0.3s ease;
@@ -79,9 +87,9 @@ export default function SpagLoader() {
               stroke-dashoffset: 520;
               animation: none;
             }
-            /* S draws ONLY when reveal class is applied */
+            /* S draws starting immediately when reveal phase begins */
             .spag-reveal .s-main {
-              animation: drawS 1.8s cubic-bezier(0.4, 0, 0.15, 1) forwards 0.1s;
+              animation: drawS 1.2s cubic-bezier(0.4, 0, 0.15, 1) forwards 0s;
             }
             @keyframes drawS { to { stroke-dashoffset: 0; } }
 
@@ -90,8 +98,9 @@ export default function SpagLoader() {
               stroke-dashoffset: 70;
               animation: none;
             }
+            /* Top cap draws slightly after the S completes */
             .spag-reveal .cap-top {
-              animation: drawCap 0.3s cubic-bezier(0.4, 0, 0.15, 1) forwards 2.05s;
+              animation: drawCap 0.3s cubic-bezier(0.4, 0, 0.15, 1) forwards 1.2s;
             }
 
             .cap-bottom {
@@ -99,55 +108,56 @@ export default function SpagLoader() {
               stroke-dashoffset: 70;
               animation: none;
             }
+            /* Bottom cap draws slightly after top cap */
             .spag-reveal .cap-bottom {
-              animation: drawCap 0.3s cubic-bezier(0.4, 0, 0.15, 1) forwards 2.3s;
+              animation: drawCap 0.3s cubic-bezier(0.4, 0, 0.15, 1) forwards 1.4s;
             }
 
             @keyframes drawCap { to { stroke-dashoffset: 0; } }
           `}</style>
-                </defs>
+            </defs>
 
-                {/* Main S */}
-                <path
-                    className="s-main"
-                    d="M 82,34
+            {/* Main S */}
+            <path
+              className="s-main"
+              d="M 82,34
              C 82,20  70,13  54,13
              C 34,13  18,26  18,44
              C 18,62  34,72  60,80
              C 84,88  94,100 88,118
              C 82,134 68,143 50,143
              C 32,143 18,134 18,122"
-                    fill="none"
-                    stroke="#3B82F6"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
+              fill="none"
+              stroke="#2D6A4F"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
 
-                {/* Top floating cap */}
-                <line
-                    className="cap-top"
-                    x1="18" y1="4" x2="86" y2="4"
-                    stroke="#3B82F6"
-                    strokeWidth="2.5"
-                    strokeLinecap="butt"
-                />
+            {/* Top floating cap */}
+            <line
+              className="cap-top"
+              x1="18" y1="4" x2="86" y2="4"
+              stroke="#2D6A4F"
+              strokeWidth="2.5"
+              strokeLinecap="butt"
+            />
 
-                {/* Bottom floating cap */}
-                <line
-                    className="cap-bottom"
-                    x1="18" y1="152" x2="86" y2="152"
-                    stroke="#3B82F6"
-                    strokeWidth="2.5"
-                    strokeLinecap="butt"
-                />
-            </svg>
+            {/* Bottom floating cap */}
+            <line
+              className="cap-bottom"
+              x1="18" y1="152" x2="86" y2="152"
+              stroke="#2D6A4F"
+              strokeWidth="2.5"
+              strokeLinecap="butt"
+            />
+          </svg>
 
-            <style>{`
+          <style>{`
         .spag-root {
           position: fixed;
           inset: 0;
-          background: #0d0d14;
+          background: #F7F4EF;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -155,7 +165,6 @@ export default function SpagLoader() {
           overflow: hidden;
         }
 
-        /* Stretches to exact screen edges */
         .border-svg {
           position: absolute;
           inset: 0;
@@ -171,6 +180,8 @@ export default function SpagLoader() {
           height: 300px;
         }
       `}</style>
-        </div>
-    );
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
