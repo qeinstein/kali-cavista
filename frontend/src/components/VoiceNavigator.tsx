@@ -68,6 +68,7 @@ export default function VoiceNavigator() {
 
     try {
       // NOTE: Ensure your FastAPI backend URL is correct. Here we assume it runs on port 8000.
+      // should make this configurable via env vars in a real app
       const response = await fetch("http://localhost:8000/api/v1/audio/voice-command", {
         method: "POST",
         body: formData,
