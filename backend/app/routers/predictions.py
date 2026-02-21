@@ -1,12 +1,11 @@
-"""Predictions router — current, refresh, feedback, history."""
-
 from datetime import datetime, timedelta, timezone as tz
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, func
 
 from app.core.database import get_db
+from app.core.errors import RateLimitedError
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.prediction import Prediction, HungerFeedback
@@ -74,9 +73,9 @@ async def refresh_prediction(
         cooldown = datetime.now(tz.utc) - last_generated
         if cooldown < timedelta(minutes=5):
             remaining = int((timedelta(minutes=5) - cooldown).total_seconds())
-            raise HTTPException(
-                status_code=429,
-                detail=f"Rate limited. Try again in {remaining} seconds.",
+            raise RateLimitedError(
+                message=f"Rate limited. Try again in {remaining} seconds.",
+                retry_after=remaining,
             )
 
     pred = await generate_prediction(user, db)

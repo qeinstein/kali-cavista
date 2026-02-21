@@ -1,12 +1,11 @@
-"""Meals router — log, history, today, delete."""
-
 from datetime import datetime, time, timezone as tz
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
 from app.core.database import get_db
+from app.core.errors import NotFoundError
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.tracking import MealLog
@@ -132,7 +131,7 @@ async def delete_meal(
     meal = result.scalar_one_or_none()
 
     if not meal:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meal not found")
+        raise NotFoundError("Meal not found")
 
     await db.delete(meal)
     await db.flush()

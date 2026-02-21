@@ -1,10 +1,9 @@
-"""Insights router — list, dismiss, weekly-summary."""
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 
 from app.core.database import get_db
+from app.core.errors import NotFoundError
 from app.core.security import get_current_user
 from app.models.user import User
 from app.models.insight import Insight
@@ -80,7 +79,7 @@ async def dismiss_insight(
     insight = result.scalar_one_or_none()
 
     if not insight:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Insight not found")
+        raise NotFoundError("Insight not found")
 
     insight.dismissed = True
     db.add(insight)
