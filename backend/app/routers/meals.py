@@ -15,6 +15,7 @@ from app.schemas.meals import (
     MealItem, MealHistoryResponse, MealTodayResponse,
 )
 from app.schemas.user import SuccessResponse
+from app.services.prediction import generate_prediction
 
 router = APIRouter(prefix="/meals", tags=["Meals"])
 
@@ -45,8 +46,12 @@ async def log_meal(
     await db.flush()
     await db.refresh(meal)
 
-    # TODO: replace with real prediction engine
-    prediction = HungerPrediction(nextHungerAt=None, confidence=None)
+    # Generate a fresh hunger prediction after logging
+    pred = await generate_prediction(user, db)
+    prediction = HungerPrediction(
+        nextHungerAt=pred.next_hunger_at,
+        confidence=pred.confidence,
+    )
 
     return MealLogResponse(
         success=True,
@@ -130,5 +135,9 @@ async def delete_meal(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meal not found")
 
     await db.delete(meal)
-    # TODO: trigger prediction recalculation
+    await db.flush()
+
+    # Recalculate prediction after deletion
+    await generate_prediction(user, db)
+
     return SuccessResponse()

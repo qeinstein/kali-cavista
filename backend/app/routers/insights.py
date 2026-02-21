@@ -95,7 +95,7 @@ async def get_weekly_summary(
 ):
     """Narrative weekly summary of eating and hydration patterns."""
     metrics = await compute_weekly_metrics(user, db)
-    summary_text = generate_summary_text(metrics)
+    summary_text = await generate_summary_text(metrics, user_name=user.name)
 
     return WeeklySummaryResponse(
         weekStarting=metrics["week_starting"],
