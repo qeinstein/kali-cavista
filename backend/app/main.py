@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.routers import auth, tracking, users, predictions
+from app.routers import auth, tracking, users, predictions, audio
 
 
 @asynccontextmanager
@@ -33,6 +33,7 @@ app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(tracking.router, prefix=settings.API_V1_PREFIX)
 app.include_router(predictions.router, prefix=settings.API_V1_PREFIX)
+app.include_router(audio.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health", tags=["Health"])

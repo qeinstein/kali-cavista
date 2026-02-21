@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     OPENWEATHER_API_KEY: str = ""
-
+    OPENROUTER_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
