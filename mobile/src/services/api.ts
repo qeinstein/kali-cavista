@@ -50,6 +50,14 @@ export interface SurveyPayload {
   waterGoal: string;
 }
 
+export interface NotificationSettings {
+  hungerAlerts: boolean;
+  hungerAlertOffset: number;
+  hydrationAlerts: boolean;
+  hydrationThreshold: number;
+  patternNudges: boolean;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -153,4 +161,32 @@ export const getInsights = async (
     ];
   }
   return request(`/insights/${userId}`);
+};
+
+export const getNotificationSettings =
+  async (): Promise<NotificationSettings> => {
+    if (USE_MOCK) {
+      await mockDelay();
+      return {
+        hungerAlerts: true,
+        hungerAlertOffset: 30,
+        hydrationAlerts: true,
+        hydrationThreshold: 40,
+        patternNudges: true,
+      };
+    }
+    return request("/notifications/settings");
+  };
+
+export const updateNotificationSettings = async (
+  settings: NotificationSettings,
+): Promise<void> => {
+  if (USE_MOCK) {
+    await mockDelay(800);
+    return;
+  }
+  return request("/notifications/settings", {
+    method: "PUT",
+    body: JSON.stringify(settings),
+  });
 };

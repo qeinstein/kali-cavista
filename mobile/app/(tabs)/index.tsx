@@ -57,18 +57,41 @@ export default function HomeScreen() {
 
     const userName = useAuthStore((s) => s.user?.name ?? 'there');
 
+    const hydrationScore = useAppStore((s) => s.hydrationScore);
+
     const [mealSheetOpen, setMealSheetOpen] = useState(false);
     const [waterToastVisible, setWaterToastVisible] = useState(false);
     const waterToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Entrance Animations
+    const fadeAnims = useRef([
+        new Animated.Value(0), // Header
+        new Animated.Value(0), // Stats
+        new Animated.Value(0), // Timer
+        new Animated.Value(0), // Hydration
+        new Animated.Value(0), // Timeline
+    ]).current;
+
     const fabScale = useRef(new Animated.Value(0)).current;
     const fabOpacity = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         fetchPrediction();
-        // FAB entrance
+
+        // Staggered entrance
+        const animations = fadeAnims.map((anim, i) =>
+            Animated.timing(anim, {
+                toValue: 1,
+                duration: 600,
+                delay: i * 150,
+                useNativeDriver: true,
+            })
+        );
+
         Animated.parallel([
+            ...animations,
             Animated.spring(fabScale, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
-            Animated.timing(fabOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+            Animated.timing(fabOpacity, { toValue: 1, duration: 400, delay: 800, useNativeDriver: true }),
         ]).start();
     }, []);
 
@@ -85,13 +108,21 @@ export default function HomeScreen() {
     );
 
     const handleLogWater = () => {
-        // Mock POST /hydration/log
         logWater(250);
-        // Show instant toast — clear any pending hide timer first
         if (waterToastTimer.current) clearTimeout(waterToastTimer.current);
         setWaterToastVisible(true);
         waterToastTimer.current = setTimeout(() => setWaterToastVisible(false), 2000);
     };
+
+    const animatedStyle = (index: number) => ({
+        opacity: fadeAnims[index],
+        transform: [{
+            translateY: fadeAnims[index].interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+            })
+        }]
+    });
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -108,7 +139,7 @@ export default function HomeScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* ── Header ── */}
-                <View style={styles.header}>
+                <Animated.View style={[styles.header, animatedStyle(0)]}>
                     <View style={styles.headerText}>
                         <Text style={styles.greeting}>
                             {getGreeting()}, {userName.split(' ')[0]} 👋
@@ -118,10 +149,10 @@ export default function HomeScreen() {
                     <View style={styles.avatarCircle}>
                         <Text style={{ fontSize: 22 }}>🧬</Text>
                     </View>
-                </View>
+                </Animated.View>
 
                 {/* ── Quick stats row ── */}
-                <View style={styles.statsRow}>
+                <Animated.View style={[styles.statsRow, animatedStyle(1)]}>
                     <View style={styles.statCard}>
                         <Text style={styles.statValue}>{todayMeals.length}</Text>
                         <Text style={styles.statLabel}>Meals</Text>
@@ -136,25 +167,31 @@ export default function HomeScreen() {
                         </Text>
                         <Text style={styles.statLabel}>AI Conf.</Text>
                     </View>
-                </View>
+                </Animated.View>
 
                 {/* ── Hunger Timer Card ── */}
-                <HungerTimer
-                    nextMealAt={prediction?.nextHungerAt}
-                    confidence={prediction?.confidence}
-                    isLoading={isLoadingPrediction && !prediction}
-                />
+                <Animated.View style={animatedStyle(2)}>
+                    <HungerTimer
+                        nextMealAt={prediction?.nextHungerAt}
+                        confidence={prediction?.confidence}
+                        isLoading={isLoadingPrediction && !prediction}
+                    />
+                </Animated.View>
 
                 {/* ── Hydration Ring Card ── */}
-                <HydrationScore
-                    score={MOCK_HYDRATION.score}
-                    lastWaterAgo={MOCK_HYDRATION.lastWaterAgo}
-                    outsideTemp={MOCK_HYDRATION.outsideTemp}
-                    nextDrinkIn={MOCK_HYDRATION.nextDrinkIn}
-                />
+                <Animated.View style={animatedStyle(3)}>
+                    <HydrationScore
+                        score={hydrationScore}
+                        lastWaterAgo={MOCK_HYDRATION.lastWaterAgo}
+                        outsideTemp={MOCK_HYDRATION.outsideTemp}
+                        nextDrinkIn={MOCK_HYDRATION.nextDrinkIn}
+                    />
+                </Animated.View>
 
                 {/* ── Today's Timeline ── */}
-                <TodayTimeline meals={meals} waterLogs={waterLogs} />
+                <Animated.View style={animatedStyle(4)}>
+                    <TodayTimeline meals={meals} waterLogs={waterLogs} />
+                </Animated.View>
 
                 {/* ── Prevention Tip ── */}
                 <View style={styles.tipCard}>

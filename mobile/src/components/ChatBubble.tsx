@@ -18,7 +18,7 @@ export default function ChatBubble({ message }: Props) {
         <View style={[styles.row, isUser ? styles.rowUser : styles.rowAi]}>
             {!isUser && (
                 <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>🤖</Text>
+                    <Text style={styles.avatarText}>🌿</Text>
                 </View>
             )}
             <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAi]}>
@@ -46,10 +46,12 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: Colors.tealDim,
+        backgroundColor: Colors.greenDim,
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: Spacing.xs,
+        borderWidth: 1,
+        borderColor: Colors.green,
     },
     avatarText: { fontSize: 16 },
     bubble: {
@@ -59,14 +61,19 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.sm,
     },
     bubbleUser: {
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.green,
         borderBottomRightRadius: 4,
     },
     bubbleAi: {
-        backgroundColor: Colors.cardAlt,
+        backgroundColor: Colors.card,
         borderBottomLeftRadius: 4,
         borderWidth: 1,
         borderColor: Colors.border,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
     content: {
         fontSize: FontSize.md,
@@ -78,6 +85,6 @@ const styles = StyleSheet.create({
         fontSize: FontSize.xs,
         marginTop: 4,
     },
-    timeUser: { color: 'rgba(10,14,26,0.6)', textAlign: 'right' },
+    timeUser: { color: 'rgba(255,255,255,0.7)', textAlign: 'right' },
     timeAi: { color: Colors.textMuted },
 });

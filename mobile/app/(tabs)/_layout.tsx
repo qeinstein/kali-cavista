@@ -24,6 +24,7 @@ export default function TabsLayout() {
                 headerShown: false,
                 tabBarStyle: styles.tabBar,
                 tabBarShowLabel: false,
+                animation: 'fade',
             }}
         >
             <Tabs.Screen
@@ -55,6 +56,14 @@ export default function TabsLayout() {
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon emoji="🤖" label="Chat" focused={focused} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="settings"
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <TabIcon emoji="⚙️" label="Settings" focused={focused} />
                     ),
                 }}
             />

@@ -5,6 +5,7 @@ import {
     ScrollView,
     StyleSheet,
     Animated,
+    RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InsightCard, { InsightData } from '../../src/components/InsightCard';
@@ -198,11 +199,28 @@ function HydrationBarChart() {
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
+import { useFocusEffect } from '@react-navigation/native';
+import { useAppStore } from '../../src/store/useAppStore';
+
 export default function InsightsScreen() {
     const [insights, setInsights] = useState<InsightData[]>(MOCK_INSIGHTS);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        // Simulate API fetch refresh
+        await new Promise((r) => setTimeout(r, 1000));
+        setInsights([...MOCK_INSIGHTS].sort(() => Math.random() - 0.5));
+        setRefreshing(false);
+    }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            onRefresh();
+        }, [])
+    );
 
     const handleDismiss = (id: string) => {
-        // Allow animation to finish before removing from array
         setTimeout(() => {
             setInsights((prev) => prev.filter((c) => c.id !== id));
         }, 320);
@@ -214,6 +232,13 @@ export default function InsightsScreen() {
                 style={styles.scroll}
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.green}
+                    />
+                }
             >
                 {/* Screen header */}
                 <Text style={styles.screenTitle}>Insights</Text>

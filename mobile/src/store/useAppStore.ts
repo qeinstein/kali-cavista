@@ -34,13 +34,16 @@ interface AppState {
   waterLogs: WaterLog[];
   prediction: Prediction | null;
   chatMessages: ChatMessage[];
+  hydrationScore: number;
   isLoadingPrediction: boolean;
+  isSplashVisible: boolean;
   isAiTyping: boolean;
 
   logMeal: (size: MealSize, hungerLevel?: number) => void;
   logWater: (amountMl: number) => void;
   fetchPrediction: () => Promise<void>;
   sendChatMessage: (content: string) => Promise<void>;
+  setSplashVisible: (visible: boolean) => void;
 
   // Derived helpers
   getTodayMeals: () => MealLog[];
@@ -113,16 +116,37 @@ export const useAppStore = create<AppState>((set, get) => ({
     },
   ],
   prediction: null,
+  hydrationScore: 68,
   chatMessages: [
     {
-      id: genId(),
+      id: "ex-1-a",
+      role: "user",
+      content: "Why am I always tired in the afternoons?",
+      timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: "ex-1-b",
       role: "ai",
       content:
-        "Hi! I'm your Companion Tracker AI. I'll help you stay on top of your nutrition and hydration. How are you feeling today? 👋",
-      timestamp: new Date().toISOString(),
+        "Looking at your logs, you tend to eat a light breakfast around 8 AM but skip or delay lunch past 2 PM on weekdays. The afternoon energy dip is likely a combination of low blood sugar and mild dehydration — you average only 600ml of water by 3 PM.",
+      timestamp: new Date(Date.now() - 24 * 3600 * 1000 + 5000).toISOString(),
+    },
+    {
+      id: "ex-2-a",
+      role: "user",
+      content: "Can you help me fix my water goal?",
+      timestamp: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
+    },
+    {
+      id: "ex-2-b",
+      role: "ai",
+      content:
+        "Of course! Based on your activity level, I've set a baseline of 2.5L. Would you like me to send reminders if you're behind by 2 PM?",
+      timestamp: new Date(Date.now() - 12 * 3600 * 1000 + 8000).toISOString(),
     },
   ],
   isLoadingPrediction: false,
+  isSplashVisible: true,
   isAiTyping: false,
 
   logMeal: (size, hungerLevel) => {
@@ -132,9 +156,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       timestamp: new Date().toISOString(),
       hungerLevelBefore: hungerLevel,
     };
-    set((s) => ({ meals: [...s.meals, newMeal] }));
-    // Trigger prediction refresh
-    get().fetchPrediction();
+    set((s) => ({
+      meals: [...s.meals, newMeal],
+      prediction: {
+        nextHungerAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+        hoursUntilHungry: 4,
+        hydrationScore: s.hydrationScore / 100,
+        confidence: 0.88,
+      },
+    }));
   },
 
   logWater: (amountMl) => {
@@ -143,13 +173,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       amountMl,
       timestamp: new Date().toISOString(),
     };
-    set((s) => ({ waterLogs: [...s.waterLogs, newLog] }));
-    get().fetchPrediction();
+    set((s) => ({
+      waterLogs: [...s.waterLogs, newLog],
+      hydrationScore: Math.min(100, s.hydrationScore + 2),
+    }));
   },
 
   fetchPrediction: async () => {
     set({ isLoadingPrediction: true });
-    // Simulate API latency
     await new Promise((r) => setTimeout(r, 600));
     const { meals, waterLogs } = get();
     const prediction = getMockPrediction(meals, waterLogs);
@@ -163,20 +194,39 @@ export const useAppStore = create<AppState>((set, get) => ({
       content,
       timestamp: new Date().toISOString(),
     };
+
     set((s) => ({
       chatMessages: [...s.chatMessages, userMsg],
       isAiTyping: true,
     }));
 
-    await new Promise((r) => setTimeout(r, 1200 + Math.random() * 800));
+    await new Promise((r) => setTimeout(r, 2000));
+
+    const hydro = get().hydrationScore;
+    let aiContent = "";
+
+    if (content.toLowerCase().includes("tired")) {
+      aiContent =
+        "I noticed your hydration is a bit low (" +
+        hydro +
+        "%). Dehydration often causes that afternoon slump. Try drinking 2 glasses of water now! 💧";
+    } else if (hydro < 50) {
+      aiContent =
+        "I've analyzed your recent logs. You're looking steady, but your hydration is quite low (" +
+        hydro +
+        "%). Definitely time for some water! 🌿";
+    } else {
+      aiContent =
+        MOCK_AI_RESPONSES[Math.floor(Math.random() * MOCK_AI_RESPONSES.length)];
+    }
 
     const aiMsg: ChatMessage = {
       id: genId(),
       role: "ai",
-      content:
-        MOCK_AI_RESPONSES[Math.floor(Math.random() * MOCK_AI_RESPONSES.length)],
+      content: aiContent,
       timestamp: new Date().toISOString(),
     };
+
     set((s) => ({
       chatMessages: [...s.chatMessages, aiMsg],
       isAiTyping: false,
@@ -196,6 +246,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   getHydrationScore: () => {
-    return get().prediction?.hydrationScore ?? 0.65;
+    return get().hydrationScore / 100;
   },
+
+  setSplashVisible: (visible) => set({ isSplashVisible: visible }),
 }));
