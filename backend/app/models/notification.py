@@ -29,6 +29,6 @@ class NotificationInteraction(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     notification_id = Column(String, nullable=False)
     action = Column(String, nullable=False)  # opened | dismissed | ignored
-    received_at = Column(DateTime, nullable=False)
-    acted_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    received_at = Column(DateTime(timezone=True), nullable=False)
+    acted_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)

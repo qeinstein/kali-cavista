@@ -13,10 +13,10 @@ class Prediction(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    next_hunger_at = Column(DateTime, nullable=True)
+    next_hunger_at = Column(DateTime(timezone=True), nullable=True)
     confidence = Column(Float, nullable=True)
     based_on_meals = Column(Integer, default=0)
-    generated_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    generated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
 
 
 class HungerFeedback(Base):
@@ -25,5 +25,5 @@ class HungerFeedback(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     hunger_level = Column(Integer, nullable=False)  # 1-10
-    rated_at = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    rated_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)

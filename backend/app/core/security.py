@@ -15,7 +15,7 @@ from app.core.database import get_db
 from app.models.user import User, BlacklistedToken
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/token")
 
 
 def hash_password(password: str) -> str:

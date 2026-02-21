@@ -28,9 +28,9 @@ class User(Base):
     fcm_token = Column(String, nullable=True)
     device_platform = Column(String, nullable=True)  # android | ios
 
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
     updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         default=lambda: datetime.now(tz.utc),
         onupdate=lambda: datetime.now(tz.utc),
         nullable=False,
@@ -43,4 +43,4 @@ class BlacklistedToken(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     jti = Column(String, unique=True, index=True, nullable=False)
-    blacklisted_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    blacklisted_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)

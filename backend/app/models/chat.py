@@ -16,4 +16,4 @@ class ChatMessage(Base):
     conversation_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     role = Column(String, nullable=False)  # user | assistant
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)

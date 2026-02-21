@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -15,6 +16,22 @@ from app.schemas.user import (
 )
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+@router.post("/token", include_in_schema=False)
+async def oauth2_token(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    """OAuth2 form login for Swagger UI. Uses username field as email."""
+    result = await db.execute(select(User).where(User.email == form.username))
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(form.password, user.hashed_password):
+        raise UnauthorizedError("Invalid email or password")
+
+    token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
 
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)

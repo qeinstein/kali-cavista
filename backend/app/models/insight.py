@@ -18,4 +18,4 @@ class Insight(Base):
     body = Column(String, nullable=False)
     severity = Column(String, default="info")   # info | warning | alert
     dismissed = Column(Boolean, default=False)
-    generated_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    generated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)

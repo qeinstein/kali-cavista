@@ -31,8 +31,8 @@ class MealLog(Base):
     meal_size = Column(SAEnum(MealSize), nullable=False)
     hunger_level_before = Column(Integer, nullable=True)  # 1-10
     notes = Column(String, nullable=True)
-    logged_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
 
 
 class HydrationLog(Base):
@@ -41,8 +41,8 @@ class HydrationLog(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     amount_ml = Column(Float, nullable=False)
-    logged_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
 
 
 class MoodLog(Base):
@@ -53,8 +53,8 @@ class MoodLog(Base):
     mood = Column(SAEnum(MoodLevel), nullable=False)
     energy_level = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
-    logged_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
 
 
 class ActivityLog(Base):
@@ -65,5 +65,5 @@ class ActivityLog(Base):
     steps = Column(Integer, nullable=True)
     active_minutes = Column(Integer, nullable=True)
     sleep_hours = Column(Float, nullable=True)
-    logged_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(tz.utc), nullable=False)
+    logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
