@@ -24,8 +24,6 @@ export default function TopNav() {
     const navLinks = [
         { name: "About", href: "/#about" },
         { name: "Modules", href: "/#modules" },
-        { name: "Insights", href: "/insights" },
-        { name: "Dashboard", href: "/dashboard" },
     ];
 
     return (
@@ -50,9 +48,6 @@ export default function TopNav() {
                                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
                                         <span className="text-primary font-bold text-xl tracking-tighter">S</span>
                                     </div>
-                                    <span className="font-semibold text-lg tracking-wide text-foreground">
-                                        Spag
-                                    </span>
                                 </Link>
                             </div>
 
@@ -72,7 +67,7 @@ export default function TopNav() {
                             {/* Right Action (CTA) */}
                             <div className="hidden md:flex items-center">
                                 <Link href="/dashboard" className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 shadow-[0_0_15px_rgba(45,106,79,0.1)] hover:shadow-[0_0_20px_rgba(45,106,79,0.2)] active:scale-95">
-                                    Get Started
+                                   Dashboard
                                 </Link>
                             </div>
 

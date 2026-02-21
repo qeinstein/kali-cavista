@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true,
+  reactCompiler: false,
+  transpilePackages: ["three", "@react-three/fiber"],
 };
 
 export default nextConfig;
