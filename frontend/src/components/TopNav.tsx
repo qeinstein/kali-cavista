@@ -64,12 +64,12 @@ export default function TopNav() {
                                 ))}
                             </nav>
 
-                            {/* Right Action (CTA) */}
+                            {/* Right Action (CTA)
                             <div className="hidden md:flex items-center">
                                 <Link href="/dashboard" className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 shadow-[0_0_15px_rgba(45,106,79,0.1)] hover:shadow-[0_0_20px_rgba(45,106,79,0.2)] active:scale-95">
                                    Dashboard
                                 </Link>
-                            </div>
+                            </div> */}
 
                             {/* Hamburger Menu Toggle (Mobile/Tablet) */}
                             <div className="flex md:hidden items-center">
