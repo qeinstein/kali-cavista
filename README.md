@@ -6,7 +6,7 @@
 
 ### 🎙️ Conversational Voice Navigation
 A revolutionary accessibility system designed for visually impaired users.
-- **Two-Way Dialogue**: A continuous, context-aware conversational experience.
+- **Two-Way Dialogue**: A continuous, context-aware conversational experience. 
 - **Interruptible Playback**: Real-time interruption for a natural flow.
 - **Page Context Awareness**: Automatically understands headings, buttons, and links on the current page.
 - **TTS Versatility**: Supports ElevenLabs (high-quality), Google Cloud, and local fallbacks.
