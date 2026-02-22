@@ -7,22 +7,24 @@ build/
 .eggs/
 *.egg
 
-# Virtual environment
+
 venv/
 .venv/
 env/
 
-# Environment
+
 .env
 
-# Database
+
 *.db
 *.sqlite3
 
-# IDE
+
 .vscode/
 .idea/
 
-# OS
 .DS_Store
 Thumbs.db
+
+alembic.ini
+alembic/

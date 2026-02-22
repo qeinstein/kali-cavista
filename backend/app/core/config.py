@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./nutrisense.db"
+    DATABASE_MIGRATION_URL: str = ""  
 
     CORS_ORIGINS: str = '["http://localhost:3000","http://localhost:5173"]'
 
@@ -20,11 +21,12 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         return json.loads(self.CORS_ORIGINS)
 
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     ALGORITHM: str = "HS256"
 
     OPENWEATHER_API_KEY: str = ""
     OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL: str = "google/gemini-2.0-flash-001"
     GROQ_API_KEY: str = ""
     ELEVENLABS_API_KEY: str = ""
     ELEVENLABS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Default voice
