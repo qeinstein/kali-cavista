@@ -13,11 +13,23 @@ from app.models.tracking import MealLog
 from app.schemas.predictions import (
     PredictionResponse, PredictionRefreshResponse,
     HungerFeedbackCreate, PredictionHistoryItem, PredictionHistoryResponse,
+    DigitalTwinResponse
 )
 from app.schemas.user import SuccessResponse
-from app.services.prediction import generate_prediction
+from app.services.prediction import generate_prediction, generate_composite_prediction
 
 router = APIRouter(prefix="/predictions", tags=["Predictions"])
+
+
+@router.get("/twin", response_model=DigitalTwinResponse)
+async def get_digital_twin(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get the full state of the composite digital twin across all facets."""
+    state = await generate_composite_prediction(user, db)
+    return state
+
 
 
 def _hours_until(target: datetime) -> float | None:

@@ -17,8 +17,10 @@ from app.schemas.hydration import (
     HydrationDaySummary, HydrationHistoryResponse,
 )
 from app.services.hydration import compute_hydration_score, _score_label
+from app.services.prediction import train_hydration
 
 router = APIRouter(prefix="/hydration", tags=["Hydration"])
+
 
 
 @router.post("/log", response_model=HydrationLogResponse, status_code=201)
