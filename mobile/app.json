@@ -37,7 +37,8 @@
         }
       ],
       "react-native-health",
-      "react-native-google-fit"
+      "react-native-google-fit",
+      "expo-web-browser"
     ],
     "scheme": "companion-tracker",
     "experiments": {

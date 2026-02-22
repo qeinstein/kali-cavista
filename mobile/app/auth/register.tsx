@@ -15,14 +15,12 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { useAuth, useGoogleAuth } from '../../src/services/api/authService';
 
 export default function RegisterScreen() {
     const router = useRouter();
-    const register = useAuthStore((s) => s.register);
-    const isLoading = useAuthStore((s) => s.isLoading);
-    const error = useAuthStore((s) => s.error);
-    const clearError = useAuthStore((s) => s.clearError);
+    const { register, isLoading, error } = useAuth();
+    const { promptAsync, isLoading: isGoogleLoading, error: googleError } = useGoogleAuth();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -33,7 +31,6 @@ export default function RegisterScreen() {
     const slideAnim = useRef(new Animated.Value(30)).current;
 
     useEffect(() => {
-        clearError();
         Animated.parallel([
             Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
             Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 9, useNativeDriver: true }),
@@ -43,20 +40,25 @@ export default function RegisterScreen() {
     const handleRegister = async () => {
         if (!name.trim() || !email.trim() || password.length < 6) return;
         try {
-            await register(name.trim(), email.trim(), password);
+            await register({
+                name: name.trim(),
+                email: email.trim(),
+                password,
+                water_goal_ml: 2000, // Default values as per requirements or onboarding
+                meal_frequency: 3,
+                activity_level: 'moderate'
+            });
             router.replace('/(tabs)');
         } catch {
-            // error handled in store
+            // error handled in hook
         }
     };
 
     const handleGoogle = async () => {
-        // Mock Google sign-in
         try {
-            await register('Google User', 'user@gmail.com', 'google-token');
-            router.replace('/(tabs)');
+            await promptAsync();
         } catch {
-            // error handled in store
+            // error handled in hook
         }
     };
 

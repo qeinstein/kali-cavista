@@ -14,14 +14,12 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, FontSize, FontWeight, Spacing, Radius } from '../../src/constants/theme';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { useAuth, useGoogleAuth } from '../../src/services/api/authService';
 
 export default function LoginScreen() {
     const router = useRouter();
-    const login = useAuthStore((s) => s.login);
-    const isLoading = useAuthStore((s) => s.isLoading);
-    const error = useAuthStore((s) => s.error);
-    const clearError = useAuthStore((s) => s.clearError);
+    const { login, isLoading, error } = useAuth();
+    const { promptAsync, isLoading: isGoogleLoading, error: googleError } = useGoogleAuth();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -31,7 +29,6 @@ export default function LoginScreen() {
     const slideAnim = useRef(new Animated.Value(30)).current;
 
     useEffect(() => {
-        clearError();
         Animated.parallel([
             Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
             Animated.spring(slideAnim, { toValue: 0, tension: 60, friction: 9, useNativeDriver: true }),
@@ -41,19 +38,18 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         if (!email.trim() || password.length < 6) return;
         try {
-            await login(email.trim(), password);
+            await login({ email: email.trim(), password });
             router.replace('/(tabs)');
         } catch {
-            // error handled in store
+            // error handled in hook
         }
     };
 
     const handleGoogle = async () => {
         try {
-            await login('user@gmail.com', 'google-token');
-            router.replace('/(tabs)');
+            await promptAsync();
         } catch {
-            // error handled in store
+            // error handled in hook
         }
     };
 
