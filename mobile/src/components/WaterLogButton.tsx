@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 
 interface Props {
@@ -14,9 +15,9 @@ interface Props {
 }
 
 const PRESETS = [
-    { label: '½ Glass', ml: 150, emoji: '🥤' },
-    { label: '1 Glass', ml: 250, emoji: '🥛' },
-    { label: 'Bottle', ml: 500, emoji: '💧' },
+    { label: '½ Glass', ml: 150, icon: 'cafe-outline' },
+    { label: '1 Glass', ml: 250, icon: 'pint-outline' },
+    { label: 'Bottle', ml: 500, icon: 'water-outline' },
 ];
 
 const GOAL_ML = 2000;
@@ -60,14 +61,19 @@ export default function WaterLogButton({ onLog, totalTodayMl = 0 }: Props) {
 
             {/* Size selector */}
             <View style={styles.presetRow}>
-                {PRESETS.map(({ label, emoji }, idx) => (
+                {PRESETS.map(({ label, icon }, idx) => (
                     <TouchableOpacity
                         key={idx}
                         style={[styles.presetBtn, selected === idx && styles.presetBtnSelected]}
                         onPress={() => setSelected(idx)}
                         activeOpacity={0.75}
                     >
-                        <Text style={styles.presetEmoji}>{emoji}</Text>
+                        <Ionicons
+                            name={icon as any}
+                            size={22}
+                            color={selected === idx ? '#3B9EFF' : Colors.textMuted}
+                            style={{ marginBottom: 4 }}
+                        />
                         <Text style={[styles.presetLabel, selected === idx && styles.presetLabelSelected]}>
                             {label}
                         </Text>
@@ -84,9 +90,16 @@ export default function WaterLogButton({ onLog, totalTodayMl = 0 }: Props) {
                     onPress={handleLog}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.logBtnText}>
-                        {justLogged ? '✅ Logged!' : `💧  Drank ${PRESETS[selected].label}`}
-                    </Text>
+                    <View style={styles.logBtnContent}>
+                        <Ionicons
+                            name={justLogged ? "checkmark-circle" : "water"}
+                            size={20}
+                            color={Colors.white}
+                        />
+                        <Text style={styles.logBtnText}>
+                            {justLogged ? 'Logged!' : `Drank ${PRESETS[selected].label}`}
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             </Animated.View>
         </View>
@@ -148,7 +161,6 @@ const styles = StyleSheet.create({
         borderColor: '#3B9EFF',
         backgroundColor: 'rgba(59,158,255,0.15)',
     },
-    presetEmoji: { fontSize: 22, marginBottom: 4 },
     presetLabel: {
         fontSize: FontSize.sm,
         color: Colors.textSecondary,
@@ -165,6 +177,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logBtnSuccess: { backgroundColor: Colors.success },
+    logBtnContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
     logBtnText: {
         color: Colors.white,
         fontSize: FontSize.lg,

@@ -8,6 +8,7 @@ import {
     TextStyle,
     ViewStyle,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 import { MealSize } from '../store/useAppStore';
 
@@ -15,10 +16,10 @@ interface Props {
     onLog: (size: MealSize) => void;
 }
 
-const SIZES: { key: MealSize; label: string; emoji: string; desc: string }[] = [
-    { key: 'light', label: 'Light', emoji: '🥗', desc: 'Snack or salad' },
-    { key: 'medium', label: 'Medium', emoji: '🍽️', desc: 'Regular meal' },
-    { key: 'heavy', label: 'Heavy', emoji: '🍖', desc: 'Large meal' },
+const SIZES: { key: MealSize; label: string; icon: string; desc: string }[] = [
+    { key: 'light', label: 'Light', icon: 'cafe', desc: 'Snack or salad' },
+    { key: 'medium', label: 'Medium', icon: 'restaurant', desc: 'Regular meal' },
+    { key: 'heavy', label: 'Heavy', icon: 'fast-food', desc: 'Large meal' },
 ];
 
 export default function MealLogButton({ onLog }: Props) {
@@ -40,14 +41,19 @@ export default function MealLogButton({ onLog }: Props) {
         <View style={styles.container}>
             <Text style={styles.sectionLabel}>Meal Size</Text>
             <View style={styles.sizeRow}>
-                {SIZES.map(({ key, label, emoji, desc }) => (
+                {SIZES.map(({ key, label, icon, desc }) => (
                     <TouchableOpacity
                         key={key}
                         style={[styles.sizeBtn, selected === key && styles.sizeBtnSelected] as ViewStyle[]}
                         onPress={() => setSelected(key)}
                         activeOpacity={0.75}
                     >
-                        <Text style={styles.sizeEmoji}>{emoji}</Text>
+                        <Ionicons
+                            name={icon as any}
+                            size={22}
+                            color={selected === key ? Colors.teal : Colors.textMuted}
+                            style={{ marginBottom: 4 }}
+                        />
                         <Text style={[styles.sizeLabel, selected === key && styles.sizeLabelSelected] as TextStyle[]}>
                             {label}
                         </Text>
@@ -64,9 +70,16 @@ export default function MealLogButton({ onLog }: Props) {
                     onPress={handleLog}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.logBtnText}>
-                        {justLogged ? '✅ Logged!' : '🍽️  I Just Ate'}
-                    </Text>
+                    <View style={styles.logBtnContent}>
+                        <Ionicons
+                            name={justLogged ? "checkmark-circle" : "restaurant"}
+                            size={20}
+                            color={Colors.bg}
+                        />
+                        <Text style={styles.logBtnText}>
+                            {justLogged ? 'Logged!' : 'I Just Ate'}
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             </Animated.View>
         </View>
@@ -108,7 +121,6 @@ const styles = StyleSheet.create({
         borderColor: Colors.teal,
         backgroundColor: Colors.tealDim,
     },
-    sizeEmoji: { fontSize: 22, marginBottom: 4 },
     sizeLabel: {
         fontSize: FontSize.sm,
         color: Colors.textSecondary,
@@ -130,6 +142,11 @@ const styles = StyleSheet.create({
     },
     logBtnSuccess: {
         backgroundColor: Colors.success,
+    },
+    logBtnContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     logBtnText: {
         color: Colors.bg,

@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     Animated,
 } from 'react-native';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../constants/theme';
 
 export type InsightType = 'info' | 'warning' | 'alert';
 
@@ -21,14 +22,18 @@ interface Props extends InsightData {
     onDismiss: (id: string) => void;
 }
 
-const TYPE_CONFIG: Record<InsightType, { color: string; bg: string; icon: string }> = {
-    info: { color: Colors.green, bg: Colors.greenDim, icon: '💡' },
-    warning: { color: Colors.warning, bg: Colors.warningDim, icon: '⚠️' },
-    alert: { color: Colors.danger, bg: Colors.dangerDim, icon: '🔴' },
+const getTypeConfig = (type: InsightType, Colors: any) => {
+    const map: Record<InsightType, { color: string; bg: string; icon: string }> = {
+        info: { color: Colors.green, bg: Colors.greenDim, icon: 'bulb-outline' },
+        warning: { color: Colors.warning, bg: Colors.warningDim, icon: 'warning-outline' },
+        alert: { color: Colors.danger, bg: Colors.dangerDim, icon: 'alert-circle-outline' },
+    };
+    return map[type];
 };
 
 export default function InsightCard({ id, type, title, body, onDismiss }: Props) {
-    const cfg = TYPE_CONFIG[type];
+    const Colors = useThemeColor();
+    const cfg = getTypeConfig(type, Colors);
     const opacity = useRef(new Animated.Value(1)).current;
     const translateX = useRef(new Animated.Value(0)).current;
     const maxHeight = useRef(new Animated.Value(200)).current;
@@ -54,7 +59,7 @@ export default function InsightCard({ id, type, title, body, onDismiss }: Props)
             <View style={[styles.card, { backgroundColor: cfg.bg }]}>
                 {/* Header row */}
                 <View style={styles.headerRow}>
-                    <Text style={styles.icon}>{cfg.icon}</Text>
+                    <Ionicons name={cfg.icon as any} size={16} color={cfg.color} style={{ marginTop: 1 }} />
                     <Text style={[styles.title, { color: cfg.color }]} numberOfLines={2}>
                         {title}
                     </Text>
@@ -63,11 +68,11 @@ export default function InsightCard({ id, type, title, body, onDismiss }: Props)
                         hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
                         style={styles.dismissBtn}
                     >
-                        <Text style={styles.dismissText}>✕</Text>
+                        <Ionicons name="close" size={16} color={Colors.textMuted} />
                     </TouchableOpacity>
                 </View>
 
-                <Text style={styles.body}>{body}</Text>
+                <Text style={[styles.body, { color: Colors.textSecondary }]}>{body}</Text>
             </View>
         </Animated.View>
     );
@@ -97,7 +102,6 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.xs,
     },
-    icon: { fontSize: 16, marginTop: 1 },
     title: {
         flex: 1,
         fontSize: FontSize.md,
@@ -107,14 +111,8 @@ const styles = StyleSheet.create({
     dismissBtn: {
         paddingLeft: Spacing.xs,
     },
-    dismissText: {
-        fontSize: 13,
-        color: Colors.textMuted,
-        fontWeight: FontWeight.bold,
-    },
     body: {
         fontSize: FontSize.sm,
-        color: Colors.textSecondary,
         lineHeight: 19,
     },
 });

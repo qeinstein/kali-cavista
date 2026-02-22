@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
 import { MealLog, WaterLog } from '../store/useAppStore';
 
@@ -47,7 +48,7 @@ export default function TodayTimeline({ meals, waterLogs }: Props) {
 
             {events.length === 0 ? (
                 <View style={styles.empty}>
-                    <Text style={styles.emptyIcon}>📋</Text>
+                    <Ionicons name="list-outline" size={18} color={Colors.textMuted} />
                     <Text style={styles.emptyText}>Nothing logged yet today</Text>
                 </View>
             ) : (
@@ -70,9 +71,11 @@ export default function TodayTimeline({ meals, waterLogs }: Props) {
                                             : styles.waterCircle,
                                     ]}
                                 >
-                                    <Text style={styles.eventIcon}>
-                                        {ev.type === 'meal' ? '🍽️' : '💧'}
-                                    </Text>
+                                    <Ionicons
+                                        name={ev.type === 'meal' ? "restaurant" : "water"}
+                                        size={20}
+                                        color={ev.type === 'meal' ? Colors.green : "#3B82F6"}
+                                    />
                                 </View>
 
                                 {/* Labels */}
@@ -107,7 +110,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.border,
     },
-    emptyIcon: { fontSize: 18 },
     emptyText: { fontSize: FontSize.sm, color: Colors.textMuted },
     scroll: { paddingVertical: Spacing.md, paddingHorizontal: Spacing.xs },
     lineWrap: {
@@ -147,7 +149,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(59,130,246,0.15)',
         borderColor: '#3B82F6',
     },
-    eventIcon: { fontSize: 20 },
     eventLabel: {
         fontSize: FontSize.xs,
         color: Colors.textSecondary,

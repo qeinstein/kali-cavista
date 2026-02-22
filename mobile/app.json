@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Companion Tracker AI",
+    "name": "SPAG",
     "slug": "companion-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -33,11 +33,20 @@
         {
           "color": "#00D4AA"
         }
-      ]
+      ],
+      "react-native-health",
+      "react-native-google-fit",
+      "expo-web-browser"
     ],
     "scheme": "companion-tracker",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "77715446-7e79-47f2-88d9-fd61c39a98fa"
+      }
     }
   }
 }

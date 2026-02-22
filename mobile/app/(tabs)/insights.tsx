@@ -5,66 +5,27 @@ import {
     ScrollView,
     StyleSheet,
     Animated,
+    RefreshControl,
+    ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InsightCard, { InsightData } from '../../src/components/InsightCard';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
+import { Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../../src/constants/theme';
+import { useInsightsService, WeeklySummaryResponse } from '../../src/services/api/insightsService';
+import { useHydrationHistory, HydrationDayData } from '../../src/services/api/hydrationService';
+import { useFocusEffect } from '@react-navigation/native';
+import { useAppStore } from '../../src/store/useAppStore';
 
-// ─── Mock API responses ───────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-// GET /insights/weekly-summary
-const MOCK_WEEKLY_SUMMARY = {
-    narrative:
-        'This week you logged 18 meals, hit your water target 4 out of 7 days, and your average gap between meals was 4.1 hours.',
-    metrics: [
-        { emoji: '🍽️', label: '18 meals' },
-        { emoji: '💧', label: '4/7 days' },
-        { emoji: '⏱️', label: '4.1h avg gap' },
-    ],
-};
-
-// GET /insights
-const MOCK_INSIGHTS: InsightData[] = [
-    {
-        id: '1',
-        type: 'warning',
-        title: 'You skip lunch on busy Tuesdays',
-        body: 'On 3 of the last 4 Tuesdays you logged no meal between 11am and 2pm. This correlates with a 340kcal surplus at dinner — your body compensates by overeating later.',
-    },
-    {
-        id: '2',
-        type: 'info',
-        title: 'Hydration drops on afternoons',
-        body: "Your water intake falls 40% between 2pm and 6pm. Adding a reminder at 3pm could close this gap and improve your cognitive focus during your typical work sprint.",
-    },
-    {
-        id: '3',
-        type: 'alert',
-        title: 'Sleep quality affects next-day hunger',
-        body: "On days after less than 6 hours of sleep, you report higher hunger scores and log meals 35 minutes earlier than usual. Prioritising 7+ hours could stabilise your appetite cycle.",
-    },
-    {
-        id: '4',
-        type: 'info',
-        title: 'Weekend eating window shifts by 2h',
-        body: 'Your first meal on Saturday and Sunday is on average 2.3 hours later than weekdays. This social jet lag in eating can disrupt your weekday hunger prediction. A consistent first-meal window (±30 min) would improve AI accuracy significantly.',
-    },
-    {
-        id: '5',
-        type: 'warning',
-        title: 'Your hunger cycle is lengthening',
-        body: "This week your average gap between meals was 4.1 hours, up from 3.5 hours last week. While this can indicate improved insulin sensitivity, watch for energy dips — your prediction model will self-correct over the next 3 days.",
-    },
-];
-
-// GET /insights → 7-day hydration data (ml per day, goal = 2000ml)
 const WATER_GOAL = 2000;
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MOCK_WATER_DATA = [1600, 980, 2100, 1450, 2000, 1750, 1320];
+const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 // ─── Internal components ──────────────────────────────────────────────────────
 
-function WeeklySummaryCard() {
+function WeeklySummaryCard({ data }: { data: WeeklySummaryResponse | null }) {
+    const Colors = useThemeColor();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(12)).current;
 
@@ -75,29 +36,44 @@ function WeeklySummaryCard() {
         ]).start();
     }, []);
 
+    // Build metric chips from API data
+    const metrics = data?.metrics
+        ? [
+            { icon: 'restaurant', label: `${data.metrics.mealsLogged} meals`, color: Colors.green },
+            { icon: 'water', label: `${data.metrics.waterTargetDaysHit}/7 days`, color: '#3B9EFF' },
+            { icon: 'time-outline', label: `${data.metrics.avgMealGapHours}h avg gap`, color: Colors.warning },
+        ]
+        : [
+            { icon: 'restaurant', label: '— meals', color: Colors.green },
+            { icon: 'water', label: '—/7 days', color: '#3B9EFF' },
+            { icon: 'time-outline', label: '— avg gap', color: Colors.warning },
+        ];
+
+    const narrative =
+        data?.summary ||
+        'Loading your weekly summary…';
+
     return (
         <Animated.View
-            style={[styles.summaryCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+            style={[styles.summaryCard, { backgroundColor: Colors.cardAlt, borderColor: Colors.green + '44', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
-            {/* Decorative glow blob */}
-            <View style={styles.summaryGlow} pointerEvents="none" />
+            <View style={[styles.summaryGlow, { backgroundColor: Colors.green }]} pointerEvents="none" />
 
             <View style={styles.summaryHeaderRow}>
-                <Text style={styles.summaryIcon}>📊</Text>
-                <Text style={styles.summaryTitle}>Weekly Summary</Text>
-                <View style={styles.weekBadge}>
-                    <Text style={styles.weekBadgeText}>This week</Text>
+                <Ionicons name="analytics" size={18} color={Colors.green} />
+                <Text style={[styles.summaryTitle, { color: Colors.textPrimary }]}>Weekly Summary</Text>
+                <View style={[styles.weekBadge, { backgroundColor: Colors.greenDim, borderColor: Colors.green + '55' }]}>
+                    <Text style={[styles.weekBadgeText, { color: Colors.green }]}>This week</Text>
                 </View>
             </View>
 
-            <Text style={styles.summaryNarrative}>{MOCK_WEEKLY_SUMMARY.narrative}</Text>
+            <Text style={[styles.summaryNarrative, { color: Colors.textSecondary }]}>{narrative}</Text>
 
-            {/* Metric chips */}
             <View style={styles.chipsRow}>
-                {MOCK_WEEKLY_SUMMARY.metrics.map((m) => (
-                    <View key={m.label} style={styles.chip}>
-                        <Text style={styles.chipEmoji}>{m.emoji}</Text>
-                        <Text style={styles.chipLabel}>{m.label}</Text>
+                {metrics.map((m) => (
+                    <View key={m.label} style={[styles.chip, { backgroundColor: Colors.bg, borderColor: Colors.border }]}>
+                        <Ionicons name={m.icon as any} size={14} color={m.color} />
+                        <Text style={[styles.chipLabel, { color: Colors.textPrimary }]}>{m.label}</Text>
                     </View>
                 ))}
             </View>
@@ -105,56 +81,100 @@ function WeeklySummaryCard() {
     );
 }
 
-function HydrationBarChart() {
-    const barAnims = useRef(MOCK_WATER_DATA.map(() => new Animated.Value(0))).current;
+function HydrationBarChart({ history, todayWater }: { history: HydrationDayData[], todayWater: number }) {
+    const Colors = useThemeColor();
     const MAX_BAR_HEIGHT = 90;
-    const maxVal = Math.max(...MOCK_WATER_DATA);
+
+    // Apply optimistic local water logs to today's data
+    const todayStr = new Date().toISOString().slice(0, 10);
+    let chartHistory = [...history];
+
+    if (chartHistory.length > 0) {
+        const lastEntry = chartHistory[chartHistory.length - 1];
+        if (lastEntry.date === todayStr) {
+            // Server returned today's entry, merge optimistic local
+            chartHistory[chartHistory.length - 1] = {
+                ...lastEntry,
+                totalMl: Math.max(lastEntry.totalMl, todayWater) // Avoid double counting if sync happened
+            };
+        } else if (todayWater > 0) {
+            // Server hasn't returned today's entry yet, append it
+            chartHistory.push({
+                date: todayStr,
+                totalMl: todayWater,
+                targetMl: WATER_GOAL,
+                avgScore: 0
+            });
+        }
+    } else if (todayWater > 0) {
+        chartHistory = [{
+            date: todayStr,
+            totalMl: todayWater,
+            targetMl: WATER_GOAL,
+            avgScore: 0
+        }];
+    }
+
+    // Map history data to 7-day array (fill missing days with 0)
+    const waterData = chartHistory.length > 0
+        ? chartHistory.slice(-7).map((d) => d.totalMl)
+        : [0, 0, 0, 0, 0, 0, 0];
+
+    const dayLabels = chartHistory.length > 0
+        ? chartHistory.slice(-7).map((d) => {
+            const dt = new Date(d.date);
+            return DAYS_SHORT[dt.getDay() === 0 ? 6 : dt.getDay() - 1] || d.date.slice(5);
+        })
+        : DAYS_SHORT;
+
+    const barAnims = useRef(waterData.map(() => new Animated.Value(0))).current;
+    const maxVal = Math.max(...waterData, WATER_GOAL);
 
     useEffect(() => {
         const animations = barAnims.map((anim, i) =>
             Animated.timing(anim, {
-                toValue: MOCK_WATER_DATA[i] / maxVal,
+                toValue: waterData[i] / maxVal,
                 duration: 500 + i * 60,
                 useNativeDriver: false,
                 delay: 100 + i * 40,
             }),
         );
         Animated.parallel(animations).start();
-    }, []);
+    }, [waterData.join(',')]); // re-run animation when data changes
 
-    // today's column index (Mon=0 … Sun=6)
-    const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+    const todayIdx = waterData.length - 1;
 
     return (
-        <View style={styles.chartCard}>
+        <View style={[styles.chartCard, { backgroundColor: Colors.card, borderColor: Colors.border }]}>
             <View style={styles.chartHeaderRow}>
-                <Text style={styles.chartTitle}>7-Day Hydration</Text>
-                <Text style={styles.chartGoal}>Goal: {WATER_GOAL / 1000}L/day</Text>
+                <Text style={[styles.chartTitle, { color: Colors.textPrimary }]}>7-Day Hydration</Text>
+                <Text style={[styles.chartGoal, { color: Colors.textMuted }]}>Goal: {WATER_GOAL / 1000}L/day</Text>
             </View>
 
-            {/* Goal line */}
             <View style={styles.chartArea}>
                 <View
                     style={[
                         styles.goalLine,
-                        { bottom: (WATER_GOAL / maxVal) * MAX_BAR_HEIGHT },
+                        { borderColor: Colors.green + '55', bottom: (WATER_GOAL / maxVal) * MAX_BAR_HEIGHT },
                     ]}
                 />
 
                 <View style={styles.barsRow}>
-                    {MOCK_WATER_DATA.map((ml, i) => {
+                    {waterData.map((ml, i) => {
                         const isToday = i === todayIdx;
                         const hitGoal = ml >= WATER_GOAL;
                         const barColor =
                             hitGoal ? Colors.green :
                                 ml >= 1200 ? Colors.warning : Colors.danger;
-                        const barHeight = barAnims[i].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, (MOCK_WATER_DATA[i] / maxVal) * MAX_BAR_HEIGHT],
-                        });
+                        const barHeight = barAnims[i]
+                            ? barAnims[i].interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, (waterData[i] / maxVal) * MAX_BAR_HEIGHT],
+                            })
+                            : 0;
 
                         return (
-                            <View key={DAYS[i]} style={styles.barCol}>
+                            <View key={dayLabels[i] || i} style={styles.barCol}>
                                 <View style={styles.barTrack}>
                                     <Animated.View
                                         style={[
@@ -167,11 +187,11 @@ function HydrationBarChart() {
                                         ]}
                                     />
                                 </View>
-                                <Text style={[styles.barLabel, isToday && styles.barLabelToday]}>
-                                    {DAYS[i]}
+                                <Text style={[styles.barLabel, { color: Colors.textMuted }, isToday && { color: Colors.green, fontWeight: 'bold' }]}>
+                                    {dayLabels[i]}
                                 </Text>
                                 <Text style={[styles.barMl, { color: barColor }]}>
-                                    {ml >= 1000 ? `${(ml / 1000).toFixed(1)}L` : `${ml}`}
+                                    {ml >= 1000 ? `${(ml / 1000).toFixed(1)}L` : ml > 0 ? `${ml}` : '—'}
                                 </Text>
                             </View>
                         );
@@ -179,7 +199,6 @@ function HydrationBarChart() {
                 </View>
             </View>
 
-            {/* Legend */}
             <View style={styles.legend}>
                 {[
                     { color: Colors.green, label: '≥ 2L target' },
@@ -188,7 +207,7 @@ function HydrationBarChart() {
                 ].map((l) => (
                     <View key={l.label} style={styles.legendItem}>
                         <View style={[styles.legendDot, { backgroundColor: l.color }]} />
-                        <Text style={styles.legendText}>{l.label}</Text>
+                        <Text style={[styles.legendText, { color: Colors.textMuted }]}>{l.label}</Text>
                     </View>
                 ))}
             </View>
@@ -199,41 +218,96 @@ function HydrationBarChart() {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function InsightsScreen() {
-    const [insights, setInsights] = useState<InsightData[]>(MOCK_INSIGHTS);
+    const Colors = useThemeColor();
+    const { insights, weeklySummary, dismissInsight } = useInsightsService();
+    const hydrationHistory = useHydrationHistory(7);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const handleDismiss = (id: string) => {
-        // Allow animation to finish before removing from array
+    // Pull local water logs to optimistically update chart
+    const waterLogs = useAppStore((s) => s.waterLogs);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayWater = waterLogs
+        .filter((w) => w.timestamp.startsWith(todayStr))
+        .reduce((sum, w) => sum + w.amountMl, 0);
+
+    // Local state for dismissed insights (optimistic UI)
+    const [insightsList, setInsightsList] = useState<InsightData[]>([]);
+
+    // Sync API data to local state
+    useEffect(() => {
+        const apiData = insights?.data as any;
+        if (apiData?.insights) {
+            setInsightsList(apiData.insights);
+        }
+    }, [insights?.data]);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        try {
+            if (insights?.onRefresh) insights.onRefresh();
+            if (weeklySummary?.onRefresh) weeklySummary.onRefresh();
+            if (hydrationHistory?.onRefresh) hydrationHistory.onRefresh();
+        } catch { }
+        // Small delay so spinner is visible
+        await new Promise((r) => setTimeout(r, 500));
+        setRefreshing(false);
+    }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            onRefresh();
+        }, [])
+    );
+
+    const handleDismiss = async (id: string) => {
+        // Optimistic: remove from local list immediately
         setTimeout(() => {
-            setInsights((prev) => prev.filter((c) => c.id !== id));
+            setInsightsList((prev) => prev.filter((c) => c.id !== id));
         }, 320);
+        // Fire API
+        try {
+            await dismissInsight(id);
+        } catch {
+            // Insight was already removed from UI
+        }
     };
 
+    const summaryData = weeklySummary?.data as WeeklySummaryResponse | null;
+    const historyData = (hydrationHistory?.data as any)?.history || [];
+
     return (
-        <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors.bg }]} edges={['top']}>
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={Colors.green}
+                    />
+                }
             >
                 {/* Screen header */}
-                <Text style={styles.screenTitle}>Insights</Text>
-                <Text style={styles.screenSubtitle}>Your personal prevention signals</Text>
+                <Text style={[styles.screenTitle, { color: Colors.textPrimary }]}>Insights</Text>
+                <Text style={[styles.screenSubtitle, { color: Colors.textSecondary }]}>Your personal prevention signals</Text>
 
                 {/* 1. Weekly Summary featured card */}
-                <WeeklySummaryCard />
+                <WeeklySummaryCard data={summaryData} />
 
                 {/* 2. 7-day hydration bar chart */}
-                <HydrationBarChart />
+                <HydrationBarChart history={historyData} todayWater={todayWater} />
 
                 {/* 3. Insight cards */}
-                <Text style={styles.sectionLabel}>Prevention Signals</Text>
-                {insights.length === 0 ? (
+                <Text style={[styles.sectionLabel, { color: Colors.textMuted }]}>Prevention Signals</Text>
+                {insightsList.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Text style={styles.emptyIcon}>🎉</Text>
-                        <Text style={styles.emptyText}>All caught up! No new signals.</Text>
+                        <Ionicons name="sparkles-outline" size={36} color={Colors.textMuted} />
+                        <Text style={[styles.emptyText, { color: Colors.textSecondary }]}>All caught up! No new signals.</Text>
                     </View>
                 ) : (
-                    insights.map((ins) => (
+                    insightsList.map((ins) => (
                         <InsightCard key={ins.id} {...ins} onDismiss={handleDismiss} />
                     ))
                 )}
@@ -247,30 +321,26 @@ export default function InsightsScreen() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.bg },
+    safeArea: { flex: 1 },
     scroll: { flex: 1 },
     content: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
 
     screenTitle: {
         fontSize: FontSize.xxl,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
         marginBottom: 4,
     },
     screenSubtitle: {
         fontSize: FontSize.sm,
-        color: Colors.textSecondary,
         marginBottom: Spacing.lg,
     },
 
     // ── Weekly Summary card ──
     summaryCard: {
-        backgroundColor: Colors.cardAlt,
         borderRadius: Radius.xl,
         padding: Spacing.lg,
         marginBottom: Spacing.md,
         borderWidth: 1.5,
-        borderColor: Colors.green + '44',
         overflow: 'hidden',
         position: 'relative',
     },
@@ -281,7 +351,6 @@ const styles = StyleSheet.create({
         width: 160,
         height: 160,
         borderRadius: 80,
-        backgroundColor: Colors.green,
         opacity: 0.08,
     },
     summaryHeaderRow: {
@@ -290,29 +359,23 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         marginBottom: Spacing.sm,
     },
-    summaryIcon: { fontSize: 18 },
     summaryTitle: {
         flex: 1,
         fontSize: FontSize.md,
         fontWeight: FontWeight.semibold,
-        color: Colors.textPrimary,
     },
     weekBadge: {
-        backgroundColor: Colors.greenDim,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.sm,
         paddingVertical: 3,
         borderWidth: 1,
-        borderColor: Colors.green + '55',
     },
     weekBadgeText: {
         fontSize: FontSize.xs,
-        color: Colors.green,
         fontWeight: FontWeight.semibold,
     },
     summaryNarrative: {
         fontSize: FontSize.md,
-        color: Colors.textSecondary,
         lineHeight: 22,
         marginBottom: Spacing.md,
     },
@@ -325,28 +388,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
-        backgroundColor: Colors.bg,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.sm,
         paddingVertical: 6,
         borderWidth: 1,
-        borderColor: Colors.border,
     },
-    chipEmoji: { fontSize: 13 },
     chipLabel: {
         fontSize: FontSize.xs,
-        color: Colors.textPrimary,
         fontWeight: FontWeight.semibold,
     },
 
     // ── Hydration bar chart ──
     chartCard: {
-        backgroundColor: Colors.card,
         borderRadius: Radius.lg,
         padding: Spacing.lg,
         marginBottom: Spacing.lg,
         borderWidth: 1,
-        borderColor: Colors.border,
     },
     chartHeaderRow: {
         flexDirection: 'row',
@@ -357,11 +414,9 @@ const styles = StyleSheet.create({
     chartTitle: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.semibold,
-        color: Colors.textPrimary,
     },
     chartGoal: {
         fontSize: FontSize.xs,
-        color: Colors.textMuted,
     },
     chartArea: {
         height: 120,
@@ -374,7 +429,6 @@ const styles = StyleSheet.create({
         right: 0,
         height: 1,
         borderWidth: 1,
-        borderColor: Colors.green + '55',
         borderStyle: 'dashed',
         zIndex: 1,
     },
@@ -402,13 +456,8 @@ const styles = StyleSheet.create({
     },
     barLabel: {
         fontSize: 9,
-        color: Colors.textMuted,
         marginTop: 4,
         textAlign: 'center',
-    },
-    barLabelToday: {
-        color: Colors.green,
-        fontWeight: FontWeight.bold,
     },
     barMl: {
         fontSize: 8,
@@ -433,13 +482,11 @@ const styles = StyleSheet.create({
     },
     legendText: {
         fontSize: 9,
-        color: Colors.textMuted,
     },
 
     // ── Section label ──
     sectionLabel: {
         fontSize: FontSize.xs,
-        color: Colors.textMuted,
         fontWeight: FontWeight.semibold,
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -452,10 +499,8 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.xl,
         gap: Spacing.sm,
     },
-    emptyIcon: { fontSize: 36 },
     emptyText: {
         fontSize: FontSize.md,
-        color: Colors.textSecondary,
         textAlign: 'center',
     },
 });

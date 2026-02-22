@@ -38,6 +38,306 @@ body {
   height: 8px;
 }
 
+.c-homepage-animation--play .c-homepage-animation__curve {
+  clippath: polygon(0 0, 0 0, 0 100%, 0 100%);
+  animation: moveCurve 4s;
+  animation-iteration-count: 1;
+}
+.c-homepage-animation__curve {
+  position: absolute;
+  top: calc(50% - 200px);
+  left: 0;
+  width: 100%;
+  height: 400px;
+  background-size: auto 350px;
+  display: none;
+}
+
+.c-homepage-animation__curve:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  background-size: inherit;
+  background-image: url(../assets/patterns/curved-pattern.png);
+  background-repeat: repeat-x;
+}
+@keyframes moveCurve {
+  0%,
+  20% {
+    clippath: polygon(100% 0, 0 0, 0 100%, 100% 100%);
+  }
+  50% {
+    clippath: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  }
+  51%,
+  60% {
+    clippath: polygon(0 0, 0 0, 0 100%, 0 100%);
+  }
+  100% {
+    clippath: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  }
+}
+
+.c-homepage-animation__worldmap svg {
+  position: absolute;
+  transition: 2s cubic-bezier(0.075, 0.82, 0.165, 1);
+  height: 100%;
+  left: -35%;
+  top: 5%;
+}
+
+/* Initial State for all pointers */
+.c-homepage-animation__worldmap svg .map-pointer {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: 0.2s ease-in;
+  pointer-events: none;
+}
+
+/* Transform Origins */
+.c-homepage-animation__worldmap svg .map-pointer#united-states {
+  transform-origin: 159px 212px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#canada {
+  transform-origin: 229px 82px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#nigeria {
+  transform-origin: 658px 334px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#egypt {
+  transform-origin: 773px 260px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#uk {
+  transform-origin: 674px 161px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#china {
+  transform-origin: 1084px 201px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#india {
+  transform-origin: 1014px 271px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#norway {
+  transform-origin: 754px 41px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#south-africa {
+  transform-origin: 744px 531px;
+}
+.c-homepage-animation__worldmap svg .map-pointer#brazil {
+  transform-origin: 375px 432px;
+}
+
+/* International Animation (First Step) */
+.c-homepage-animation--international .c-homepage-animation__worldmap svg {
+  left: -60%;
+  /* Override base styles if needed */
+}
+
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#uk,
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#china,
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#india,
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#norway {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+  cursor: e-resize;
+  pointer-events: all;
+}
+
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#uk {
+  transition-delay: 2s;
+}
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#china {
+  transition-delay: 1.5s;
+}
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#india {
+  transition-delay: 1s;
+}
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#norway {
+  transition-delay: 0.5s;
+}
+
+/* Americas Animation (Second Step - overrides International position) */
+.c-homepage-animation--americas .c-homepage-animation__worldmap svg {
+  left: -10%;
+}
+
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#united-states,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#canada,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#brazil {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+  cursor: e-resize;
+  pointer-events: all;
+}
+
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#uk,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#china,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#india,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#norway {
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+  transition-delay: 0s;
+}
+
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#united-states {
+  transition-delay: 2s;
+}
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#canada {
+  transition-delay: 1.5s;
+}
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#brazil {
+  transition-delay: 1s;
+}
+
+/* Africa Animation (Final Step - overrides Americas position) */
+.c-homepage-animation--africa .c-homepage-animation__worldmap svg {
+  left: -35%;
+}
+
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#nigeria,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#south-africa,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#egypt,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#brazil,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#norway {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+  cursor: e-resize;
+  pointer-events: all;
+}
+
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#united-states,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#canada,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#uk,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#china,
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#india {
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none;
+  transition-delay: 0s;
+}
+
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#nigeria {
+  transition-delay: 2s;
+}
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#south-africa {
+  transition-delay: 1.5s;
+}
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer#egypt {
+  transition-delay: 1s;
+}
+
+.c-homepage-animation--africa
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer--left,
+.c-homepage-animation--americas
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer--left,
+.c-homepage-animation--international
+  .c-homepage-animation__worldmap
+  svg
+  .map-pointer--left {
+  cursor: w-resize;
+}
 ::-webkit-scrollbar-track {
   background: var(--color-background);
 }
