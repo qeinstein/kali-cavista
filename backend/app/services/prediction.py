@@ -17,13 +17,11 @@ from app.models.prediction import Prediction
 from app.models.health import HealthSnapshot, SleepLog
 from app.services.harmony_engine import HarmonyEngine
 
-# ── Engines ──────────────────────────────────────────────────────────────
 
 hunger_engine = HarmonyEngine(facet="hunger", num_features=9)
 energy_engine = HarmonyEngine(facet="energy", num_features=8)
 mood_engine = HarmonyEngine(facet="mood", num_features=8)
 
-# ── Shared Helpers ───────────────────────────────────────────────────────
 
 def _cyclical(value: float, period: float) -> tuple[float, float]:
     angle = 2 * math.pi * value / period
@@ -38,7 +36,6 @@ def _compute_confidence(samples: int) -> float:
         return round(0.20 + 0.05 * samples, 2)
     return round(min(0.95, 0.3 + 0.6 * (1 - 1 / (1 + samples / 10))), 2)
 
-# ── Hunger Facet ─────────────────────────────────────────────────────────
 
 async def _build_hunger_features(meal: MealLog, db: AsyncSession) -> np.ndarray:
     ts = meal.logged_at
@@ -117,11 +114,11 @@ async def generate_prediction(user: User, db: AsyncSession) -> Prediction:
     await db.flush()
     return prediction
 
-# ── Energy & Mood Facets ────────────────────────────────────────────────
 
 async def _build_context_features(user_id, ts, db: AsyncSession) -> np.ndarray:
-    """Builds shared context features for Energy/Mood facets."""
+    """Builds shared context features for Energy/Mood facets (8 features)."""
     h_sin, h_cos = _cyclical(ts.hour + ts.minute / 60, 24.0)
+    d_sin, d_cos = _cyclical(ts.isoweekday(), 7.0)
     
     # Time since last meal
     meal_res = await db.execute(
@@ -138,16 +135,23 @@ async def _build_context_features(user_id, ts, db: AsyncSession) -> np.ndarray:
     )
     steps_norm = min(float(act_res.scalar() or 0) / 4000.0, 1.5)
 
-    # Sleep quality (normalized duration/quality)
+    # Sleep quality
     sleep_res = await db.execute(
         select(SleepLog).where(SleepLog.user_id == user_id).order_by(desc(SleepLog.sleep_end)).limit(1)
     )
     sleep = sleep_res.scalar_one_or_none()
     sleep_norm = (sleep.duration_minutes / 600.0) if sleep else 0.7
-    
-    return np.array([h_sin, h_cos, meal_norm, steps_norm, sleep_norm])
 
-# ── Hydration Facet ───────────────────────────────────────────────────
+    # Hydration status (12h)
+    water_res = await db.execute(
+        select(func.coalesce(func.sum(HydrationLog.amount_ml), 0.0))
+        .where(HydrationLog.user_id == user_id, HydrationLog.logged_at.between(ts - timedelta(hours=12), ts))
+    )
+    water_norm = min(float(water_res.scalar() or 0) / 2500.0, 1.5)
+    
+    return np.array([h_sin, h_cos, d_sin, d_cos, meal_norm, steps_norm, sleep_norm, water_norm])
+
+
 
 hydration_engine = HarmonyEngine(facet="hydration", num_features=6)
 
@@ -203,9 +207,6 @@ async def train_hydration(user_id, hydration_log: HydrationLog, db: AsyncSession
     target = float(hydration_log.amount_ml) / 1000.0 # liters
     await hydration_engine.train_step(user_id, features, target, db)
 
-
-
-# ── Composite Digital Twin ──────────────────────────────────────────────
 
 async def generate_composite_prediction(user: User, db: AsyncSession) -> dict:
     """

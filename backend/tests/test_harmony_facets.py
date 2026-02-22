@@ -16,26 +16,39 @@ async def test_harmony_engine_multi_facet_isolation():
     storage = {}
     
     async def mock_execute(q):
-        # Find 'facet' in the criteria
-        facet = "hunger"
-        q_str = str(q)
-        if "facet =" in q_str:
-            # Simple heuristic for mock: check for facet names in the query string
-            for f in ["hunger", "energy", "mood", "hydration"]:
-                if f"'{f}'" in q_str or f'"{f}"' in q_str:
-                    facet = f
-                    break
+        q_str = str(q).lower()
+        # Find which facet this query is for
+        # Heuristic: check specifically for the facet values in the compiled query
+        found_facet = "hunger"
+        for f in ["energy", "mood", "hydration"]:
+            if f in q_str:
+                found_facet = f
+                break
         
+        # If we can't find it in the string, it might be a parameter.
+        # For simplicity in this test, we check if the engine's current facet is what we expect.
+        # But since we have multiple engines, let's just make the heuristic stronger.
+        if "facet =" in q_str:
+             if "energy" in q_str: found_facet = "energy"
+             elif "mood" in q_str: found_facet = "mood"
+             elif "hydration" in q_str: found_facet = "hydration"
+
         res = MagicMock()
-        res.scalar_one_or_none.return_value = storage.get(facet)
+        res.scalar_one_or_none.return_value = storage.get(found_facet)
+        res.scalar.return_value = 1 if storage.get(found_facet) else 0
         return res
+
+
 
 
     db.execute.side_effect = mock_execute
     
+    # db.add is synchronous in SQLAlchemy, so we use MagicMock
+    db.add = MagicMock()
     def mock_add(obj):
         storage[obj.facet] = obj
     db.add.side_effect = mock_add
+
 
     hunger_engine = HarmonyEngine(facet="hunger", num_features=2)
     energy_engine = HarmonyEngine(facet="energy", num_features=2)
