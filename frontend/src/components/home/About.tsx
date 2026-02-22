@@ -1,11 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FiActivity, FiShield } from "react-icons/fi";
 import { FaBrain, FaStethoscope } from "react-icons/fa6";
 import { flowLineVariants } from "./variants";
 
 export default function About() {
+    const { t } = useTranslation();
+
     return (
         <section id="about" className="w-full">
             <motion.div
@@ -22,16 +25,16 @@ export default function About() {
                     {/* Left Content */}
                     <div>
                         <h2 className="text-sm uppercase tracking-widest text-primary font-bold mb-4">
-                            What is SPAG
+                            {t('about.badge', "What is SPAG")}
                         </h2>
                         <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-6 leading-tight">
-                            The National <br /> Prevention Engine
+                            {t('about.title', "The National Prevention Engine")}
                         </h3>
                         <p className="text-lg text-foreground/70 leading-relaxed mb-6">
-                            SPAG is not about treating diseases; it's about predicting and preventing them before symptoms ever appear.
+                            {t('about.desc1', "SPAG is not about treating diseases; it's about predicting and preventing them before symptoms ever appear.")}
                         </p>
                         <p className="text-lg text-foreground/70 leading-relaxed">
-                            By seamlessly collecting your everyday health data, SPAG runs it through our advanced AI risk engine to identify anomalies. If a risk is detected, the data is instantly bridged to your doctor's dashboard for preemptive action.
+                            {t('about.desc2', "By seamlessly collecting your everyday health data, SPAG runs it through our advanced AI risk engine to identify anomalies. If a risk is detected, the data is instantly bridged to your doctor's dashboard for preemptive action.")}
                         </p>
                     </div>
 
@@ -66,8 +69,8 @@ export default function About() {
                                     <FiActivity size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-foreground font-semibold text-base">Daily Data Collection</h4>
-                                    <p className="text-sm text-foreground/60">Wearables & vitals</p>
+                                    <h4 className="text-foreground font-semibold text-base">{t('about.nodes.collection', "Daily Data Collection")}</h4>
+                                    <p className="text-sm text-foreground/60">{t('about.nodes.vitals', "Wearables & vitals")}</p>
                                 </div>
                             </div>
 
@@ -76,8 +79,8 @@ export default function About() {
                                     <FaBrain size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-foreground font-semibold text-base">NutriSense AI</h4>
-                                    <p className="text-sm text-foreground/60">Metabolic processing</p>
+                                    <h4 className="text-foreground font-semibold text-base">{t('about.nodes.nutrisense', "NutriSense AI")}</h4>
+                                    <p className="text-sm text-foreground/60">{t('about.nodes.metabolic', "Metabolic processing")}</p>
                                 </div>
                             </div>
 
@@ -86,8 +89,8 @@ export default function About() {
                                     <FiShield size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-foreground font-semibold text-base">SPAG Risk Engine</h4>
-                                    <p className="text-sm text-foreground/60">Anomaly detection</p>
+                                    <h4 className="text-foreground font-semibold text-base">{t('about.nodes.risk_engine', "SPAG Risk Engine")}</h4>
+                                    <p className="text-sm text-foreground/60">{t('about.nodes.anomaly', "Anomaly detection")}</p>
                                 </div>
                             </div>
 
@@ -96,8 +99,8 @@ export default function About() {
                                     <FaStethoscope size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-foreground font-semibold text-base">Doctor Dashboard</h4>
-                                    <p className="text-sm text-foreground/60">Preemptive care</p>
+                                    <h4 className="text-foreground font-semibold text-base">{t('about.nodes.doctor', "Doctor Dashboard")}</h4>
+                                    <p className="text-sm text-foreground/60">{t('about.nodes.preemptive', "Preemptive care")}</p>
                                 </div>
                             </div>
                         </div>

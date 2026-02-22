@@ -1,0 +1,104 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "insights": "Beta Gist",
+        "chat": "Chat",
+        "logs": "Logs",
+        "home": "Home",
+        "about": "About SPAG",
+        "modules": "Modules"
+    },
+    "hero": {
+        "enter": "Enter Dashboard",
+        "online": "Spag De Online",
+        "sovereign": "Sovereign",
+        "preventive": "Preventive",
+        "ai": "AI",
+        "grid": "Grid",
+        "enter_dashboard": "Enter Dashboard"
+    },
+    "about": {
+        "badge": "Wetin be SPAG?",
+        "title": "The National Engine for Health",
+        "desc1": "SPAG no be for treat sick; na for know sickness before e start.",
+        "desc2": "As you de use your body, SPAG de check am with AI. If Wahala de, your Doctor go know sharp-sharp.",
+        "nodes": {
+            "collection": "Everyday Data",
+            "vitals": "Watch & Vitals",
+            "nutrisense": "NutriSense AI",
+            "metabolic": "Metabolic tings",
+            "risk_engine": "SPAG Risk Engine",
+            "anomaly": "Sickness Search",
+            "doctor": "Doctor Dashboard",
+            "preemptive": "Care Before Sickness"
+        }
+    },
+    "modules": {
+        "title": "Two Modules. One System.",
+        "nutrisense": {
+            "title": "NutriSense",
+            "desc": "Your everyday food and water level check. E de track how you de chop and drink to keep you healthy.",
+            "explore": "See More"
+        },
+        "biometer": {
+            "title": "Urban Biometer",
+            "desc": "E de check air, noise, and traffic for your area to keep you safe."
+        }
+    },
+    "nutrisense": {
+        "timeline_title": "Today Timeline",
+        "breakfast": "Morning Chop",
+        "lunch": "Afternoon Chop",
+        "dinner": "Night Chop",
+        "pattern_detected": "Wahala Detected",
+        "pattern_desc": "You don skip lunch 3 times dis week. You need to check your health well-well.",
+        "loop_title": "How e de work",
+        "loop_steps": [
+            "We see say you skip food",
+            "NutriSense check the pattern",
+            "SPAG update your health profile",
+            "Doctor see wetin de happen",
+            "We tell you wetin to do for Dashboard"
+        ]
+    },
+    "biometer": {
+        "city_title": "Your City de Look After You",
+        "city_desc": "Urban Biometer de use city data take protect you.",
+        "stats": {
+            "air": "Air Quality",
+            "noise": "Noise Level",
+            "noise_val": "Small (35dB)",
+            "outbreak": "Sickness for Area",
+            "outbreak_val": "Nothing de"
+        },
+        "heatmap": "Live Health Map",
+        "legend": {
+            "healthy": "Strong",
+            "stress": "Small Wahala",
+            "risk": "Big Wahala"
+        },
+        "alert": "Dirty air de for your road. Try another way."
+    },
+    "cta": {
+        "title": "Na sense be dis. No wait for sickness.",
+        "desc": "SPAG de learn. Your body de talk.",
+        "button": "Enter Dashboard",
+        "sub": "NutriSense + Urban Biometer — de inside SPAG."
+    },
+    "footer": {
+        "rights": "© 2026 SPAG — Beta Health. All Rights Reserved."
+    },
+    "dashboard": {
+        "title": "Sabi Dashboard",
+        "desc": "Collect all health signs from your things, check am well-well for real time."
+    },
+    "languages": {
+        "en": "English",
+        "fr": "French",
+        "es": "Spanish",
+        "de": "German",
+        "pt": "Portuguese",
+        "pcm": "Pidgin"
+    },
+    "search": "Find..."
+}
