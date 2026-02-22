@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-spring/web": "^10.0.3",
     "@react-three/fiber": "^9.5.0",
     "@types/three": "^0.183.1",
     "clsx": "^2.1.1",
