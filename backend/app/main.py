@@ -5,7 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.errors import register_error_handlers
-from app.routers import auth, users, meals, hydration, predictions, insights, health, notifications, chat
+from app.routers import (
+    auth,
+    users,
+    meals,
+    hydration,
+    predictions,
+    insights,
+    health,
+    notifications,
+    chat,
+    audio,
+)
 
 
 @asynccontextmanager
@@ -40,6 +51,7 @@ app.include_router(insights.router, prefix=settings.API_V1_PREFIX)
 app.include_router(health.router, prefix=settings.API_V1_PREFIX)
 app.include_router(notifications.router, prefix=settings.API_V1_PREFIX)
 app.include_router(chat.router, prefix=settings.API_V1_PREFIX)
+app.include_router(audio.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health", tags=["Health"])
