@@ -11,10 +11,15 @@ def _get_async_url(url: str) -> str:
     return url
 
 
+import uuid
+
 engine = create_async_engine(
     _get_async_url(settings.DATABASE_URL),
     echo=settings.DEBUG,
-    connect_args={"statement_cache_size": 0, "prepared_statement_cache_size": 0},
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_name_func": lambda: f"__asyncpg_{uuid.uuid4()}__"
+    },
 )
 
 async_session_factory = async_sessionmaker(
