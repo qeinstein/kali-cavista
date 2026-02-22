@@ -1,5 +1,7 @@
 import json
 import logging
+import tempfile
+import os
 from groq import AsyncGroq
 from openai import AsyncOpenAI
 from app.core.config import settings
@@ -30,21 +32,55 @@ class RouteIntent(BaseModel):
 
 async def transcribe_audio(audio_file) -> str:
     """
-    Transcribes audio using Groq's whisper-large-v3.
+    Transcribes audio using configured transcription service with fallbacks.
     """
-    if not groq_client:
-        return ""
-    try:
-        # Groq required format
-        transcription = await groq_client.audio.transcriptions.create(
-            file=("audio.webm", audio_file.read(), "audio/webm"), # Fallback to webm or wav depending on frontend
-            model="whisper-large-v3",
-            language="en"
-        )
-        return transcription.text
-    except Exception as e:
-        logger.error(f"Error during audio transcription: {e}")
-        return ""
+    # Determine service order based on configuration
+    service_order = []
+    
+    if settings.TRANSCRIPTION_SERVICE == "groq":
+        service_order = ["groq", "openai"]
+    elif settings.TRANSCRIPTION_SERVICE == "openai":
+        service_order = ["openai", "groq"]
+    else:
+        service_order = ["groq", "openai"]  # Default order
+    
+    # Try each service in order
+    for service in service_order:
+        if service == "groq" and groq_client:
+            try:
+                # Reset file pointer for Groq
+                audio_file.seek(0)
+                # Groq required format
+                transcription = await groq_client.audio.transcriptions.create(
+                    file=("audio.webm", audio_file.read(), "audio/webm"),
+                    model="whisper-large-v3",
+                    language="en"
+                )
+                logger.info(f"Transcription successful using Groq")
+                return transcription.text
+            except Exception as e:
+                logger.error(f"Groq transcription failed: {e}")
+                continue
+        
+        elif service == "openai" and openai_client:
+            try:
+                # Reset file pointer for OpenAI
+                audio_file.seek(0)
+                # OpenAI Whisper API (via OpenRouter)
+                transcription = await openai_client.audio.transcriptions.create(
+                    file=("audio.webm", audio_file.read(), "audio/webm"),
+                    model="whisper-1",
+                    language="en"
+                )
+                logger.info(f"Transcription successful using OpenAI")
+                return transcription.text
+            except Exception as e:
+                logger.error(f"OpenAI transcription failed: {e}")
+                continue
+    
+    # All services failed - try local transcription as final fallback
+    logger.info("Trying local transcription as final fallback")
+    return await _local_transcribe_audio(audio_file)
 
 
 async def extract_navigation_intent(
@@ -109,7 +145,7 @@ Current page context:
     
     try:
         response = await openai_client.chat.completions.create(
-            model="meta-llama/llama-3-8b-instruct:free",
+            model="google/gemma-3n-e4b-it:free",
             messages=[
                 {"role": "system", "content": "You are a routing assistant. Always respond with only valid JSON adhering to the schema."},
                 {"role": "user", "content": prompt}
@@ -185,7 +221,7 @@ Available actions: {', '.join(page_context.get('available_actions', []))}
     
     try:
         response = await openai_client.chat.completions.create(
-            model="meta-llama/llama-3-8b-instruct:free",
+            model="google/gemma-3n-e4b-it:free",
             messages=[
                 {"role": "system", "content": "You are a helpful, conversational assistant for a health partner application. You speak in a friendly, natural tone. You help visually impaired users navigate the app using voice. Be concise but informative."},
                 {"role": "user", "content": prompt}
@@ -198,3 +234,63 @@ Available actions: {', '.join(page_context.get('available_actions', []))}
     except Exception as e:
         logger.error(f"Error generating conversational response: {e}")
         return "I've navigated you to the requested page. Is there anything specific you'd like to know about it?"
+
+
+async def _local_transcribe_audio(audio_file) -> str:
+    """
+    Local audio transcription using speech_recognition library (offline, lower quality).
+    This is a fallback for when cloud services are unavailable.
+    """
+    try:
+        import speech_recognition as sr
+        
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as tmp:
+            tmp_path = tmp.name
+            # Write audio data to temporary file
+            audio_data = audio_file.read()
+            tmp.write(audio_data)
+        
+        # Initialize recognizer
+        recognizer = sr.Recognizer()
+        
+        # Load audio file
+        with sr.AudioFile(tmp_path) as source:
+            # Adjust for ambient noise
+            recognizer.adjust_for_ambient_noise(source)
+            # Record audio
+            audio = recognizer.record(source)
+        
+        # Try to recognize using Google Web Speech API (requires internet)
+        # If that fails, use Sphinx (offline but less accurate)
+        try:
+            text = recognizer.recognize_google(audio)
+            logger.info("Local transcription successful using Google Web Speech API")
+        except sr.UnknownValueError:
+            # Google Speech Recognition could not understand audio
+            logger.warning("Google Speech Recognition could not understand audio")
+            try:
+                # Try Sphinx (offline)
+                text = recognizer.recognize_sphinx(audio)
+                logger.info("Local transcription successful using Sphinx (offline)")
+            except sr.UnknownValueError:
+                logger.error("Sphinx could not understand audio")
+                text = ""
+        except sr.RequestError as e:
+            logger.error(f"Could not request results from Google Speech Recognition service: {e}")
+            text = ""
+        
+        # Clean up temporary file
+        try:
+            os.unlink(tmp_path)
+        except:
+            pass
+        
+        return text
+        
+    except ImportError:
+        logger.error("speech_recognition not installed. Install with: pip install SpeechRecognition")
+        return ""
+    except Exception as e:
+        logger.error(f"Local transcription failed: {e}")
+        return ""

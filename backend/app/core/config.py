@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: str = ""
     ELEVENLABS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"  # Default voice
     TTS_SERVICE: str = "elevenlabs"  # Options: elevenlabs, google, local
+    TRANSCRIPTION_SERVICE: str = "groq"  # Options: groq, openai, local
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
