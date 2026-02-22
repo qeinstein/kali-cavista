@@ -169,43 +169,98 @@ Companion_tracker tracks your health data using only your **mobile phone** — n
 
 ```
 Companion_tracker-ai/
-├── mobile/                     # React Native (Expo) app
+├── frontend/                   # Next.js web app
 │   ├── src/
-│   │   ├── screens/
-│   │   │   ├── HomeScreen.js
-│   │   │   ├── LogScreen.js
-│   │   │   ├── InsightsScreen.js
-│   │   │   └── ChatScreen.js
+│   │   ├── app/
+│   │   │   ├── api/
+│   │   │   │   └── routes/
+│   │   │   │       └── route.ts    # Dynamic routes API
+│   │   │   ├── context/
+│   │   │   │   └── LoaderContext.tsx
+│   │   │   ├── globals.css
+│   │   │   ├── layout.tsx
+│   │   │   ├── loading.tsx
+│   │   │   └── page.tsx
 │   │   ├── components/
-│   │   │   ├── HydrationScore.js
-│   │   │   ├── HungerTimer.js
-│   │   │   ├── MealLogButton.js
-│   │   │   └── WaterLogButton.js
+│   │   │   ├── VoiceNavigator.tsx  # Voice navigation component
+│   │   │   ├── TopNav.tsx
+│   │   │   ├── SpagLoader.tsx
+│   │   │   └── home/
+│   │   │       ├── Hero.tsx
+│   │   │       ├── About.tsx
+│   │   │       └── Modules.tsx
+│   │   ├── utils/
+│   │   │   ├── apiConfig.ts        # API configuration utility
+│   │   │   ├── conversationState.ts # Conversation state management
+│   │   │   └── pageAccessibility.ts # Page content extraction
+│   │   └── types/
+│   │       └── lucide-react.d.ts   # Type declarations for icons
+│   ├── .env.local
+│   ├── .env.example
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── mobile/                     # React Native (Expo) app
+│   ├── app/
+│   │   ├── (tabs)/
+│   │   │   ├── chat.tsx
+│   │   │   ├── index.tsx
+│   │   │   ├── insights.tsx
+│   │   │   └── log.tsx
+│   │   ├── auth/
+│   │   │   ├── login.tsx
+│   │   │   └── register.tsx
+│   │   ├── onboarding/
+│   │   │   ├── permissions.tsx
+│   │   │   ├── survey.tsx
+│   │   │   └── welcome.tsx
+│   │   ├── _layout.tsx
+│   │   └── index.tsx
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ChatBubble.tsx
+│   │   │   ├── HungerTimer.tsx
+│   │   │   ├── HydrationScore.tsx
+│   │   │   ├── InsightCard.tsx
+│   │   │   ├── MealBottomSheet.tsx
+│   │   │   ├── MealLogButton.tsx
+│   │   │   ├── TodayTimeline.tsx
+│   │   │   ├── WaterLogButton.tsx
+│   │   │   └── WaterToast.tsx
+│   │   ├── constants/
+│   │   │   └── theme.ts
 │   │   ├── services/
-│   │   │   ├── healthKit.js
-│   │   │   ├── googleFit.js
-│   │   │   ├── api.js
-│   │   │   └── notifications.js
-│   │   └── store/              # Redux / Zustand state
+│   │   │   ├── api.ts
+│   │   │   └── notifications.ts
+│   │   └── store/
+│   │       ├── useAppStore.ts
+│   │       └── useAuthStore.ts
 │   ├── app.json
 │   └── package.json
 │
-├── backend/                    # Node.js + Express API
-│   ├── src/
-│   │   ├── routes/
-│   │   │   ├── meals.js
-│   │   │   ├── hydration.js
-│   │   │   ├── predictions.js
-│   │   │   └── insights.js
-│   │   ├── controllers/
+├── backend/                    # Python + FastAPI API
+│   ├── app/
+│   │   ├── core/
+│   │   │   ├── config.py
+│   │   │   ├── database.py
+│   │   │   └── security.py
 │   │   ├── models/
-│   │   ├── middleware/
-│   │   └── services/
-│   │       ├── weatherService.js
-│   │       ├── predictionService.js
-│   │       └── aiNudgeService.js
+│   │   │   ├── tracking.py
+│   │   │   └── user.py
+│   │   ├── routers/
+│   │   │   ├── audio.py          # Voice navigation API
+│   │   │   ├── auth.py
+│   │   │   ├── predictions.py
+│   │   │   ├── tracking.py
+│   │   │   └── users.py
+│   │   ├── services/
+│   │   │   ├── llm.py            # LLM service for voice navigation
+│   │   │   ├── tts.py            # Text-to-Speech service
+│   │   │   └── weather.py
+│   │   ├── main.py
+│   │   └── __init__.py
 │   ├── .env.example
-│   └── package.json
+│   └── requirements.txt
 │
 ├── ml/                         # Python ML model
 │   ├── data/
@@ -262,6 +317,29 @@ FIREBASE_SERVER_KEY=your_firebase_server_key
 ML_SERVER_URL=http://localhost:8000
 JWT_SECRET=your_jwt_secret
 PORT=3000
+
+# Voice Navigation Configuration
+API_URL=http://localhost:8000
+API_VERSION=v1
+TTS_SERVICE=elevenlabs
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+ELEVENLABS_VOICE_ID=pNInz6obpgDQGcFmaJgB
+```
+
+### Frontend Environment Variables
+
+For the frontend (Next.js), create a `.env.local` file in the `frontend/` directory:
+
+```bash
+cd frontend
+cp .env.example .env.local
+```
+
+Fill in the following values:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NEXT_PUBLIC_API_VERSION=v1
 ```
 
 ---

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
+import VoiceNavigator from "@/components/VoiceNavigator";
 import TopNav from "@/components/TopNav";
 import { LoaderProvider } from "@/app/context/LoaderContext";
 
@@ -24,8 +25,6 @@ export const metadata: Metadata = {
   description: "Your modern, premium AI health companion.",
 };
 
-import { ThemeProvider } from "@/components/ThemeProvider";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,22 +33,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased bg-background text-foreground min-h-screen flex flex-col font-sans`}
       >
-        <ThemeProvider>
-          <LoaderProvider>
-            <TopNav />
-            {/* Main content wrapper supports full-screen sections or sidebars later */}
-            <main className="flex-1 flex flex-col min-h-screen pt-[72px]">
-              {children}
-            </main>
-          </LoaderProvider>
-
-          {/* Floating Action Buttons Group */}
-          <div className="fixed bottom-8 right-8 z-50 flex items-center gap-4">
-          
-          </div>
-        </ThemeProvider>
+        <LoaderProvider>
+          <TopNav />
+          {/* Main content wrapper supports full-screen sections or sidebars later */}
+          <main className="flex-1 flex flex-col min-h-screen pt-[72px]">
+            {children}
+          </main>
+        </LoaderProvider>
+        <VoiceNavigator />
       </body>
     </html>
   );
