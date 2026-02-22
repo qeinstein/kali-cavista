@@ -18,7 +18,7 @@ export function getApiConfig(): ApiConfig {
     backendUrl,
     apiVersion,
     audioEndpoint: `${backendUrl}/api/${apiVersion}/audio/voice-command`,
-    routesEndpoint: `${backendUrl}/api/routes`,
+    routesEndpoint: `/api/routes`,
   };
 }
 

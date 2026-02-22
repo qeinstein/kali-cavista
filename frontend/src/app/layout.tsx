@@ -33,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased bg-background text-foreground min-h-screen flex flex-col font-sans`}
       >
         <LoaderProvider>
