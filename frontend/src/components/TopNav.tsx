@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import { useLoader } from "@/app/context/LoaderContext";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function TopNav() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isLoaderDone } = useLoader();
+    const { theme, toggleTheme } = useTheme();
 
     // Handle scroll effect for glassmorphism
     useEffect(() => {
@@ -45,8 +47,23 @@ export default function TopNav() {
                             {/* Logo Section */}
                             <div className="flex-shrink-0 flex items-center gap-2">
                                 <Link href="/" className="flex items-center gap-2 group">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
-                                        <span className="text-primary font-bold text-xl tracking-tighter">S</span>
+                                    <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10 group-hover:border-primary/30 transition-all duration-300 group-hover:scale-105 active:scale-95 shadow-sm">
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            className="w-5 h-5 text-primary filter drop-shadow-[0_0_8px_rgba(34,197,94,0.3)]"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="3.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <motion.path
+                                                d="M6 4h12L6 12h12L6 20h12"
+                                                initial={{ pathLength: 0, opacity: 0 }}
+                                                animate={{ pathLength: 1, opacity: 1 }}
+                                                transition={{ duration: 1.2, ease: "easeInOut" }}
+                                            />
+                                        </svg>
                                     </div>
                                 </Link>
                             </div>
@@ -62,6 +79,15 @@ export default function TopNav() {
                                         {link.name}
                                     </Link>
                                 ))}
+
+                                {/* Theme Toggle */}
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/70 transition-colors"
+                                    aria-label="Toggle theme"
+                                >
+                                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                                </button>
                             </nav>
 
                             {/* Right Action (CTA)
@@ -72,7 +98,14 @@ export default function TopNav() {
                             </div> */}
 
                             {/* Hamburger Menu Toggle (Mobile/Tablet) */}
-                            <div className="flex md:hidden items-center">
+                            <div className="flex md:hidden items-center gap-2">
+                                <button
+                                    onClick={toggleTheme}
+                                    className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/70 transition-colors"
+                                    aria-label="Toggle theme"
+                                >
+                                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                                </button>
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                     className="text-foreground/70 hover:text-primary p-2 transition-colors focus:outline-none"
