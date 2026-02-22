@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     SECRET_KEY: str = "change-me"
     API_V1_PREFIX: str = "/api/v1"
-    API_URL: str = "http://localhost:8000"
+    API_URL: str = "https://spag-hjui.onrender.com"
     API_VERSION: str = "v1"
 
     DATABASE_URL: str = "sqlite+aiosqlite:///./nutrisense.db"
