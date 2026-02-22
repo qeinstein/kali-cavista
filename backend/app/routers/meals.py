@@ -14,7 +14,7 @@ from app.schemas.meals import (
     MealItem, MealHistoryResponse, MealTodayResponse,
 )
 from app.schemas.user import SuccessResponse
-from app.services.prediction import generate_prediction
+from app.services.prediction import generate_prediction, train_on_new_meal
 
 router = APIRouter(prefix="/meals", tags=["Meals"])
 
@@ -44,6 +44,9 @@ async def log_meal(
     db.add(meal)
     await db.flush()
     await db.refresh(meal)
+
+    # Train the online model using the newly revealed gap (if any)
+    await train_on_new_meal(user, meal, db)
 
     # Generate a fresh hunger prediction after logging
     pred = await generate_prediction(user, db)

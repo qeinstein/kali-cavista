@@ -40,3 +40,30 @@ class PredictionHistoryItem(BaseModel):
 class PredictionHistoryResponse(BaseModel):
     predictions: List[PredictionHistoryItem]
     avgAccuracyMinutes: Optional[int] = None
+
+
+# ── Composite Digital Twin Schemas ─────────────────────────────────────
+
+class HungerFacetState(BaseModel):
+    nextHungerAt: Optional[datetime] = None
+    confidence: float
+
+class EnergyFacetState(BaseModel):
+    predictedLevel: float # 1-10
+    confidence: float
+
+class MoodFacetState(BaseModel):
+    predictedLevel: float # 1-5
+    confidence: float
+
+class HydrationFacetState(BaseModel):
+    predictedDeficitLiters: float
+    confidence: float
+
+class DigitalTwinResponse(BaseModel):
+    hunger: HungerFacetState
+    energy: EnergyFacetState
+    mood: MoodFacetState
+    hydration: HydrationFacetState
+    generatedAt: datetime = datetime.now()
+
