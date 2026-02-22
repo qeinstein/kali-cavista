@@ -62,8 +62,10 @@ class ActivityLog(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    steps = Column(Integer, nullable=True)
-    active_minutes = Column(Integer, nullable=True)
-    sleep_hours = Column(Float, nullable=True)
+    activity_type = Column(String, nullable=False) # e.g., 'walking', 'running', 'gym'
+    duration_minutes = Column(Integer, nullable=False)
+    calories_burned = Column(Integer, nullable=True)
+    intensity = Column(String, nullable=True) # e.g., 'low', 'moderate', 'high'
     logged_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(tz.utc), nullable=False)
+
