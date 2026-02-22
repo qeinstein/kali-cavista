@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, AlertTriangle } from "lucide-react";
+import { FiCalendar, FiAlertTriangle } from "react-icons/fi";
 
 export default function NutriSenseDeepDive() {
     return (
@@ -18,7 +18,7 @@ export default function NutriSenseDeepDive() {
                         <div className="bg-background backdrop-blur-md border border-foreground/5 p-6 rounded-3xl shadow-lg shadow-black/5">
                             <div className="flex items-center justify-between mb-8">
                                 <h4 className="text-foreground font-semibold">Today's Timeline</h4>
-                                <Calendar size={18} className="text-foreground/20" />
+                                <FiCalendar size={18} className="text-foreground/20" />
                             </div>
                             <div className="flex items-center justify-between relative px-2">
                                 <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/5 -translate-y-1/2 z-0"></div>
@@ -38,7 +38,7 @@ export default function NutriSenseDeepDive() {
                         </div>
                         <div className="bg-background backdrop-blur-md border border-danger/10 p-5 rounded-2xl flex gap-4 items-start shadow-sm shadow-danger/5">
                             <div className="w-10 h-10 bg-danger/5 rounded-xl flex items-center justify-center text-danger border border-danger/10">
-                                <AlertTriangle size={20} />
+                                <FiAlertTriangle size={20} />
                             </div>
                             <div>
                                 <p className="text-sm font-semibold text-foreground">Pattern Detected</p>

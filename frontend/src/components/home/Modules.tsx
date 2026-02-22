@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Brain, ShieldCheck, ArrowRight } from "lucide-react";
+import { FaBrain } from "react-icons/fa6";
+import { FiShield, FiArrowRight } from "react-icons/fi";
 
 export default function Modules() {
     return (
@@ -34,14 +35,14 @@ export default function Modules() {
                     >
                         <div className="flex flex-col h-full">
                             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 text-primary mb-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                <Brain size={32} />
+                                <FaBrain size={32} />
                             </div>
                             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">NutriSense</h3>
                             <p className="text-lg text-ink-2 leading-relaxed mb-8 flex-1">
                                 Your daily nutrition and hydration intelligence layer. Tracks meal timing, hydration patterns, and converts lifestyle rhythm into long-term disease risk signals.
                             </p>
                             <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all duration-300">
-                                Explore <ArrowRight size={20} />
+                                Explore <FiArrowRight size={20} />
                             </div>
                         </div>
                         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] -z-10"></div>
@@ -57,14 +58,14 @@ export default function Modules() {
                     >
                         <div className="flex flex-col h-full">
                             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 text-primary mb-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                <ShieldCheck size={32} />
+                                <FiShield size={32} />
                             </div>
                             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Urban Biometer</h3>
                             <p className="text-lg text-ink-2 leading-relaxed mb-8 flex-1">
                                 Transforms cities into anonymous health sensing networks. Air quality, noise stress, traffic patterns, and crowdsourced biometrics — combined into real-time health heatmaps.
                             </p>
                             <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all duration-300">
-                                Explore <ArrowRight size={20} />
+                                Explore <FiArrowRight size={20} />
                             </div>
                         </div>
                         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] -z-10"></div>

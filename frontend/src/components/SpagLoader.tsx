@@ -48,7 +48,7 @@ export default function SpagLoader() {
               <style>{`
             .border-rect {
               fill: none;
-              stroke: #2D6A4F;
+              stroke: #1b4332;
               stroke-width: 1.5;
               vector-effect: non-scaling-stroke;
               stroke-dasharray: 400;
@@ -128,7 +128,7 @@ export default function SpagLoader() {
              C 82,134 68,143 50,143
              C 32,143 18,134 18,122"
               fill="none"
-              stroke="#2D6A4F"
+              stroke="#1b4332"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -138,7 +138,7 @@ export default function SpagLoader() {
             <line
               className="cap-top"
               x1="18" y1="4" x2="86" y2="4"
-              stroke="#2D6A4F"
+              stroke="#1b4332"
               strokeWidth="2.5"
               strokeLinecap="butt"
             />
@@ -147,7 +147,7 @@ export default function SpagLoader() {
             <line
               className="cap-bottom"
               x1="18" y1="152" x2="86" y2="152"
-              stroke="#2D6A4F"
+              stroke="#1b4332"
               strokeWidth="2.5"
               strokeLinecap="butt"
             />

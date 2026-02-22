@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, Square, Loader2, Volume2, VolumeX } from "lucide-react";
+import { FiMic, FiSquare, FiLoader, FiVolume2, FiVolumeX } from "react-icons/fi";
 import { extractPageContext, extractAvailableActions } from '../utils/pageAccessibility';
 import { conversationManager } from '../utils/conversationState';
 import { getAudioEndpoint, getRoutesEndpoint } from '../utils/apiConfig';
@@ -139,16 +139,16 @@ export default function VoiceNavigator() {
 
       // Create audio context
       audioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
+
       // Decode audio data
       const audioData = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
       const audioBuffer = await audioContext.current.decodeAudioData(audioData.buffer);
-      
+
       // Create source and connect to output
       audioSource.current = audioContext.current.createBufferSource();
       audioSource.current.buffer = audioBuffer;
       audioSource.current.connect(audioContext.current.destination);
-      
+
       // Set up completion handler
       audioSource.current.onended = () => {
         setIsPlaying(false);
@@ -183,7 +183,7 @@ export default function VoiceNavigator() {
     // Pass the available routes and current page context
     formData.append("routes_context", JSON.stringify(availableRoutes));
     formData.append("page_context", JSON.stringify(pageContext));
-    
+
     // Get conversation history from conversation manager
     const history = conversationManager.getFullHistory();
     formData.append("conversation_history", JSON.stringify(history));
@@ -227,9 +227,9 @@ export default function VoiceNavigator() {
       // Update conversation history
       if (data.transcript && data.response_text) {
         conversationManager.addUserTurn(
-          data.transcript, 
-          data.response_text, 
-          data.route, 
+          data.transcript,
+          data.response_text,
+          data.route,
           pageContext
         );
       }
@@ -262,8 +262,8 @@ export default function VoiceNavigator() {
               </span>
             )}
             {isProcessing && !isRecording && !isPlaying && (
-              <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                <Loader2 className="w-3 h-3 animate-spin" /> Processing...
+              <span className="flex items-center gap-1 text-primary">
+                <FiLoader className="w-3 h-3 animate-spin" /> Processing...
               </span>
             )}
           </div>
@@ -279,7 +279,7 @@ export default function VoiceNavigator() {
           {/* Assistant response */}
           {responseText && (
             <div className="text-zinc-800 dark:text-zinc-200">
-              <span className="text-blue-600 dark:text-blue-400">Assistant: </span>
+              <span className="text-primary">Assistant: </span>
               {responseText}
             </div>
           )}
@@ -309,7 +309,7 @@ export default function VoiceNavigator() {
             className="flex items-center justify-center rounded-full w-10 h-10 bg-yellow-500 hover:bg-yellow-600 shadow-lg transition-all duration-300"
             title="Stop playback"
           >
-            <VolumeX className="w-5 h-5 text-white" />
+            <FiVolumeX className="w-5 h-5 text-white" />
           </button>
         )}
 
@@ -323,18 +323,18 @@ export default function VoiceNavigator() {
               ? "bg-red-500 hover:bg-red-600 shadow-red-500/30 scale-110"
               : isPlaying
                 ? "bg-green-500 hover:bg-green-600 shadow-green-500/30"
-                : "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
+                : "bg-primary hover:bg-primary-hover shadow-primary/30"
             }
             ${isProcessing && !isRecording ? "opacity-50 cursor-not-allowed scale-95" : "hover:scale-105"}
           `}
           title={isRecording ? "Stop recording" : isPlaying ? "Playing audio..." : "Start conversation"}
         >
           {isRecording ? (
-            <Square className="w-5 h-5 text-white fill-current" />
+            <FiSquare className="w-5 h-5 text-white fill-current" />
           ) : isPlaying ? (
-            <Volume2 className="w-6 h-6 text-white" />
+            <FiVolume2 className="w-6 h-6 text-white" />
           ) : (
-            <Mic className="w-6 h-6 text-white" />
+            <FiMic className="w-6 h-6 text-white" />
           )}
         </button>
       </div>

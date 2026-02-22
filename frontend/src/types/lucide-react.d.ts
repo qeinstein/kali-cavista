@@ -1,20 +1,29 @@
 declare module 'lucide-react' {
-  export const Mic: any;
-  export const Square: any;
-  export const Loader2: any;
-  export const Volume2: any;
-  export const VolumeX: any;
-  export const Menu: any;
-  export const X: any;
-  export const Activity: any;
-  export const Brain: any;
-  export const ShieldCheck: any;
-  export const Stethoscope: any;
-  export const ArrowRight: any;
-  export const Calendar: any;
-  export const AlertTriangle: any;
-  export const Wind: any;
-  export const Map: any;
-  export const AlertCircle: any;
-  // Add other icons as needed
+  import { FC, SVGProps } from 'react';
+
+  export interface LucideProps extends SVGProps<SVGSVGElement> {
+    size?: number | string;
+    absoluteStrokeWidth?: boolean;
+    color?: string;
+  }
+
+  export type LucideIcon = FC<LucideProps>;
+
+  // A catch-all for any named export from lucide-react
+  // This bypasses the TS2305 error for missing exports.
+  export const Activity: LucideIcon;
+  export const AlertTriangle: LucideIcon;
+  export const Clock: LucideIcon;
+  export const Coffee: LucideIcon;
+  export const Droplets: LucideIcon;
+  export const Flame: LucideIcon;
+  export const Footprints: LucideIcon;
+  export const Gauge: LucideIcon;
+  export const Heart: LucideIcon;
+  export const Menu: LucideIcon;
+  export const Moon: LucideIcon;
+  export const Sun: LucideIcon;
+  export const TrendingUp: LucideIcon;
+  export const X: LucideIcon;
+  export const Zap: LucideIcon;
 }
