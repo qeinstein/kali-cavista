@@ -1,22 +1,105 @@
 {
     "nav": {
         "dashboard": "Painel",
-        "insights": "Percepções",
-        "chat": "Bate-papo",
+        "insights": "Insights",
+        "chat": "Chat",
         "logs": "Registros",
         "home": "Início",
         "about": "Sobre",
         "modules": "Módulos"
     },
     "hero": {
-        "enter": "Entrar no Painel"
+        "enter": "Entrar no Painel",
+        "online": "Spag está Online",
+        "sovereign": "Soberano",
+        "preventive": "Preventivo",
+        "ai": "IA",
+        "grid": "Grade",
+        "enter_dashboard": "Entrar no Painel"
+    },
+    "about": {
+        "badge": "O que é SPAG",
+        "title": "O Motor Nacional de Prevenção",
+        "desc1": "O SPAG não trata doenças; trata-se de prevê-las e preveni-las antes que os sintomas apareçam.",
+        "desc2": "Ao coletar perfeitamente seus dados de saúde diários, o SPAG os processa através do nosso motor de risco de IA avançado para identificar anomalias. Se um risco for detectado, os dados são instantaneamente transmitidos para o painel do seu médico para ação preventiva.",
+        "nodes": {
+            "collection": "Coleta de Dados Diária",
+            "vitals": "Dispositivos e sinais vitais",
+            "nutrisense": "IA NutriSense",
+            "metabolic": "Processamento metabólico",
+            "risk_engine": "Motor de Risco SPAG",
+            "anomaly": "Detecção de anomalias",
+            "doctor": "Painel do Médico",
+            "preemptive": "Cuidado preventivo"
+        }
+    },
+    "modules": {
+        "title": "Dois Módulos. Um Sistema de Prevenção.",
+        "nutrisense": {
+            "title": "NutriSense",
+            "desc": "Sua camada diária de inteligência em nutrição e hidratação. Monitora horários de refeições, padrões de hidratação e converte ritmos de vida em sinais de risco de doenças a longo prazo.",
+            "explore": "Explorar"
+        },
+        "biometer": {
+            "title": "Urban Biometer",
+            "desc": "Transforma cidades em redes de sensores de saúde anônimas. Qualidade do ar, estresse sonoro, padrões de tráfego e biometria colaborativa — combinados em mapas de calor de saúde em tempo real.",
+            "explore": "Explorar"
+        }
+    },
+    "nutrisense": {
+        "timeline_title": "Linha do Tempo de Hoje",
+        "breakfast": "Café da manhã",
+        "lunch": "Almoço",
+        "dinner": "Jantar",
+        "pattern_detected": "Padrão Detectado",
+        "pattern_desc": "Você pulou o almoço 3 vezes esta semana. Pontuação de risco metabólico atualizada.",
+        "loop_title": "O loop de prevenção em ação",
+        "loop_steps": [
+            "Refeições puladas detectadas como anomalia",
+            "NutriSense identifica padrão potencial",
+            "SPAG atualiza seu perfil de risco metabólico",
+            "Médico vê tendências metabólicas regionais",
+            "Plano de prevenção recomendado via Painel"
+        ]
+    },
+    "biometer": {
+        "city_title": "Sua Cidade Está Cuidando de Você",
+        "city_desc": "O Urban Biometer do SPAG transforma dados urbanos anônimos em um escudo de saúde pessoal.",
+        "stats": {
+            "air": "Índice de Qualidade do Ar",
+            "noise": "Nível de Estresse Sonoro",
+            "noise_val": "Sutil (35dB)",
+            "outbreak": "Proximidade de Surto",
+            "outbreak_val": "Nenhum Detectado"
+        },
+        "heatmap": "Mapa de Calor de Saúde ao Vivo",
+        "legend": {
+            "healthy": "Saudável",
+            "stress": "Estresse Elevado",
+            "risk": "Alto Risco"
+        },
+        "alert": "Ponto de poluição detectado em sua rota habitual. Caminho alternativo sugerido."
+    },
+    "cta": {
+        "title": "Isto é inteligência preventiva. Não reação.",
+        "desc": "O SPAG já está aprendendo. Seus dados de saúde já estão falando.",
+        "button": "Entrar no Painel",
+        "sub": "NutriSense + Urban Biometer — ativos dentro do SPAG."
+    },
+    "footer": {
+        "rights": "© 2026 SPAG — Motor Nacional de Prevenção. Todos os direitos reservados."
+    },
+    "dashboard": {
+        "title": "Painel de Inteligência",
+        "desc": "Agregue sinais de saúde de dispositivos conectados, anonimizados e analisados em tempo real."
     },
     "languages": {
         "en": "Inglês",
         "fr": "Francês",
         "es": "Espanhol",
         "de": "Alemão",
-        "pt": "Português"
+        "pt": "Português",
+        "pcm": "Pidgin"
     },
-    "search": "Pesquisar..."
+    "search": "Procurar..."
 }

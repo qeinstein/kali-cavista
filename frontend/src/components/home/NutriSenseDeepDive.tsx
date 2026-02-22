@@ -1,9 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FiCalendar, FiAlertTriangle } from "react-icons/fi";
 
 export default function NutriSenseDeepDive() {
+    const { t } = useTranslation();
+    const loopSteps = t('nutrisense.loop_steps', { returnObjects: true }) as string[];
+
     return (
         <section id="nutrisense" className="w-full bg-bg-2/30">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
@@ -17,22 +21,22 @@ export default function NutriSenseDeepDive() {
                     >
                         <div className="bg-background backdrop-blur-md border border-foreground/5 p-6 rounded-3xl shadow-lg shadow-black/5">
                             <div className="flex items-center justify-between mb-8">
-                                <h4 className="text-foreground font-semibold">Today's Timeline</h4>
+                                <h4 className="text-foreground font-semibold">{t('nutrisense.timeline_title', "Today's Timeline")}</h4>
                                 <FiCalendar size={18} className="text-foreground/20" />
                             </div>
                             <div className="flex items-center justify-between relative px-2">
                                 <div className="absolute top-1/2 left-0 right-0 h-px bg-foreground/5 -translate-y-1/2 z-0"></div>
                                 <div className="flex flex-col items-center gap-2 relative z-10">
                                     <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(45,106,79,0.3)]"></div>
-                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">Breakfast</span>
+                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">{t('nutrisense.breakfast', "Breakfast")}</span>
                                 </div>
                                 <div className="flex flex-col items-center gap-2 relative z-10">
                                     <div className="w-4 h-4 rounded-full bg-danger shadow-[0_0_10px_rgba(193,18,31,0.3)]"></div>
-                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">Lunch</span>
+                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">{t('nutrisense.lunch', "Lunch")}</span>
                                 </div>
                                 <div className="flex flex-col items-center gap-2 relative z-10">
                                     <div className="w-4 h-4 rounded-full border-2 border-foreground/10 bg-background"></div>
-                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">Dinner</span>
+                                    <span className="text-[10px] uppercase tracking-tighter text-foreground/40 font-bold">{t('nutrisense.dinner', "Dinner")}</span>
                                 </div>
                             </div>
                         </div>
@@ -41,9 +45,9 @@ export default function NutriSenseDeepDive() {
                                 <FiAlertTriangle size={20} />
                             </div>
                             <div>
-                                <p className="text-sm font-semibold text-foreground">Pattern Detected</p>
+                                <p className="text-sm font-semibold text-foreground">{t('nutrisense.pattern_detected', "Pattern Detected")}</p>
                                 <p className="text-xs text-ink-2 leading-relaxed mt-1">
-                                    You've skipped lunch 3 times this week. Metabolic risk score updated.
+                                    {t('nutrisense.pattern_desc', "You've skipped lunch 3 times this week. Metabolic risk score updated.")}
                                 </p>
                             </div>
                         </div>
@@ -54,15 +58,15 @@ export default function NutriSenseDeepDive() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h3 className="text-3xl font-bold tracking-tight text-foreground mb-8">The prevention loop in action</h3>
+                        <h3 className="text-3xl font-bold tracking-tight text-foreground mb-8">{t('nutrisense.loop_title', "The prevention loop in action")}</h3>
                         <ol className="space-y-6">
-                            {[
+                            {(Array.isArray(loopSteps) ? loopSteps : [
                                 "Skipped meals detected as anomaly",
                                 "NutriSense identifies potential pattern",
                                 "SPAG updates your metabolic risk profile",
                                 "Doctor sees regional metabolic trends",
                                 "Prevention plan recommended via Dashboard"
-                            ].map((step, idx) => (
+                            ]).map((step, idx) => (
                                 <li key={idx} className="flex gap-4 items-start group">
                                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center text-sm font-bold group-hover:bg-primary group-hover:text-white transition-all">{idx + 1}</span>
                                     <p className="text-lg text-foreground/70 pt-0.5">{step}</p>
