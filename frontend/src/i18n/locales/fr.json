@@ -1,22 +1,105 @@
 {
     "nav": {
-        "dashboard": "Tableau de Bord",
+        "dashboard": "Tableau de bord",
         "insights": "Aperçus",
-        "chat": "Discuter",
+        "chat": "Chat",
         "logs": "Journaux",
         "home": "Accueil",
-        "about": "À Propos",
+        "about": "À propos",
         "modules": "Modules"
     },
     "hero": {
-        "enter": "Entrer au Tableau de Bord"
+        "enter": "Accéder au tableau de bord",
+        "online": "Spag est en ligne",
+        "sovereign": "Souverain",
+        "preventive": "Préventif",
+        "ai": "IA",
+        "grid": "Grille",
+        "enter_dashboard": "Accéder au tableau de bord"
+    },
+    "about": {
+        "badge": "Qu'est-ce que SPAG",
+        "title": "Le moteur national de prévention",
+        "desc1": "SPAG ne consiste pas à traiter des maladies ; il s'agit de les prédire et de les prévenir avant même l'apparition des symptômes.",
+        "desc2": "En collectant de manière transparente vos données de santé quotidiennes, SPAG les traite via notre moteur de risque IA avancé pour identifier les anomalies. Si un risque est détecté, les données sont instantanément transmises au tableau de bord de votre médecin pour une action préemptive.",
+        "nodes": {
+            "collection": "Collecte de données quotidiennes",
+            "vitals": "Objets connectés et signes vitaux",
+            "nutrisense": "IA NutriSense",
+            "metabolic": "Traitement métabolique",
+            "risk_engine": "Moteur de risque SPAG",
+            "anomaly": "Détection d'anomalies",
+            "doctor": "Tableau de bord médecin",
+            "preemptive": "Soins préemptifs"
+        }
+    },
+    "modules": {
+        "title": "Deux modules. Un système de prévention.",
+        "nutrisense": {
+            "title": "NutriSense",
+            "desc": "Votre couche d'intelligence quotidienne sur la nutrition et l'hydratation. Suit l'heure des repas, les modèles d'hydratation et convertit le rythme de vie en signaux de risque de maladie à long terme.",
+            "explore": "Explorer"
+        },
+        "biometer": {
+            "title": "Urban Biometer",
+            "desc": "Transforme les villes en réseaux de détection de santé anonymes. Qualité de l'air, stress sonore, modèles de trafic et biométrie participative — combinés en cartes de chaleur de santé en temps réel.",
+            "explore": "Explorer"
+        }
+    },
+    "nutrisense": {
+        "timeline_title": "Chronologie d'aujourd'hui",
+        "breakfast": "Petit-déjeuner",
+        "lunch": "Déjeuner",
+        "dinner": "Dîner",
+        "pattern_detected": "Modèle détecté",
+        "pattern_desc": "Vous avez sauté le déjeuner 3 fois cette semaine. Score de risque métabolique mis à jour.",
+        "loop_title": "La boucle de prévention en action",
+        "loop_steps": [
+            "Repas sautés détectés comme anomalie",
+            "NutriSense identifie un modèle potentiel",
+            "SPAG met à jour votre profil de risque métabolique",
+            "Le médecin voit les tendances métaboliques régionales",
+            "Plan de prévention recommandé via le tableau de bord"
+        ]
+    },
+    "biometer": {
+        "city_title": "Votre ville veille sur vous",
+        "city_desc": "L'Urban Biometer de SPAG transforme les données urbaines anonymes en un bouclier de santé personnel.",
+        "stats": {
+            "air": "Indice de qualité de l'air",
+            "noise": "Niveau de stress sonore",
+            "noise_val": "Subtil (35dB)",
+            "outbreak": "Proximité d'épidémie",
+            "outbreak_val": "Aucune détectée"
+        },
+        "heatmap": "Carte de chaleur santé en direct",
+        "legend": {
+            "healthy": "Sain",
+            "stress": "Stress élevé",
+            "risk": "Risque élevé"
+        },
+        "alert": "Point chaud de pollution détecté sur votre itinéraire habituel. Chemin alternatif suggéré."
+    },
+    "cta": {
+        "title": "C'est de l'intelligence préventive. Pas de la réaction.",
+        "desc": "SPAG apprend déjà. Vos données de santé parlent déjà.",
+        "button": "Accéder au tableau de bord",
+        "sub": "NutriSense + Urban Biometer — actifs dans SPAG."
+    },
+    "footer": {
+        "rights": "© 2026 SPAG — Moteur national de prévention. Tous droits réservés."
+    },
+    "dashboard": {
+        "title": "Tableau de bord intelligent",
+        "desc": "Regroupez les signaux de santé des appareils connectés, anonymisés et analysés en temps réel."
     },
     "languages": {
         "en": "Anglais",
         "fr": "Français",
         "es": "Espagnol",
         "de": "Allemand",
-        "pt": "Portugais"
+        "pt": "Portugais",
+        "pcm": "Pidgin"
     },
     "search": "Chercher..."
 }

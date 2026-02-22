@@ -1,9 +1,12 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function CTA() {
+    const { t } = useTranslation();
+
     return (
         <section id="cta" className="w-full relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center -z-10">
@@ -17,20 +20,20 @@ export default function CTA() {
                 className="max-w-4xl mx-auto px-4 text-center py-32 md:py-48"
             >
                 <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-8">
-                    This is prevention intelligence. <br /> Not reaction.
+                    {t('cta.title', "This is prevention intelligence. \n Not reaction.")}
                 </h2>
                 <p className="text-xl text-ink-2 mb-12 max-w-2xl mx-auto">
-                    SPAG is already learning. Your health data is already speaking.
+                    {t('cta.desc', "SPAG is already learning. Your health data is already speaking.")}
                 </p>
                 <div className="flex flex-col items-center gap-6">
                     <Link
                         href="/dashboard"
                         className="bg-primary hover:bg-primary-hover text-white px-10 py-5 rounded-full text-lg font-bold transition-all shadow-[0_20px_40px_rgba(45,106,79,0.1)] active:scale-95 text-center"
                     >
-                        Enter Dashboard
+                        {t('cta.button', "Enter Dashboard")}
                     </Link>
                     <p className="text-sm font-medium text-foreground/30 italic">
-                        NutriSense + Urban Biometer — active inside SPAG.
+                        {t('cta.sub', "NutriSense + Urban Biometer — active inside SPAG.")}
                     </p>
                 </div>
             </motion.div>

@@ -9,14 +9,97 @@
         "modules": "Modules"
     },
     "hero": {
-        "enter": "Enter Dashboard"
+        "enter": "Enter Dashboard",
+        "online": "Spag Is Online",
+        "sovereign": "Sovereign",
+        "preventive": "Preventive",
+        "ai": "AI",
+        "grid": "Grid",
+        "enter_dashboard": "Enter Dashboard"
+    },
+    "about": {
+        "badge": "What is SPAG",
+        "title": "The National Prevention Engine",
+        "desc1": "SPAG is not about treating diseases; it's about predicting and preventing them before symptoms ever appear.",
+        "desc2": "By seamlessly collecting your everyday health data, SPAG runs it through our advanced AI risk engine to identify anomalies. If a risk is detected, the data is instantly bridged to your doctor's dashboard for preemptive action.",
+        "nodes": {
+            "collection": "Daily Data Collection",
+            "vitals": "Wearables & vitals",
+            "nutrisense": "NutriSense AI",
+            "metabolic": "Metabolic processing",
+            "risk_engine": "SPAG Risk Engine",
+            "anomaly": "Anomaly detection",
+            "doctor": "Doctor Dashboard",
+            "preemptive": "Preemptive care"
+        }
+    },
+    "modules": {
+        "title": "Two Modules. One Prevention System.",
+        "nutrisense": {
+            "title": "NutriSense",
+            "desc": "Your daily nutrition and hydration intelligence layer. Tracks meal timing, hydration patterns, and converts lifestyle rhythm into long-term disease risk signals.",
+            "explore": "Explore"
+        },
+        "biometer": {
+            "title": "Urban Biometer",
+            "desc": "Transforms cities into anonymous health sensing networks. Air quality, noise stress, traffic patterns, and crowdsourced biometrics — combined into real-time health heatmaps.",
+            "explore": "Explore"
+        }
+    },
+    "nutrisense": {
+        "timeline_title": "Today's Timeline",
+        "breakfast": "Breakfast",
+        "lunch": "Lunch",
+        "dinner": "Dinner",
+        "pattern_detected": "Pattern Detected",
+        "pattern_desc": "You've skipped lunch 3 times this week. Metabolic risk score updated.",
+        "loop_title": "The prevention loop in action",
+        "loop_steps": [
+            "Skipped meals detected as anomaly",
+            "NutriSense identifies potential pattern",
+            "SPAG updates your metabolic risk profile",
+            "Doctor sees regional metabolic trends",
+            "Prevention plan recommended via Dashboard"
+        ]
+    },
+    "biometer": {
+        "city_title": "Your City Is Watching Over You",
+        "city_desc": "SPAG's Urban Biometer turns anonymous city data into a personal health shield.",
+        "stats": {
+            "air": "Air Quality Index",
+            "noise": "Noise Stress Level",
+            "noise_val": "Subtle (35dB)",
+            "outbreak": "Outbreak Proximity",
+            "outbreak_val": "None Detected"
+        },
+        "heatmap": "Live Health Heatmap",
+        "legend": {
+            "healthy": "Healthy",
+            "stress": "Elevated Stress",
+            "risk": "High Risk"
+        },
+        "alert": "Pollution hotspot detected on your usual route. Alternative path suggested."
+    },
+    "cta": {
+        "title": "This is prevention intelligence. Not reaction.",
+        "desc": "SPAG is already learning. Your health data is already speaking.",
+        "button": "Enter Dashboard",
+        "sub": "NutriSense + Urban Biometer — active inside SPAG."
+    },
+    "footer": {
+        "rights": "© 2026 SPAG — National Prevention Engine. All rights reserved."
+    },
+    "dashboard": {
+        "title": "Intelligence Dashboard",
+        "desc": "Aggregate health signals from connected devices, anonymised and analysed in real time."
     },
     "languages": {
         "en": "English",
         "fr": "French",
         "es": "Spanish",
         "de": "German",
-        "pt": "Portuguese"
+        "pt": "Portuguese",
+        "pcm": "Pidgin"
     },
     "search": "Search..."
 }

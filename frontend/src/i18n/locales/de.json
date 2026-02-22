@@ -1,22 +1,105 @@
 {
     "nav": {
         "dashboard": "Dashboard",
-        "insights": "Einblicke",
-        "chat": "Chatten",
+        "insights": "Erkenntnisse",
+        "chat": "Chat",
         "logs": "Protokolle",
         "home": "Startseite",
         "about": "Über uns",
         "modules": "Module"
     },
     "hero": {
-        "enter": "Zum Dashboard"
+        "enter": "Dashboard öffnen",
+        "online": "Spag ist online",
+        "sovereign": "Souverän",
+        "preventive": "Präventiv",
+        "ai": "KI",
+        "grid": "Raster",
+        "enter_dashboard": "Dashboard öffnen"
+    },
+    "about": {
+        "badge": "Was ist SPAG",
+        "title": "Die Nationale Präventions-Engine",
+        "desc1": "Bei SPAG geht es nicht um die Behandlung von Krankheiten; es geht darum, sie vorherzusagen und zu verhindern, bevor Symptome auftreten.",
+        "desc2": "Durch die nahtlose Erfassung Ihrer täglichen Gesundheitsdaten lässt SPAG diese durch unsere fortschrittliche KI-Risiko-Engine laufen, um Anomalien zu identifizieren. Wenn ein Risiko erkannt wird, werden die Daten sofort an das Dashboard Ihres Arztes für präventive Maßnahmen weitergeleitet.",
+        "nodes": {
+            "collection": "Tägliche Datenerfassung",
+            "vitals": "Wearables & Vitalwerte",
+            "nutrisense": "NutriSense KI",
+            "metabolic": "Stoffwechselverarbeitung",
+            "risk_engine": "SPAG Risiko-Engine",
+            "anomaly": "Anomalieerkennung",
+            "doctor": "Arzt-Dashboard",
+            "preemptive": "Präventive Versorgung"
+        }
+    },
+    "modules": {
+        "title": "Zwei Module. Ein Präventionssystem.",
+        "nutrisense": {
+            "title": "NutriSense",
+            "desc": "Ihre tägliche Ernährungs- und Hydrations-Intelligenzschicht. Verfolgt Essenszeiten, Hydrationsmuster und wandelt Lebensstilrhythmen in langfristige Krankheitsrisikosignale um.",
+            "explore": "Erkunden"
+        },
+        "biometer": {
+            "title": "Urban Biometer",
+            "desc": "Verwandelt Städte in anonyme Gesundheitsnetzwerke. Luftqualität, Lärmstress, Verkehrsmuster und Crowdsourcing-Biometrie — kombiniert in Echtzeit-Gesundheits-Heatmaps.",
+            "explore": "Erkunden"
+        }
+    },
+    "nutrisense": {
+        "timeline_title": "Heutige Zeitachse",
+        "breakfast": "Frühstück",
+        "lunch": "Mittagessen",
+        "dinner": "Abendessen",
+        "pattern_detected": "Muster erkannt",
+        "pattern_desc": "Sie haben diese Woche 3 Mal das Mittagessen ausgelassen. Stoffwechselrisiko-Score aktualisiert.",
+        "loop_title": "Die Präventionsschleife in Aktion",
+        "loop_steps": [
+            "Omission von Mahlzeiten als Anomalie erkannt",
+            "NutriSense identifiziert potenzielles Muster",
+            "SPAG aktualisiert Ihr metabolisches Risikoprofil",
+            "Arzt sieht regionale metabolische Trends",
+            "Präventionsplan über das Dashboard empfohlen"
+        ]
+    },
+    "biometer": {
+        "city_title": "Ihre Stadt wacht über Sie",
+        "city_desc": "Das Urban Biometer von SPAG verwandelt anonyme Stadtdaten in einen persönlichen Gesundheitsschutz.",
+        "stats": {
+            "air": "Luftqualitätsindex",
+            "noise": "Lärmbelastung",
+            "noise_val": "Dezent (35dB)",
+            "outbreak": "Ausbruchsnähe",
+            "outbreak_val": "Keine erkannt"
+        },
+        "heatmap": "Live-Gesundheits-Heatmap",
+        "legend": {
+            "healthy": "Gesund",
+            "stress": "Erhöhter Stress",
+            "risk": "Hohes Risiko"
+        },
+        "alert": "Luftverschmutzungs-Hotspot auf Ihrer üblichen Route erkannt. Alternativer Weg vorgeschlagen."
+    },
+    "cta": {
+        "title": "Das ist Präventionsintelligenz. Keine Reaktion.",
+        "desc": "SPAG lernt bereits. Ihre Gesundheitsdaten sprechen bereits.",
+        "button": "Dashboard öffnen",
+        "sub": "NutriSense + Urban Biometer — aktiv in SPAG."
+    },
+    "footer": {
+        "rights": "© 2026 SPAG — Nationale Präventions-Engine. Alle Rechte vorbehalten."
+    },
+    "dashboard": {
+        "title": "Intelligenz-Dashboard",
+        "desc": "Aggregieren Sie Gesundheitssignale von verbundenen Geräten, anonymisiert und in Echtzeit analysiert."
     },
     "languages": {
         "en": "Englisch",
         "fr": "Französisch",
         "es": "Spanisch",
         "de": "Deutsch",
-        "pt": "Portugiesisch"
+        "pt": "Portugiesisch",
+        "pcm": "Pidgin"
     },
-    "search": "Suchen..."
+    "search": "Suche..."
 }

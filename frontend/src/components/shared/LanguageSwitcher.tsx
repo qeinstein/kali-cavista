@@ -11,6 +11,7 @@ const LANGUAGES = [
     { code: "es", label: "Español", flag: "🇪🇸" },
     { code: "de", label: "Deutsch", flag: "🇩🇪" },
     { code: "pt", label: "Português", flag: "🇵🇹" },
+    { code: "pcm", label: "Pidgin", flag: "🇳🇬" },
 ];
 
 export function LanguageSwitcher() {
