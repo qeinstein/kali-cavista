@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Brain, ShieldCheck, Stethoscope } from "lucide-react";
+import { FiActivity, FiShield } from "react-icons/fi";
+import { FaBrain, FaStethoscope } from "react-icons/fa6";
 import { flowLineVariants } from "./variants";
 
 export default function About() {
@@ -48,10 +49,10 @@ export default function About() {
                                 y1="0"
                                 x2="2"
                                 y2="100%"
-                                stroke="#2D6A4F"
+                                stroke="currentColor"
                                 strokeWidth="2"
                                 strokeDasharray="8 8"
-                                className="opacity-50"
+                                className="opacity-50 text-primary"
                                 initial="hidden"
                                 animate="visible"
                                 variants={flowLineVariants}
@@ -62,7 +63,7 @@ export default function About() {
                         <div className="flex flex-col gap-10 relative z-10 w-full max-w-sm">
                             <div className="flex items-center gap-4 bg-bg-2/60 backdrop-blur-md border border-foreground/5 p-4 rounded-2xl shadow-sm">
                                 <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 text-primary">
-                                    <Activity size={24} />
+                                    <FiActivity size={24} />
                                 </div>
                                 <div>
                                     <h4 className="text-foreground font-semibold text-base">Daily Data Collection</h4>
@@ -72,7 +73,7 @@ export default function About() {
 
                             <div className="flex items-center gap-4 bg-bg-2/60 backdrop-blur-md border border-foreground/5 p-4 rounded-2xl shadow-sm">
                                 <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 text-primary">
-                                    <Brain size={24} />
+                                    <FaBrain size={24} />
                                 </div>
                                 <div>
                                     <h4 className="text-foreground font-semibold text-base">NutriSense AI</h4>
@@ -82,7 +83,7 @@ export default function About() {
 
                             <div className="flex items-center gap-4 bg-bg-2/60 backdrop-blur-md border border-foreground/5 p-4 rounded-2xl shadow-sm">
                                 <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 text-primary">
-                                    <ShieldCheck size={24} />
+                                    <FiShield size={24} />
                                 </div>
                                 <div>
                                     <h4 className="text-foreground font-semibold text-base">SPAG Risk Engine</h4>
@@ -92,7 +93,7 @@ export default function About() {
 
                             <div className="flex items-center gap-4 bg-bg-2/60 backdrop-blur-md border border-foreground/5 p-4 rounded-2xl shadow-sm">
                                 <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 text-primary">
-                                    <Stethoscope size={24} />
+                                    <FaStethoscope size={24} />
                                 </div>
                                 <div>
                                     <h4 className="text-foreground font-semibold text-base">Doctor Dashboard</h4>

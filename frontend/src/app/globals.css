@@ -7,32 +7,19 @@
   --color-ink-2: #3D3830;
   --color-muted: #9E9488;
 
-  --color-primary: #0229BF;
-  --color-primary-hover: #0339E6;
-  --color-primary-light: #E0E7FF;
+  --color-primary: #1b4332;
+  --color-primary-hover: #2d6a4f;
+  --color-primary-light: #d8f3dc;
 
   --color-warning: #B5540A;
   --color-danger: #C1121F;
-  --color-info: #0229BF;
+  --color-info: #1b4332;
 
   --radius-lg: 18px;
   --radius-md: 12px;
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-:root.dark {
-  --color-background: #020817;
-  --color-bg-2: #0f172a;
-  --color-foreground: #f8fafc;
-  --color-ink-2: #e2e8f0;
-  --color-muted: #94a3b8;
-
-  --color-primary: #3b82f6;
-  /* Lighter blue for dark mode visibility */
-  --color-primary-hover: #60a5fa;
-  --color-primary-light: #1e3a8a;
 }
 
 body {

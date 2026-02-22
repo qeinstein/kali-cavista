@@ -1,18 +1,18 @@
 "use client";
 
-import { useTheme } from "@/components/ThemeProvider";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import clsx from "clsx";
 import { useLoader } from "@/app/context/LoaderContext";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 export default function TopNav() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isLoaderDone } = useLoader();
-    const { theme, toggleTheme } = useTheme();
+    const { t } = useTranslation();
 
     // Handle scroll effect for glassmorphism
     useEffect(() => {
@@ -24,8 +24,8 @@ export default function TopNav() {
     }, []);
 
     const navLinks = [
-        { name: "About", href: "/#about" },
-        { name: "Modules", href: "/#modules" },
+        { name: t("nav.about"), href: "/#about" },
+        { name: t("nav.modules"), href: "/#modules" },
     ];
 
     return (
@@ -35,21 +35,21 @@ export default function TopNav() {
                     initial={{ y: -100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className={clsx(
-                        "fixed top-0 inset-x-0 z-50 transition-colors duration-300",
-                        isScrolled
-                            ? "bg-background/80 backdrop-blur-md border-b border-foreground/5 shadow-lg shadow-black/5"
-                            : "bg-transparent border-b border-transparent"
-                    )}
+                    className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${isScrolled
+                        ? "bg-background/80 backdrop-blur-md border-b border-foreground/5 shadow-lg shadow-black/5"
+                        : "bg-transparent border-b border-transparent"
+                        }`}
                 >
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-[72px]">
                             {/* Logo Section */}
                             <div className="flex-shrink-0 flex items-center gap-2">
-                                <Link href="/" className="flex items-center gap-2 group">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-colors">
-                                        <span className="text-primary font-bold text-xl tracking-tighter">S</span>
-                                    </div>
+                                <Link href="/" className="flex items-center gap-2 group text-primary hover:text-primary-hover transition-colors">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform group-hover:scale-105 transition-transform duration-300">
+                                        <rect x="4" y="3" width="5" height="3" rx="1" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M18 6.5 V12 H6 V17.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                                        <rect x="4" y="17.5" width="16" height="3.5" rx="1" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
                                 </Link>
                             </div>
 
@@ -65,14 +65,10 @@ export default function TopNav() {
                                     </Link>
                                 ))}
 
-                                {/* Theme Toggle */}
-                                <button
-                                    onClick={toggleTheme}
-                                    className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/70 transition-colors"
-                                    aria-label="Toggle theme"
-                                >
-                                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                                </button>
+                                {/* Language Toggle */}
+                                <div className="flex items-center gap-4">
+                                    <LanguageSwitcher />
+                                </div>
                             </nav>
 
                             {/* Right Action (CTA)
@@ -84,13 +80,7 @@ export default function TopNav() {
 
                             {/* Hamburger Menu Toggle (Mobile/Tablet) */}
                             <div className="flex md:hidden items-center gap-2">
-                                <button
-                                    onClick={toggleTheme}
-                                    className="p-2 rounded-xl bg-foreground/5 hover:bg-foreground/10 text-foreground/70 transition-colors"
-                                    aria-label="Toggle theme"
-                                >
-                                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                                </button>
+                                <LanguageSwitcher />
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                     className="text-foreground/70 hover:text-primary p-2 transition-colors focus:outline-none"
@@ -124,7 +114,7 @@ export default function TopNav() {
                                     ))}
                                     <div className="pt-4 mt-2 border-t border-foreground/5">
                                         <Link href="/dashboard" className="block w-full text-center bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-white px-5 py-3 rounded-xl text-base font-medium transition-all duration-200">
-                                            Get Started
+                                            {t("hero.enter")}
                                         </Link>
                                     </div>
                                 </div>

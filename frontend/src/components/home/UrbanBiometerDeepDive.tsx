@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wind, Volume2, ShieldCheck, Map as MapIcon, AlertCircle } from "lucide-react";
+import { FiWind, FiVolume2, FiShield, FiMap, FiAlertCircle } from "react-icons/fi";
+import { AnimatedMap } from "../shared/AnimatedMap";
 
 export default function UrbanBiometerDeepDive() {
     return (
@@ -19,9 +20,9 @@ export default function UrbanBiometerDeepDive() {
                 </motion.div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     {[
-                        { label: "Air Quality Index", value: "42 AQI", color: "bg-[#2D6A4F]", icon: <Wind size={20} /> },
-                        { label: "Noise Stress Level", value: "Subtle (35dB)", color: "bg-[#B5540A]", icon: <Volume2 size={20} /> },
-                        { label: "Outbreak Proximity", value: "None Detected", color: "bg-[#2D6A4F]", icon: <ShieldCheck size={20} /> }
+                        { label: "Air Quality Index", value: "42 AQI", color: "bg-primary", icon: <FiWind size={20} /> },
+                        { label: "Noise Stress Level", value: "Subtle (35dB)", color: "bg-warning", icon: <FiVolume2 size={20} /> },
+                        { label: "Outbreak Proximity", value: "None Detected", color: "bg-primary", icon: <FiShield size={20} /> }
                     ].map((stat, idx) => (
                         <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="bg-bg-2/30 border border-foreground/5 p-6 rounded-2xl flex items-center justify-between">
                             <div className="flex flex-col gap-1">
@@ -35,23 +36,20 @@ export default function UrbanBiometerDeepDive() {
                         </motion.div>
                     ))}
                 </div>
-                <motion.div initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-bg-2 border border-foreground/5 overflow-hidden rounded-3xl relative h-[400px] shadow-lg shadow-black/5">
-                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #2D6A4F 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
-                    <div className="absolute top-6 left-6 bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-foreground/5 flex items-center gap-3 shadow-sm">
-                        <MapIcon size={16} className="text-primary" />
-                        <span className="text-sm font-semibold tracking-wide">Live Health Heatmap — Lagos</span>
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+                <motion.div initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-bg-2 overflow-hidden rounded-3xl relative h-[400px] shadow-lg shadow-black/5">
+                    <AnimatedMap interactive={false} />
+                    <div className="absolute top-6 left-6 bg-background/80 backdrop-blur-md px-4 py-2 rounded-lg border border-foreground/5 flex items-center gap-3 shadow-sm z-20">
+                        <FiMap size={16} className="text-primary" />
+                        <span className="text-sm font-semibold tracking-wide">Live Health Heatmap</span>
                     </div>
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-md px-6 py-3 rounded-full border border-foreground/5 flex items-center gap-6 shadow-sm">
-                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#2D6A4F]"></div><span className="text-[10px] uppercase font-bold text-foreground/40">Healthy</span></div>
-                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#B5540A]"></div><span className="text-[10px] uppercase font-bold text-foreground/40">Elevated Stress</span></div>
-                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#C1121F]"></div><span className="text-[10px] uppercase font-bold text-foreground/40">High Risk</span></div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-primary"></div><span className="text-[10px] uppercase font-bold text-foreground/40">Healthy</span></div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-warning"></div><span className="text-[10px] uppercase font-bold text-foreground/40">Elevated Stress</span></div>
+                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-danger"></div><span className="text-[10px] uppercase font-bold text-foreground/40">High Risk</span></div>
                     </div>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-8 bg-primary/5 border border-primary/10 p-4 rounded-2xl flex items-center gap-4 justify-center">
-                    <AlertCircle size={18} className="text-primary" />
+                    <FiAlertCircle size={18} className="text-primary" />
                     <span className="text-sm font-medium text-ink-2">Pollution hotspot detected on your usual route. Alternative path suggested.</span>
                 </motion.div>
             </div>

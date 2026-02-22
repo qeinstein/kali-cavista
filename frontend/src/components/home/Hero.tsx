@@ -1,10 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { containerVariants, itemVariants } from "./variants";
+import { motion } from "framer-motion";
 
 export default function Hero() {
+    const { t } = useTranslation();
+
     return (
         <section id="hero" className="w-full relative overflow-hidden bg-background">
             {/* SPAG Layout Container */}
@@ -22,7 +25,7 @@ export default function Hero() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
-                        Spag Is Online
+                        {t('hero.online', "Spag Is Online")}
                     </div>
                 </motion.div>
 
@@ -87,7 +90,7 @@ export default function Hero() {
                         style={{ left: '25%', top: '25%' }}
                         className="absolute -translate-x-[calc(100%+28px)] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
-                        Sovereign
+                        {t('hero.sovereign', "Sovereign")}
                     </motion.div>
 
                     {/* Top Right - Preventive */}
@@ -104,7 +107,7 @@ export default function Hero() {
                         style={{ left: '75%', top: '25%' }}
                         className="absolute translate-x-[28px] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
-                        Preventive
+                        {t('hero.preventive', "Preventive")}
                     </motion.div>
 
                     {/* Bottom Left - AI */}
@@ -121,7 +124,7 @@ export default function Hero() {
                         style={{ left: '25%', top: '75%' }}
                         className="absolute -translate-x-[calc(100%+28px)] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
-                        AI
+                        {t('hero.ai', "AI")}
                     </motion.div>
 
                     {/* Bottom Right - Grid */}
@@ -138,7 +141,7 @@ export default function Hero() {
                         style={{ left: '75%', top: '75%' }}
                         className="absolute translate-x-[28px] -translate-y-1/2 text-xl md:text-3xl font-extrabold text-primary/80 font-outfit"
                     >
-                        Grid
+                        {t('hero.grid', "Grid")}
                     </motion.div>
                 </div>
 
@@ -227,10 +230,10 @@ export default function Hero() {
                 >
                     <Link
                         href="/dashboard"
-                        className="group relative bg-primary/10 backdrop-blur-xl border border-primary/20 text-primary px-8 md:px-12 py-4 md:py-6 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-primary/20 hover:bg-primary/20 active:scale-95 block"
+                        className="group relative bg-primary/15 backdrop-blur-xl border border-primary/30 text-primary px-8 md:px-12 py-4 md:py-6 rounded-2xl text-lg font-bold transition-all shadow-xl shadow-primary/10 hover:shadow-primary/30 hover:bg-primary/25 active:scale-95 block"
                     >
                         <span className="relative z-10 flex items-center gap-2">
-                            Enter Dashboard
+                            {t('hero.enter_dashboard', "Enter Dashboard")}
                             <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
