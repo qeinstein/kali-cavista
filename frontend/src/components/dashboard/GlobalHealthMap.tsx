@@ -9,7 +9,7 @@ const REGIONS = [
     { id: 'eu', name: 'Europe', stability: 82, hydration: 78, activity: 72, color: 'bg-primary', pos: { t: '25%', l: '50%' } },
     { id: 'as', name: 'Asia Pacific', stability: 68, hydration: 54, activity: 91, color: 'bg-amber-500', pos: { t: '40%', l: '75%' } },
     { id: 'af', name: 'Africa', stability: 61, hydration: 42, activity: 88, color: 'bg-danger', pos: { t: '55%', l: '50%' } },
-    { id: 'sa', name: 'South America', stability: 71, hydration: 59, activity: 79, color: 'bg-blue-500', pos: { t: '65%', l: '35%' } },
+    { id: 'sa', name: 'South America', stability: 71, hydration: 59, activity: 79, color: 'bg-teal-500', pos: { t: '65%', l: '35%' } },
 ];
 
 const CONNECTIONS = [
@@ -67,7 +67,7 @@ export default function GlobalHealthMap() {
                         className="absolute inset-0 opacity-20"
                     >
                         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px]" />
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#0229BF_0%,transparent_70%)]" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#081c15_0%,transparent_70%)]" />
                     </motion.div>
 
                     {/* Technical Blue Map Atmosphere */}
