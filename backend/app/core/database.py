@@ -18,7 +18,7 @@ engine = create_async_engine(
     echo=settings.DEBUG,
     connect_args={
         "statement_cache_size": 0,
-        "prepared_statement_name_func": lambda: f"__asyncpg_{uuid.uuid4()}__"
+        "prepared_statement_cache_size": 0,
     },
 )
 
