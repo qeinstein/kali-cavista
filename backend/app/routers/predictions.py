@@ -121,6 +121,24 @@ async def get_prediction_history(
     )
     predictions = result.scalars().all()
 
+    # ── N+1 FIX: batch-fetch all meals in the entire matching window ──
+    preds_with_hunger = [p for p in predictions if p.next_hunger_at]
+    if preds_with_hunger:
+        earliest = min(p.next_hunger_at for p in preds_with_hunger) - timedelta(hours=1)
+        latest = max(p.next_hunger_at for p in preds_with_hunger) + timedelta(hours=3)
+        meals_result = await db.execute(
+            select(MealLog.logged_at)
+            .where(
+                MealLog.user_id == user.id,
+                MealLog.logged_at >= earliest,
+                MealLog.logged_at <= latest,
+            )
+            .order_by(MealLog.logged_at)
+        )
+        all_meal_times = [row[0] for row in meals_result.all()]
+    else:
+        all_meal_times = []
+
     items = []
     accuracy_values = []
 
@@ -128,25 +146,17 @@ async def get_prediction_history(
         actual_hunger_at = None
         accuracy_minutes = None
 
-        # Find the first meal logged after the predicted hunger time
-        if pred.next_hunger_at:
-            meal_result = await db.execute(
-                select(MealLog.logged_at)
-                .where(
-                    MealLog.user_id == user.id,
-                    MealLog.logged_at >= pred.next_hunger_at - timedelta(hours=1),
-                    MealLog.logged_at <= pred.next_hunger_at + timedelta(hours=3),
-                )
-                .order_by(MealLog.logged_at)
-                .limit(1)
-            )
-            actual_time = meal_result.scalar_one_or_none()
-            if actual_time:
-                actual_hunger_at = actual_time
-                accuracy_minutes = abs(
-                    int((actual_time - pred.next_hunger_at).total_seconds() / 60)
-                )
-                accuracy_values.append(accuracy_minutes)
+        if pred.next_hunger_at and all_meal_times:
+            window_start = pred.next_hunger_at - timedelta(hours=1)
+            window_end = pred.next_hunger_at + timedelta(hours=3)
+            for mt in all_meal_times:
+                if window_start <= mt <= window_end:
+                    actual_hunger_at = mt
+                    accuracy_minutes = abs(
+                        int((mt - pred.next_hunger_at).total_seconds() / 60)
+                    )
+                    accuracy_values.append(accuracy_minutes)
+                    break
 
         items.append(PredictionHistoryItem(
             predictedAt=pred.generated_at,
