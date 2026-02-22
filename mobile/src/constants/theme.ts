@@ -29,9 +29,9 @@ export const darkColors = {
   successDim: "rgba(27,67,50,0.15)",
 
   // Text
-  textPrimary: "#F0F4FF",
-  textSecondary: "#8891A5",
-  textMuted: "#4A526B",
+  textPrimary: "#FFFFFF",
+  textSecondary: "#E2E8F6",
+  textMuted: "#A0AEC0",
   textInverse: "#1A1A2E", // for pills or backgrounds where text must invert
 
   // Misc
@@ -42,10 +42,10 @@ export const darkColors = {
 
 export const lightColors = {
   // Backgrounds
-  bg: "#F8F9FA",
+  bg: "#F4F7FF", // Subtle low-fade blue
   bgLight: "#FFFFFF",
   card: "#FFFFFF",
-  cardAlt: "#F0F4FF", // subtle off-white card emphasis
+  cardAlt: "#EBF1FF", // slightly deeper subtle blue for cards
   border: "#E2E8F0",
 
   // Accent — Brand

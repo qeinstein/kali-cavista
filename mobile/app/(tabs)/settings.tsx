@@ -304,7 +304,6 @@ const styles = StyleSheet.create({
     header: {
         paddingHorizontal: Spacing.lg,
         paddingVertical: Spacing.md,
-        borderBottomWidth: 1,
     },
     headerTitle: {
         fontSize: FontSize.xl,
@@ -314,8 +313,6 @@ const styles = StyleSheet.create({
     section: {
         padding: Spacing.lg,
         marginTop: Spacing.md,
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
     },
     sectionTitle: {
         fontSize: FontSize.md,
