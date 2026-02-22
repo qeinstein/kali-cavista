@@ -1,0 +1,22 @@
+{
+    "nav": {
+        "dashboard": "Tableau de Bord",
+        "insights": "Aperçus",
+        "chat": "Discuter",
+        "logs": "Journaux",
+        "home": "Accueil",
+        "about": "À Propos",
+        "modules": "Modules"
+    },
+    "hero": {
+        "enter": "Entrer au Tableau de Bord"
+    },
+    "languages": {
+        "en": "Anglais",
+        "fr": "Français",
+        "es": "Espagnol",
+        "de": "Allemand",
+        "pt": "Portugais"
+    },
+    "search": "Chercher..."
+}

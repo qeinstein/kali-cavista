@@ -1,0 +1,22 @@
+{
+    "nav": {
+        "dashboard": "Painel",
+        "insights": "Percepções",
+        "chat": "Bate-papo",
+        "logs": "Registros",
+        "home": "Início",
+        "about": "Sobre",
+        "modules": "Módulos"
+    },
+    "hero": {
+        "enter": "Entrar no Painel"
+    },
+    "languages": {
+        "en": "Inglês",
+        "fr": "Francês",
+        "es": "Espanhol",
+        "de": "Alemão",
+        "pt": "Português"
+    },
+    "search": "Pesquisar..."
+}
