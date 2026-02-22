@@ -17,7 +17,7 @@ export default function NotificationPreviewCard({ type, title, message, time = '
                 <View style={styles.appIcon}>
                     <Ionicons name="fitness" size={12} color={Colors.green} />
                 </View>
-                <Text style={styles.appName}>NUTRISENSE</Text>
+                <Text style={styles.appName}>SPAG</Text>
                 <Text style={styles.dot}>•</Text>
                 <Text style={styles.time}>{time}</Text>
             </View>

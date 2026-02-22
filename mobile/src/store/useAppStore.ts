@@ -1,5 +1,21 @@
 import { create } from "zustand";
 import {
+  logMeal as apiLogMeal,
+  fetchTodayMeals,
+} from "../services/api/mealService";
+import {
+  logWater as apiLogWater,
+  fetchTodayWaterLogs,
+} from "../services/api/hydrationService";
+import { fetchPrediction as apiFetchPrediction } from "../services/api/predictionService";
+import { onReloadData } from "../helpers/services/useRequest";
+import {
+  sendMessage as apiSendMessage,
+  clearChatHistory as apiClearChatHistory,
+  fetchChatHistory as apiFetchChatHistory,
+} from "../services/api/chatService";
+import { syncHealthData as apiSyncHealthData } from "../services/api/healthService";
+import {
   MealLog,
   WaterLog,
   HeartRateLog,
@@ -30,9 +46,16 @@ interface AppState {
   prediction: Prediction | null;
   chatMessages: ChatMessage[];
   hydrationScore: number;
+  hasCompletedOnboarding: boolean;
+  completeOnboarding: () => void;
+  lastDailyCheckInDate: string | null;
+  setLastDailyCheckInDate: (date: string) => void;
   isLoadingPrediction: boolean;
   isSplashVisible: boolean;
   isAiTyping: boolean;
+  conversationId: string | null;
+  themePreference: "system" | "light" | "dark";
+  setThemePreference: (pref: "system" | "light" | "dark") => void;
 
   // Heart Rate state
   heartRateLogs: HeartRateLog[];
@@ -55,8 +78,11 @@ interface AppState {
 
   logMeal: (size: "light" | "medium" | "heavy", hungerLevel?: number) => void;
   logWater: (amountMl: number) => void;
+  fetchTodayData: () => Promise<void>;
   fetchPrediction: () => Promise<void>;
+  fetchChatHistory: () => Promise<void>;
   sendChatMessage: (content: string) => Promise<void>;
+  clearChat: () => Promise<void>;
   setSplashVisible: (visible: boolean) => void;
 
   // Activity actions
@@ -118,69 +144,22 @@ const getMockPrediction = (
   };
 };
 
-const MOCK_AI_RESPONSES = [
-  "Great choice! A medium meal will keep you fueled for about 3-4 hours. 🍽️",
-  "Your hydration looks good today! Keep it up by drinking water every 90 minutes. 💧",
-  "Based on your patterns, you tend to get hungry around 1 PM. Consider prepping a healthy snack! 🥗",
-  "You've been consistent with your water intake this week — that's excellent for cognitive performance! 🧠",
-  "Your meal timing has improved by 23% this week. Small steps, big health wins! 🏆",
-  "Hot tip: eating within 30 minutes of waking up can help stabilize your blood sugar all day. ☀️",
-];
-
 export const useAppStore = create<AppState>((set, get) => ({
-  meals: [
-    {
-      id: genId(),
-      size: "medium",
-      timestamp: new Date(Date.now() - 2.5 * 3600 * 1000).toISOString(),
-      hungerLevelBefore: 6,
-    },
-  ],
-  waterLogs: [
-    {
-      id: genId(),
-      amountMl: 500,
-      timestamp: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: genId(),
-      amountMl: 250,
-      timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    },
-  ],
+  meals: [],
+  waterLogs: [],
   prediction: null,
   hydrationScore: 68,
-  chatMessages: [
-    {
-      id: "ex-1-a",
-      role: "user",
-      content: "Why am I always tired in the afternoons?",
-      timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: "ex-1-b",
-      role: "ai",
-      content:
-        "Looking at your logs, you tend to eat a light breakfast around 8 AM but skip or delay lunch past 2 PM on weekdays. The afternoon energy dip is likely a combination of low blood sugar and mild dehydration — you average only 600ml of water by 3 PM.",
-      timestamp: new Date(Date.now() - 24 * 3600 * 1000 + 5000).toISOString(),
-    },
-    {
-      id: "ex-2-a",
-      role: "user",
-      content: "Can you help me fix my water goal?",
-      timestamp: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: "ex-2-b",
-      role: "ai",
-      content:
-        "Of course! Based on your activity level, I've set a baseline of 2.5L. Would you like me to send reminders if you're behind by 2 PM?",
-      timestamp: new Date(Date.now() - 12 * 3600 * 1000 + 8000).toISOString(),
-    },
-  ],
+  chatMessages: [],
+  hasCompletedOnboarding: false,
+  completeOnboarding: () => set({ hasCompletedOnboarding: true }),
+  lastDailyCheckInDate: null,
+  setLastDailyCheckInDate: (date) => set({ lastDailyCheckInDate: date }),
   isLoadingPrediction: false,
   isSplashVisible: true,
   isAiTyping: false,
+  conversationId: null,
+  themePreference: "system",
+  setThemePreference: (pref) => set({ themePreference: pref }),
 
   // Heart Rate state
   heartRateLogs: [],
@@ -276,9 +255,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       lastHeartRate: bpm,
       heartRateStatus: status,
     }));
+
+    // Fire API call asynchronously to log heart rate to the server
+    apiSyncHealthData([
+      {
+        snapshotAt: newLog.timestamp,
+        stepsCount: get().steps,
+        activeCalories:
+          get().activityLevel === "Intense" ? Math.round(bpm * 0.1) : 0,
+        heartRate: bpm,
+      },
+    ]).catch((err) =>
+      console.warn("[AppStore] Failed to sync pulse check to backend", err),
+    );
   },
 
   logMeal: (size, hungerLevel) => {
+    // Optimistic local update
     const newMeal: MealLog = {
       id: genId(),
       size,
@@ -287,16 +280,46 @@ export const useAppStore = create<AppState>((set, get) => ({
     };
     set((s) => ({
       meals: [...s.meals, newMeal],
-      prediction: {
-        nextHungerAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
-        hoursUntilHungry: 4,
-        hydrationScore: s.hydrationScore / 100,
-        confidence: 0.88,
-      },
     }));
+
+    // Fire real API call in background
+    apiLogMeal({ mealSize: size, hungerLevelBefore: hungerLevel })
+      .then((res) => {
+        if (res?.prediction) {
+          set({
+            prediction: {
+              nextHungerAt: res.prediction.nextHungerAt,
+              hoursUntilHungry: Math.max(
+                0,
+                (new Date(res.prediction.nextHungerAt).getTime() - Date.now()) /
+                  3600000,
+              ),
+              hydrationScore: get().hydrationScore / 100,
+              confidence: res.prediction.confidence,
+            },
+          });
+        }
+        onReloadData().catch(console.warn);
+      })
+      .catch((err) => {
+        console.warn(
+          "[AppStore] API logMeal failed, using local fallback:",
+          err,
+        );
+        // Local fallback prediction
+        set({
+          prediction: {
+            nextHungerAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+            hoursUntilHungry: 4,
+            hydrationScore: get().hydrationScore / 100,
+            confidence: 0.88,
+          },
+        });
+      });
   },
 
   logWater: (amountMl) => {
+    // Optimistic local update
     const newLog: WaterLog = {
       id: genId(),
       amountMl,
@@ -307,14 +330,93 @@ export const useAppStore = create<AppState>((set, get) => ({
       hydrationScore: Math.min(100, s.hydrationScore + 10),
       lastWaterTimestamp: newLog.timestamp,
     }));
+
+    // Fire real API call in background
+    apiLogWater(amountMl)
+      .then((res) => {
+        // Sync to server-returned hydration score
+        if (res?.hydrationScore != null) {
+          set({ hydrationScore: res.hydrationScore });
+        }
+        onReloadData().catch(console.warn);
+      })
+      .catch((err) => {
+        console.warn(
+          "[AppStore] API logWater failed, keeping local state:",
+          err,
+        );
+      });
+  },
+
+  fetchTodayData: async () => {
+    try {
+      const [mealRes, waterRes] = await Promise.all([
+        fetchTodayMeals(),
+        fetchTodayWaterLogs(),
+      ]);
+
+      const mealsData: any = mealRes;
+      const meals = Array.isArray(mealsData?.data?.meals)
+        ? mealsData.data.meals.map((m: any) => ({
+            id: String(m.id),
+            size: m.mealSize || "medium",
+            timestamp: m.loggedAt || new Date().toISOString(),
+            hungerLevelBefore: m.hungerLevelBefore,
+          }))
+        : [];
+
+      const waterData: any = waterRes;
+      const waterLogs = Array.isArray(waterData?.data?.logs)
+        ? waterData.data.logs.map((w: any) => ({
+            id: String(w.id),
+            amountMl: w.amountMl || 0,
+            timestamp: w.loggedAt || new Date().toISOString(),
+          }))
+        : [];
+
+      set({ meals, waterLogs });
+    } catch (err) {
+      console.warn("[AppStore] Failed to fetch existing generic day data", err);
+    }
   },
 
   fetchPrediction: async () => {
     set({ isLoadingPrediction: true });
-    await new Promise((r) => setTimeout(r, 600));
-    const { meals, waterLogs } = get();
-    const prediction = getMockPrediction(meals, waterLogs);
-    set({ prediction, isLoadingPrediction: false });
+    try {
+      await apiFetchPrediction();
+    } catch (err) {
+      console.warn(
+        "[AppStore] API fetchPrediction failed, using local fallback:",
+        err,
+      );
+      // Local fallback
+      const { meals, waterLogs } = get();
+      const prediction = getMockPrediction(meals, waterLogs);
+      set({ prediction, isLoadingPrediction: false });
+    }
+  },
+
+  fetchChatHistory: async () => {
+    try {
+      const response = await apiFetchChatHistory();
+      if (response && response.messages) {
+        // Map API response to our local ChatMessage format
+        const formattedMessages: ChatMessage[] = response.messages.map(
+          (msg: any) => ({
+            id: genId(), // Using genId since history might not provide unique IDs per message
+            role: msg.role === "assistant" || msg.role === "ai" ? "ai" : "user",
+            content: msg.content,
+            timestamp: msg.timestamp || new Date().toISOString(),
+          }),
+        );
+
+        // Ensure messages are sorted oldest to newest if needed, though usually history is fetched
+        // assuming standard chronological order for chat rendering.
+        set({ chatMessages: formattedMessages });
+      }
+    } catch (err) {
+      console.warn("[AppStore] API fetchChatHistory failed:", err);
+    }
   },
 
   sendChatMessage: async (content: string) => {
@@ -330,37 +432,48 @@ export const useAppStore = create<AppState>((set, get) => ({
       isAiTyping: true,
     }));
 
-    await new Promise((r) => setTimeout(r, 2000));
+    try {
+      const response = await apiSendMessage({
+        message: content,
+        conversationId: get().conversationId || undefined,
+      });
 
-    const hydro = get().hydrationScore;
-    let aiContent = "";
+      const aiMsg: ChatMessage = {
+        id: genId(),
+        role: "ai",
+        content: response.reply,
+        timestamp: new Date().toISOString(),
+      };
 
-    if (content.toLowerCase().includes("tired")) {
-      aiContent =
-        "I noticed your hydration is a bit low (" +
-        hydro +
-        "%). Dehydration often causes that afternoon slump. Try drinking 2 glasses of water now! 💧";
-    } else if (hydro < 50) {
-      aiContent =
-        "I've analyzed your recent logs. You're looking steady, but your hydration is quite low (" +
-        hydro +
-        "%). Definitely time for some water! 🌿";
-    } else {
-      aiContent =
-        MOCK_AI_RESPONSES[Math.floor(Math.random() * MOCK_AI_RESPONSES.length)];
+      set((s) => ({
+        chatMessages: [...s.chatMessages, aiMsg],
+        isAiTyping: false,
+        conversationId: response.conversationId || s.conversationId,
+      }));
+    } catch (err) {
+      console.warn("[AppStore] Chat API failed:", err);
+      // Optional: Add a system message letting the user know it failed
+      const errorMsg: ChatMessage = {
+        id: genId(),
+        role: "ai",
+        content:
+          "Sorry, I am having trouble connecting to my servers right now. Please try again later.",
+        timestamp: new Date().toISOString(),
+      };
+      set((s) => ({
+        chatMessages: [...s.chatMessages, errorMsg],
+        isAiTyping: false,
+      }));
     }
+  },
 
-    const aiMsg: ChatMessage = {
-      id: genId(),
-      role: "ai",
-      content: aiContent,
-      timestamp: new Date().toISOString(),
-    };
-
-    set((s) => ({
-      chatMessages: [...s.chatMessages, aiMsg],
-      isAiTyping: false,
-    }));
+  clearChat: async () => {
+    try {
+      await apiClearChatHistory();
+    } catch (err) {
+      console.warn("[AppStore] Clear chat API failed:", err);
+    }
+    set({ chatMessages: [], conversationId: null });
   },
 
   getTodayMeals: () => {

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -19,8 +19,15 @@ export default function ChatScreen() {
     const chatMessages = useAppStore((s) => s.chatMessages);
     const sendChatMessage = useAppStore((s) => s.sendChatMessage);
     const isAiTyping = useAppStore((s) => s.isAiTyping);
+    const fetchChatHistory = useAppStore((s) => s.fetchChatHistory);
+    const clearChat = useAppStore((s) => s.clearChat);
     const [input, setInput] = useState('');
     const listRef = useRef<FlatList>(null);
+
+    useEffect(() => {
+        // Load real chat history when the ChatScreen is mounted
+        fetchChatHistory();
+    }, []);
 
     const handleSend = async () => {
         const text = input.trim();
@@ -36,13 +43,17 @@ export default function ChatScreen() {
                 <View style={styles.headerAvatar}>
                     <Text style={{ fontSize: 22 }}>🌿</Text>
                 </View>
-                <View>
-                    <Text style={styles.headerTitle}>NutriSense AI</Text>
+                <View style={styles.headerTitleContainer}>
+                    <Text style={styles.headerTitle}>SPAG AI</Text>
                     <View style={styles.onlineRow}>
                         <View style={styles.onlineDot} />
                         <Text style={styles.onlineText}>Health Companion</Text>
                     </View>
                 </View>
+
+                <TouchableOpacity onPress={clearChat} style={styles.clearBtn} activeOpacity={0.7}>
+                    <Text style={styles.clearBtnText}>Clear</Text>
+                </TouchableOpacity>
             </View>
 
             <KeyboardAvoidingView
@@ -78,7 +89,7 @@ export default function ChatScreen() {
                         style={styles.input}
                         value={input}
                         onChangeText={setInput}
-                        placeholder="Message NutriSense AI..."
+                        placeholder="Message SPAG AI..."
                         placeholderTextColor={Colors.textMuted}
                         multiline
                         maxLength={500}
@@ -121,10 +132,24 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.green,
     },
+    headerTitleContainer: {
+        flex: 1, // Let this container take up the remaining space
+    },
     headerTitle: {
         fontSize: FontSize.lg,
         fontWeight: FontWeight.bold,
         color: Colors.textPrimary,
+    },
+    clearBtn: {
+        paddingVertical: Spacing.sm,
+        paddingHorizontal: Spacing.md,
+        borderRadius: Radius.sm,
+        backgroundColor: Colors.cardAlt,
+    },
+    clearBtnText: {
+        color: Colors.textMuted,
+        fontSize: FontSize.sm,
+        fontWeight: FontWeight.medium,
     },
     onlineRow: {
         flexDirection: 'row',

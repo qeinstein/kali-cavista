@@ -6,58 +6,59 @@ import {
     TextInput,
     TouchableOpacity,
     ScrollView,
+    ActivityIndicator,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
-import { useProfile, updateProfile } from '../../src/services/api/profileService';
-import { ActivityIndicator } from 'react-native';
+import { useProfileService } from '../../src/services/api/profileService';
 
 export default function EditProfileScreen() {
     const router = useRouter();
-    const { data: profile, isLoading, onRefresh } = useProfile();
-    const [isSaving, setIsSaving] = useState(false);
+    const { data: profile, isLoading, isSaving, saveError, save } = useProfileService();
 
-    const [name, setName] = useState(profile?.name || '');
-    const [mealsPerDay, setMealsPerDay] = useState(profile?.meal_frequency?.toString() || '3');
-    const [activityLevel, setActivityLevel] = useState(profile?.activity_level || 'moderate');
-    const [waterGoal, setWaterGoal] = useState(profile?.water_goal_ml?.toString() || '2500');
+    const [name, setName] = useState('');
+    const [mealsPerDay, setMealsPerDay] = useState('3');
+    const [activityLevel, setActivityLevel] = useState('moderate');
+    const [waterGoal, setWaterGoal] = useState('2500');
 
-    // Sync state when profile data loads
+    // Sync form state when profile data arrives
     React.useEffect(() => {
         if (profile) {
             setName(profile.name || '');
-            setMealsPerDay(profile.meal_frequency?.toString() || '3');
-            setActivityLevel(profile.activity_level || 'moderate');
-            setWaterGoal(profile.water_goal_ml?.toString() || '2500');
+            setMealsPerDay(profile.baseline?.mealsPerDay?.toString() || '3');
+            setActivityLevel(profile.baseline?.activityLevel || 'moderate');
+            setWaterGoal(profile.baseline?.waterTargetMl?.toString() || '2500');
         }
     }, [profile]);
 
     const handleSave = async () => {
-        setIsSaving(true);
         try {
-            await updateProfile({
-                name,
-                meal_frequency: parseInt(mealsPerDay),
-                activity_level: activityLevel as any,
-                water_goal_ml: parseInt(waterGoal),
-            }, onRefresh);
+            await save({
+                name: name.trim(),
+                baseline: {
+                    mealsPerDay: parseInt(mealsPerDay) || 3,
+                    activityLevel,
+                    waterTargetMl: parseInt(waterGoal) || 2500,
+                },
+            });
             router.back();
-        } catch (error) {
-            console.error('Failed to update profile:', error);
-        } finally {
-            setIsSaving(false);
+        } catch {
+            Alert.alert('Error', saveError || 'Failed to save profile');
         }
     };
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
+            {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <Text style={styles.backBtn}>Cancel</Text>
+                <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+                    <Ionicons name="arrow-back" size={22} color={Colors.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Edit Profile</Text>
-                <TouchableOpacity onPress={handleSave} disabled={isSaving}>
+                <TouchableOpacity onPress={handleSave} disabled={isSaving} style={styles.headerBtn}>
                     {isSaving ? (
                         <ActivityIndicator size="small" color={Colors.green} />
                     ) : (
@@ -66,12 +67,37 @@ export default function EditProfileScreen() {
                 </TouchableOpacity>
             </View>
 
+            {/* Error banner */}
+            {saveError ? (
+                <View style={styles.errorBanner}>
+                    <Ionicons name="alert-circle" size={16} color={Colors.danger} />
+                    <Text style={styles.errorText}>{saveError}</Text>
+                </View>
+            ) : null}
+
             {isLoading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={Colors.green} />
+                    <Text style={styles.loadingText}>Loading profile…</Text>
                 </View>
             ) : (
-                <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+                <ScrollView
+                    style={styles.container}
+                    contentContainerStyle={styles.content}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Avatar */}
+                    <View style={styles.avatarSection}>
+                        <View style={styles.avatar}>
+                            <Text style={styles.avatarText}>
+                                {name?.slice(0, 2).toUpperCase() || '??'}
+                            </Text>
+                        </View>
+                        <Text style={styles.emailLabel}>{profile?.email || ''}</Text>
+                    </View>
+
+                    {/* Name */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Display Name</Text>
                         <TextInput
@@ -79,15 +105,18 @@ export default function EditProfileScreen() {
                             value={name}
                             onChangeText={setName}
                             placeholder="Your name"
+                            placeholderTextColor={Colors.textMuted}
+                            autoCapitalize="words"
                         />
                     </View>
 
+                    {/* Baseline Preferences */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Baseline Preferences</Text>
 
                         <Text style={styles.subLabel}>Average Meals Per Day</Text>
                         <View style={styles.options}>
-                            {['2', '3', '4', '5+'].map((opt) => (
+                            {['2', '3', '4', '5'].map((opt) => (
                                 <TouchableOpacity
                                     key={opt}
                                     style={[styles.option, mealsPerDay === opt && styles.optionSelected]}
@@ -105,7 +134,7 @@ export default function EditProfileScreen() {
                             {['low', 'moderate', 'high'].map((opt) => (
                                 <TouchableOpacity
                                     key={opt}
-                                    style={[styles.option, activityLevel === opt && styles.optionSelected]}
+                                    style={[styles.option, styles.optionWide, activityLevel === opt && styles.optionSelected]}
                                     onPress={() => setActivityLevel(opt)}
                                 >
                                     <Text style={[styles.optionText, activityLevel === opt && styles.optionTextSelected]}>
@@ -132,7 +161,7 @@ export default function EditProfileScreen() {
                     </View>
 
                     <Text style={styles.privacyNote}>
-                        These preferences help NutriSense AI predict your hunger patterns more accurately.
+                        These preferences help SPAG predict your hunger patterns more accurately.
                     </Text>
                 </ScrollView>
             )}
@@ -146,6 +175,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        gap: Spacing.md,
+    },
+    loadingText: {
+        color: Colors.textMuted,
+        fontSize: FontSize.sm,
     },
     header: {
         flexDirection: 'row',
@@ -156,9 +190,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: Colors.border,
     },
-    backBtn: {
-        color: Colors.textMuted,
-        fontSize: FontSize.md,
+    headerBtn: {
+        minWidth: 50,
+        alignItems: 'center',
     },
     headerTitle: {
         fontSize: FontSize.lg,
@@ -170,10 +204,45 @@ const styles = StyleSheet.create({
         fontSize: FontSize.md,
         fontWeight: FontWeight.bold,
     },
+    errorBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: Colors.dangerDim,
+        borderRadius: Radius.md,
+        padding: Spacing.md,
+        marginHorizontal: Spacing.lg,
+        marginTop: Spacing.sm,
+        borderWidth: 1,
+        borderColor: Colors.danger,
+    },
+    errorText: { fontSize: FontSize.sm, color: Colors.danger, flex: 1 },
     container: { flex: 1 },
     content: {
         padding: Spacing.lg,
         gap: Spacing.xl,
+        paddingBottom: 40,
+    },
+    avatarSection: {
+        alignItems: 'center',
+        gap: Spacing.sm,
+    },
+    avatar: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: Colors.green,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    avatarText: {
+        color: Colors.bg,
+        fontSize: FontSize.xxl,
+        fontWeight: FontWeight.bold,
+    },
+    emailLabel: {
+        fontSize: FontSize.sm,
+        color: Colors.textMuted,
     },
     inputGroup: {
         gap: Spacing.md,
@@ -189,7 +258,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.card,
         borderRadius: Radius.lg,
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.sm,
+        paddingVertical: 14,
         fontSize: FontSize.md,
         color: Colors.textPrimary,
         borderWidth: 1,
@@ -207,12 +276,17 @@ const styles = StyleSheet.create({
         gap: Spacing.sm,
     },
     option: {
-        backgroundColor: Colors.bg,
+        backgroundColor: Colors.card,
         borderWidth: 1,
         borderColor: Colors.border,
         borderRadius: Radius.full,
-        paddingHorizontal: Spacing.md,
-        paddingVertical: 6,
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: 10,
+        minWidth: 56,
+        alignItems: 'center',
+    },
+    optionWide: {
+        flex: 1,
     },
     optionSelected: {
         backgroundColor: Colors.green,
@@ -221,6 +295,7 @@ const styles = StyleSheet.create({
     optionText: {
         fontSize: FontSize.sm,
         color: Colors.textPrimary,
+        fontWeight: FontWeight.medium,
     },
     optionTextSelected: {
         color: Colors.bg,

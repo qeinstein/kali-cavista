@@ -7,6 +7,8 @@ class HealthService {
     this.isMockMode = false;
     this.hasLoggedMock = false;
     this.initialized = false;
+    this.mockSteps = 0;
+    this.mockActiveMinutes = 0;
     this._initCheck();
   }
 
@@ -48,9 +50,19 @@ class HealthService {
         // In a real app, this would use the native modules.
       }
       // Mock Fallback
+      if (this.mockSteps === 0) {
+        this.mockSteps = 0; // Starts at zero
+      } else {
+        this.mockSteps += Math.floor(10 + Math.random() * 40);
+      }
+      // If we've started moving, eventually start giving active minutes
+      if (this.mockSteps > 100) {
+        this.mockActiveMinutes += Math.floor(Math.random() * 2);
+      }
+
       return {
-        steps: Math.floor(3000 + Math.random() * 6000),
-        active_minutes: Math.floor(15 + Math.random() * 45),
+        steps: this.mockSteps,
+        active_minutes: this.mockActiveMinutes,
       };
     } catch (e) {
       return { steps: 0, active_minutes: 0 };

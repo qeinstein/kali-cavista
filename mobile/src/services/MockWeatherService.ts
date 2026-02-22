@@ -1,4 +1,6 @@
+import * as Location from "expo-location";
 import { useAppStore } from "../store/useAppStore";
+import { updateLocation } from "./api/profileService";
 import { WeatherContext } from "../types/health";
 
 class MockWeatherService {
@@ -13,11 +15,64 @@ class MockWeatherService {
     if (this.updateInterval) clearInterval(this.updateInterval);
   }
 
-  refreshWeather() {
-    const temp = Math.floor(Math.random() * 10) + 29; // 29-38
-    const humidity = Math.floor(Math.random() * 21) + 65; // 65-85
-    const uvIndex = Math.floor(Math.random() * 5) + 6; // 6-10
+  async refreshWeather() {
+    try {
+      // Request location permission and get real coordinates
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("[WeatherService] Location permission not granted");
+        this.applyFallbackWeather();
+        return;
+      }
 
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+      const { latitude: lat, longitude: lon } = location.coords;
+
+      // Send location to backend for weather-based hydration scoring
+      await updateLocation(lat, lon);
+      console.log(`[WeatherService] Location updated: ${lat}, ${lon}`);
+
+      // Reverse geocode for city name
+      let city = "Unknown";
+      try {
+        const [geo] = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        });
+        if (geo?.city) city = geo.city;
+        else if (geo?.region) city = geo.region;
+      } catch {
+        // fallback city
+      }
+
+      // Generate realistic weather based on location (will be replaced by backend weather in future)
+      const temp = Math.floor(Math.random() * 10) + 29;
+      const humidity = Math.floor(Math.random() * 21) + 65;
+      const uvIndex = Math.floor(Math.random() * 5) + 6;
+      const multiplier = this.calculateMultiplier(temp, uvIndex);
+
+      const weather: WeatherContext = {
+        temp,
+        humidity,
+        uvIndex,
+        city,
+        multiplier,
+        lastUpdate: new Date().toISOString(),
+      };
+
+      useAppStore.getState().updateWeather(weather);
+    } catch (err) {
+      console.warn("[WeatherService] Failed to update location:", err);
+      this.applyFallbackWeather();
+    }
+  }
+
+  private applyFallbackWeather() {
+    const temp = Math.floor(Math.random() * 10) + 29;
+    const humidity = Math.floor(Math.random() * 21) + 65;
+    const uvIndex = Math.floor(Math.random() * 5) + 6;
     const multiplier = this.calculateMultiplier(temp, uvIndex);
 
     const weather: WeatherContext = {

@@ -1,4 +1,7 @@
-export const Colors = {
+import { useColorScheme } from "react-native";
+import { useAppStore } from "../store/useAppStore";
+
+export const darkColors = {
   // Backgrounds
   bg: "#1A1A2E",
   bgLight: "#F8F9FA",
@@ -7,10 +10,10 @@ export const Colors = {
   border: "#2A2A4A",
 
   // Accent — Forest Green
-  green: "#1E8449",
-  greenLight: "#27AE60",
-  greenDim: "rgba(30,132,73,0.18)",
-  greenBright: "#2ECC71",
+  green: "#1B4332",
+  greenLight: "#2D6A4F",
+  greenDim: "rgba(27,67,50,0.18)",
+  greenBright: "#40916C",
 
   // Teal kept as secondary (used in existing main screens)
   teal: "#00D4AA",
@@ -22,24 +25,77 @@ export const Colors = {
   warningDim: "rgba(230,126,34,0.15)",
   danger: "#E74C3C",
   dangerDim: "rgba(231,76,60,0.15)",
-  success: "#1E8449",
-  successDim: "rgba(30,132,73,0.15)",
+  success: "#1B4332",
+  successDim: "rgba(27,67,50,0.15)",
 
-  // Text on dark
+  // Text
   textPrimary: "#F0F4FF",
   textSecondary: "#8891A5",
   textMuted: "#4A526B",
-
-  // Text on light (onboarding)
-  textDark: "#1A1A2E",
-  textDarkSecondary: "#4A5568",
-  textDarkMuted: "#9AA5B4",
+  textInverse: "#1A1A2E", // for pills or backgrounds where text must invert
 
   // Misc
   white: "#FFFFFF",
   black: "#000000",
-  overlay: "rgba(26,26,46,0.85)",
+  overlay: "rgba(0,0,0,0.65)",
 };
+
+export const lightColors = {
+  // Backgrounds
+  bg: "#F8F9FA",
+  bgLight: "#FFFFFF",
+  card: "#FFFFFF",
+  cardAlt: "#F0F4FF", // subtle off-white card emphasis
+  border: "#E2E8F0",
+
+  // Accent — Brand
+  green: "#1B4332",
+  greenLight: "#2D6A4F",
+  greenDim: "rgba(27,67,50,0.08)",
+  greenBright: "#40916C",
+
+  // Teal
+  teal: "#00D4AA",
+  tealDim: "rgba(0,212,170,0.1)",
+  tealDark: "#009E7F",
+
+  // Semantic
+  warning: "#E67E22",
+  warningDim: "rgba(230,126,34,0.1)",
+  danger: "#E74C3C",
+  dangerDim: "rgba(231,76,60,0.1)",
+  success: "#1B4332",
+  successDim: "rgba(27,67,50,0.1)",
+
+  // Text
+  textPrimary: "#1A1A2E",
+  textSecondary: "#4A5568",
+  textMuted: "#9AA5B4",
+  textInverse: "#FFFFFF",
+
+  // Misc
+  white: "#FFFFFF",
+  black: "#000000",
+  overlay: "rgba(0,0,0,0.45)",
+};
+
+// Backwards compatibility alias while we refactor files iteratively.
+// This will eventually be removed once all components use `useThemeColor()`
+export const Colors = darkColors;
+
+export function useThemeColor() {
+  const systemScheme = useColorScheme();
+  const themePreference = useAppStore((s) => s.themePreference);
+
+  const activeMode =
+    themePreference === "system"
+      ? systemScheme === "dark"
+        ? "dark"
+        : "light"
+      : themePreference;
+
+  return activeMode === "dark" ? darkColors : lightColors;
+}
 
 export const Spacing = {
   xs: 4,

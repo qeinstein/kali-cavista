@@ -1,4 +1,8 @@
 import { create } from "zustand";
+import {
+  updateNotificationSettings,
+  NotificationSettingsPayload,
+} from "../services/api/notificationService";
 
 export interface NotificationSettings {
   hungerAlerts: boolean;
@@ -24,6 +28,7 @@ interface SettingsState {
   ) => void;
   setQuietHours: (hours: Partial<QuietHours>) => void;
   saveSettings: () => Promise<void>;
+  loadFromApi: (data: NotificationSettingsPayload) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -47,6 +52,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         [key]: value,
       },
     }));
+
+    // Auto-save to API on change (debounced fire-and-forget)
+    const { notifications, quietHours } = get();
+    const payload: Partial<NotificationSettingsPayload> = {
+      [key === "hungerAlertOffset" ? "hungerAlertMinutesBefore" : key]: value,
+    };
+    updateNotificationSettings(payload).catch((err) =>
+      console.warn("[Settings] Failed to sync notification setting:", err),
+    );
   },
 
   setQuietHours: (hours) => {
@@ -56,12 +70,49 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         ...hours,
       },
     }));
+
+    // Sync to API
+    const payload: Partial<NotificationSettingsPayload> = {};
+    if (hours.start) payload.quietHoursStart = hours.start;
+    if (hours.end) payload.quietHoursEnd = hours.end;
+    updateNotificationSettings(payload).catch((err) =>
+      console.warn("[Settings] Failed to sync quiet hours:", err),
+    );
   },
 
   saveSettings: async () => {
+    const { notifications, quietHours } = get();
     set({ isSaving: true });
-    // Simulate API call PUT /notifications/settings
-    await new Promise((r) => setTimeout(r, 1000));
-    set({ isSaving: false });
+    try {
+      await updateNotificationSettings({
+        hungerAlerts: notifications.hungerAlerts,
+        hungerAlertMinutesBefore: notifications.hungerAlertOffset,
+        hydrationAlerts: notifications.hydrationAlerts,
+        hydrationThreshold: notifications.hydrationThreshold,
+        patternNudges: notifications.patternNudges,
+        quietHoursStart: quietHours.start,
+        quietHoursEnd: quietHours.end,
+      });
+    } catch (err) {
+      console.warn("[Settings] Failed to save settings:", err);
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  loadFromApi: (data) => {
+    set({
+      notifications: {
+        hungerAlerts: data.hungerAlerts,
+        hungerAlertOffset: data.hungerAlertMinutesBefore,
+        hydrationAlerts: data.hydrationAlerts,
+        hydrationThreshold: data.hydrationThreshold,
+        patternNudges: data.patternNudges,
+      },
+      quietHours: {
+        start: data.quietHoursStart,
+        end: data.quietHoursEnd,
+      },
+    });
   },
 }));

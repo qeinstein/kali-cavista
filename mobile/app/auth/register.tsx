@@ -41,12 +41,9 @@ export default function RegisterScreen() {
         if (!name.trim() || !email.trim() || password.length < 6) return;
         try {
             await register({
-                name: name.trim(),
                 email: email.trim(),
                 password,
-                water_goal_ml: 2000, // Default values as per requirements or onboarding
-                meal_frequency: 3,
-                activity_level: 'moderate'
+                name: name.trim(),
             });
             router.replace('/(tabs)');
         } catch {
@@ -80,7 +77,7 @@ export default function RegisterScreen() {
                                 <Ionicons name="fitness" size={32} color={Colors.green} />
                             </View>
                             <Text style={styles.title}>Create Account</Text>
-                            <Text style={styles.subtitle}>Join NutriSense and start tracking smarter</Text>
+                            <Text style={styles.subtitle}>Join SPAG and start tracking smarter</Text>
                         </View>
 
                         {/* Error */}

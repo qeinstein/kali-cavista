@@ -71,7 +71,7 @@ export default function LoginScreen() {
                                 <Text style={styles.logoEmoji}>🧬</Text>
                             </View>
                             <Text style={styles.title}>Welcome Back</Text>
-                            <Text style={styles.subtitle}>Sign in to your NutriSense account</Text>
+                            <Text style={styles.subtitle}>Sign in to your SPAG account</Text>
                         </View>
 
                         {/* Error */}

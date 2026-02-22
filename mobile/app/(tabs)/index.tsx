@@ -21,8 +21,12 @@ import WaterToast from '../../src/components/WaterToast';
 import WeatherChip from '../../src/components/WeatherChip';
 import VoiceCheckInCard from '../../src/components/VoiceCheckInCard';
 import PulseScannerSimulation from '../../src/components/PulseScannerSimulation';
+import DailyCheckInModal from '../../src/components/DailyCheckInModal';
+import ThemeSettingsModal from '../../src/components/ThemeSettingsModal';
 import ActivityService from '../../src/services/ActivityService';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
+import { useInsightsService, InsightData } from '../../src/services/api/insightsService';
+import { registerPushToken, scheduleHydrationAlert } from '../../src/services/notifications';
+import { Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../../src/constants/theme';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -44,6 +48,7 @@ function formatDate() {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
+    const Colors = useThemeColor();
     const prediction = useAppStore((s) => s.prediction);
     const isLoadingPrediction = useAppStore((s) => s.isLoadingPrediction);
     const fetchPrediction = useAppStore((s) => s.fetchPrediction);
@@ -51,15 +56,24 @@ export default function HomeScreen() {
     const waterLogs = useAppStore((s) => s.waterLogs);
     const logMeal = useAppStore((s) => s.logMeal);
     const logWater = useAppStore((s) => s.logWater);
+    const fetchTodayData = useAppStore((s) => s.fetchTodayData);
+    const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
+    const completeOnboarding = useAppStore((s) => s.completeOnboarding);
 
     const userName = useAuthStore((s) => s.user?.name ?? 'there');
 
     const hydrationScore = useAppStore((s) => s.hydrationScore);
     const lastHeartRate = useAppStore((s) => s.lastHeartRate);
+    const lastDailyCheckInDate = useAppStore((s) => s.lastDailyCheckInDate);
+
+    // Insights matching
+    const { insights } = useInsightsService() as unknown as { insights: InsightData[] };
+    const todayInsight: InsightData | undefined = insights && insights.length > 0 ? insights[0] : undefined;
 
     const [mealSheetOpen, setMealSheetOpen] = useState(false);
     const [pulseScannerOpen, setPulseScannerOpen] = useState(false);
     const [waterToastVisible, setWaterToastVisible] = useState(false);
+    const [showThemeSettings, setShowThemeSettings] = useState(false);
     const waterToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Entrance Animations
@@ -80,6 +94,7 @@ export default function HomeScreen() {
     }, []);
 
     useEffect(() => {
+        fetchTodayData();
         fetchPrediction();
 
         // Staggered entrance
@@ -142,8 +157,53 @@ export default function HomeScreen() {
         }]
     });
 
+    if (!hasCompletedOnboarding) {
+        return (
+            <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors.bg, justifyContent: 'center', alignItems: 'center', padding: Spacing.xl }]}>
+                <View style={[styles.onboardingCard, { backgroundColor: Colors.card }]}>
+                    <View style={styles.onboardingIconWrap}>
+                        <Text style={{ fontSize: 40 }}>🌿</Text>
+                    </View>
+                    <Text style={[styles.onboardingTitle, { color: Colors.textPrimary }]}>Welcome to SPAG</Text>
+                    <Text style={[styles.onboardingDesc, { color: Colors.textSecondary }]}>
+                        Let's start fresh! Empty your timeline and begin logging
+                        real meals, hydration drops, and pulse scans. We'll automatically
+                        fetch daily insights from the server.
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.onboardingBtn}
+                        onPress={async () => {
+                            // Register push token for backend updates & Request permissions
+                            await registerPushToken();
+                            // Begin background hydration reminders
+                            await scheduleHydrationAlert();
+                            completeOnboarding();
+                        }}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={[styles.onboardingBtnText, { color: Colors.white }]}>Start Tracking</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    const todayString = new Date().toISOString().slice(0, 10);
+    const showDailyCheckIn = lastDailyCheckInDate !== todayString;
+
     return (
-        <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors.bg }]} edges={['top']}>
+            <DailyCheckInModal
+                visible={showDailyCheckIn}
+                onComplete={() => {
+                    // Modal handles setting the date internally 
+                    // This triggers a re-render closing the modal inherently.
+                }}
+            />
+            <ThemeSettingsModal
+                visible={showThemeSettings}
+                onClose={() => setShowThemeSettings(false)}
+            />
             <ScrollView
                 style={styles.scroll}
                 contentContainerStyle={styles.content}
@@ -160,16 +220,20 @@ export default function HomeScreen() {
                 <Animated.View style={[styles.header, animatedStyle(0)]}>
                     <View style={styles.headerText}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                            <Text style={styles.greeting}>
+                            <Text style={[styles.greeting, { color: Colors.textPrimary }]}>
                                 {getGreeting()}, {userName.split(' ')[0]}
                             </Text>
                             <Ionicons name="sparkles" size={18} color={Colors.teal} />
                         </View>
-                        <Text style={styles.dateText}>{formatDate()}</Text>
+                        <Text style={[styles.dateText, { color: Colors.textSecondary }]}>{formatDate()}</Text>
                     </View>
-                    <View style={styles.avatarCircle}>
+                    <TouchableOpacity
+                        style={[styles.avatarCircle, { backgroundColor: Colors.greenDim, borderColor: Colors.green }]}
+                        onPress={() => setShowThemeSettings(true)}
+                        activeOpacity={0.8}
+                    >
                         <Ionicons name="person" size={24} color={Colors.textPrimary} />
-                    </View>
+                    </TouchableOpacity>
                 </Animated.View>
 
                 {/* ── Real-time Activity Chip ── */}
@@ -179,19 +243,19 @@ export default function HomeScreen() {
 
                 {/* ── Quick stats row ── */}
                 <Animated.View style={[styles.statsRow, animatedStyle(1)]}>
-                    <View style={styles.statCard}>
-                        <Text style={styles.statValue}>{todayMeals.length}</Text>
-                        <Text style={styles.statLabel}>Meals</Text>
+                    <View style={[styles.statCard, { backgroundColor: Colors.card, borderColor: Colors.border }]}>
+                        <Text style={[styles.statValue, { color: Colors.textPrimary }]}>{todayMeals.length}</Text>
+                        <Text style={[styles.statLabel, { color: Colors.textMuted }]}>Meals</Text>
                     </View>
-                    <View style={[styles.statCard, styles.statCardWater]}>
+                    <View style={[styles.statCard, styles.statCardWater, { backgroundColor: Colors.card, borderColor: Colors.border }]}>
                         <Text style={[styles.statValue, { color: '#3B82F6' }]}>{todayWaterMl}</Text>
-                        <Text style={styles.statLabel}>ml Water</Text>
+                        <Text style={[styles.statLabel, { color: Colors.textMuted }]}>ml Water</Text>
                     </View>
-                    <View style={styles.statCard}>
+                    <View style={[styles.statCard, { backgroundColor: Colors.card, borderColor: Colors.border }]}>
                         <Text style={[styles.statValue, { color: Colors.green }]}>
                             {lastHeartRate ? `${lastHeartRate} BPM` : '–'}
                         </Text>
-                        <Text style={styles.statLabel}>Heart Rate</Text>
+                        <Text style={[styles.statLabel, { color: Colors.textMuted }]}>Heart Rate</Text>
                     </View>
                 </Animated.View>
 
@@ -221,11 +285,11 @@ export default function HomeScreen() {
                 {/* ── Pulse Check Action ── */}
                 <Animated.View style={[styles.pulseAction, animatedStyle(4)]}>
                     <TouchableOpacity
-                        style={styles.pulseBtn}
+                        style={[styles.pulseBtn, { backgroundColor: Colors.card, borderColor: Colors.border }]}
                         onPress={() => setPulseScannerOpen(true)}
                     >
                         <Ionicons name="heart" size={24} color={Colors.danger} />
-                        <Text style={styles.pulseBtnText}>Check Pulse</Text>
+                        <Text style={[styles.pulseBtnText, { color: Colors.textPrimary }]}>Check Pulse</Text>
                     </TouchableOpacity>
                 </Animated.View>
 
@@ -239,16 +303,17 @@ export default function HomeScreen() {
                     <TodayTimeline meals={meals} waterLogs={waterLogs} />
                 </Animated.View>
 
-                <View style={styles.tipCard}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs }}>
-                        <Ionicons name="bulb-outline" size={18} color={Colors.textPrimary} />
-                        <Text style={styles.tipHeader}>Today's Insight</Text>
+                {todayInsight && (
+                    <View style={[styles.tipCard, { backgroundColor: Colors.cardAlt, borderColor: Colors.border }]}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs }}>
+                            <Ionicons name="bulb-outline" size={18} color={Colors.textPrimary} />
+                            <Text style={[styles.tipHeader, { color: Colors.textPrimary }]}>{todayInsight.title}</Text>
+                        </View>
+                        <Text style={[styles.tipBody, { color: Colors.textSecondary }]}>
+                            {todayInsight.body}
+                        </Text>
                     </View>
-                    <Text style={styles.tipBody}>
-                        Eating within 30 minutes of waking stabilises blood sugar and reduces afternoon
-                        energy crashes by up to 40%.
-                    </Text>
-                </View>
+                )}
 
                 {/* Bottom padding for FABs */}
                 <View style={{ height: 96 }} />
@@ -257,12 +322,12 @@ export default function HomeScreen() {
             {/* ── Floating Action Buttons ── */}
             <Animated.View style={[styles.fabRow, { opacity: fabOpacity, transform: [{ scale: fabScale }] }]}>
                 <TouchableOpacity
-                    style={[styles.fab, styles.fabGreen]}
+                    style={[styles.fab, styles.fabGreen, { backgroundColor: Colors.green, shadowColor: Colors.green }]}
                     onPress={() => setMealSheetOpen(true)}
                     activeOpacity={0.85}
                 >
                     <Ionicons name="restaurant" size={20} color={Colors.white} />
-                    <Text style={styles.fabLabel}>I Just Ate</Text>
+                    <Text style={[styles.fabLabel, { color: Colors.white }]}>I Just Ate</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -271,7 +336,7 @@ export default function HomeScreen() {
                     activeOpacity={0.85}
                 >
                     <Ionicons name="water" size={20} color={Colors.white} />
-                    <Text style={styles.fabLabel}>I Drank Water</Text>
+                    <Text style={[styles.fabLabel, { color: Colors.white }]}>I Drank Water</Text>
                 </TouchableOpacity>
             </Animated.View>
 
@@ -295,7 +360,7 @@ export default function HomeScreen() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.bg },
+    safeArea: { flex: 1 },
     scroll: { flex: 1 },
     content: { padding: Spacing.lg, paddingBottom: Spacing.lg },
 
@@ -310,23 +375,19 @@ const styles = StyleSheet.create({
     greeting: {
         fontSize: FontSize.xl,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
         lineHeight: 28,
     },
     dateText: {
         fontSize: FontSize.sm,
-        color: Colors.textSecondary,
         marginTop: 3,
     },
     avatarCircle: {
         width: 48,
         height: 48,
         borderRadius: 24,
-        backgroundColor: Colors.greenDim,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderColor: Colors.green,
     },
 
     // Stats row
@@ -337,12 +398,10 @@ const styles = StyleSheet.create({
     },
     statCard: {
         flex: 1,
-        backgroundColor: Colors.card,
         borderRadius: Radius.md,
         padding: Spacing.md,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: Colors.border,
     },
     statCardWater: {
         borderColor: '#3B82F633',
@@ -351,33 +410,27 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: FontSize.xl,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
     },
     statLabel: {
         fontSize: FontSize.xs,
-        color: Colors.textMuted,
         marginTop: 2,
         textAlign: 'center',
     },
 
     // Tip
     tipCard: {
-        backgroundColor: Colors.cardAlt,
         borderRadius: Radius.lg,
         padding: Spacing.lg,
         borderWidth: 1,
-        borderColor: Colors.border,
         marginBottom: Spacing.sm,
     },
     tipHeader: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.semibold,
-        color: Colors.textPrimary,
         marginBottom: Spacing.xs,
     },
     tipBody: {
         fontSize: FontSize.sm,
-        color: Colors.textSecondary,
         lineHeight: 20,
     },
 
@@ -404,8 +457,8 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     fabGreen: {
-        backgroundColor: Colors.green,
-        shadowColor: Colors.green,
+        backgroundColor: '#1B4332',
+        shadowColor: '#1B4332',
     },
     fabBlue: {
         backgroundColor: '#2563EB',
@@ -414,13 +467,11 @@ const styles = StyleSheet.create({
     fabLabel: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.bold,
-        color: Colors.white,
     },
     pulseAction: {
         marginBottom: Spacing.lg,
     },
     pulseBtn: {
-        backgroundColor: Colors.card,
         borderRadius: Radius.lg,
         padding: Spacing.lg,
         flexDirection: 'row',
@@ -428,11 +479,49 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 12,
         borderWidth: 1,
-        borderColor: Colors.border,
     },
     pulseBtnText: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
     },
+    onboardingCard: {
+        borderRadius: Radius.xl,
+        padding: Spacing.xl,
+        alignItems: 'center',
+        borderWidth: 1,
+        width: '100%',
+        maxWidth: 400,
+    },
+    onboardingIconWrap: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: Spacing.lg,
+        borderWidth: 2,
+    },
+    onboardingTitle: {
+        fontSize: FontSize.xl,
+        fontWeight: FontWeight.bold,
+        marginBottom: Spacing.md,
+        textAlign: 'center',
+    },
+    onboardingDesc: {
+        fontSize: FontSize.md,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: Spacing.xl,
+    },
+    onboardingBtn: {
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.xl,
+        borderRadius: Radius.full,
+        width: '100%',
+        alignItems: 'center',
+    },
+    onboardingBtnText: {
+        fontSize: FontSize.md,
+        fontWeight: FontWeight.bold,
+    }
 });

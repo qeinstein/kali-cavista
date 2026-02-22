@@ -84,7 +84,7 @@ export default function WelcomeScreen() {
                 </Animated.View>
 
                 {/* App name */}
-                <Text style={styles.appName}>NutriSense</Text>
+                <Text style={styles.appName}>SPAG</Text>
                 <Text style={styles.appNameAccent}>AI</Text>
 
                 {/* Tagline */}

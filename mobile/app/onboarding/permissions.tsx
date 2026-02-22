@@ -55,7 +55,7 @@ export default function PermissionsScreen() {
                     </View>
                     <Text style={styles.title}>Before we begin</Text>
                     <Text style={styles.subtitle}>
-                        NutriSense needs a few permissions to give you accurate, personalised insights.
+                        SPAG needs a few permissions to give you accurate, personalised insights.
                     </Text>
                 </View>
 

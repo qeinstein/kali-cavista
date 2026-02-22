@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../store/useAppStore';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
+import { Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../constants/theme';
 
 interface Props {
     visible: boolean;
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export default function PulseScannerSimulation({ visible, onClose }: Props) {
+    const Colors = useThemeColor();
     const [countdown, setCountdown] = useState(30);
     const [isScanning, setIsScanning] = useState(false);
     const [result, setResult] = useState<{ bpm: number; status: "Resting" | "Elevated" | "High" } | null>(null);
@@ -73,7 +74,9 @@ export default function PulseScannerSimulation({ visible, onClose }: Props) {
 
         setResult({ bpm, status });
         setIsScanning(false);
-        addHeartRateReading(bpm, status);
+        setTimeout(() => {
+            addHeartRateReading(bpm, status);
+        }, 0);
     };
 
     const getHealthTip = (status: string) => {
@@ -94,44 +97,44 @@ export default function PulseScannerSimulation({ visible, onClose }: Props) {
 
     return (
         <Modal visible={visible} animationType="slide" transparent={false}>
-            <View style={styles.container}>
+            <View style={[styles.container, { backgroundColor: Colors.bg }]}>
                 <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-                    <Ionicons name="close" size={28} color="#fff" />
+                    <Ionicons name="close" size={28} color={Colors.textPrimary} />
                 </TouchableOpacity>
 
                 {!result ? (
                     <View style={styles.scannerContent}>
-                        <Text style={styles.instruction}>Place finger on camera lens</Text>
+                        <Text style={[styles.instruction, { color: Colors.textSecondary }]}>Place finger on camera lens</Text>
 
                         <View style={styles.waveformContainer}>
-                            <Animated.View style={[styles.pulseCircle, { transform: [{ scale }], opacity }]} />
-                            <View style={styles.waveformLine} />
-                            {countdown < 25 && <Text style={styles.detectingText}>Detecting pulse...</Text>}
+                            <Animated.View style={[styles.pulseCircle, { backgroundColor: Colors.green, transform: [{ scale }], opacity }]} />
+                            <View style={[styles.waveformLine, { backgroundColor: Colors.green }]} />
+                            {countdown < 25 && <Text style={[styles.detectingText, { color: Colors.green }]}>Detecting pulse...</Text>}
                         </View>
 
-                        <View style={styles.countdownCircle}>
-                            <Text style={styles.countdownText}>{countdown}</Text>
-                            <Text style={styles.countdownUnit}>seconds left</Text>
+                        <View style={[styles.countdownCircle, { borderColor: Colors.border }]}>
+                            <Text style={[styles.countdownText, { color: Colors.textPrimary }]}>{countdown}</Text>
+                            <Text style={[styles.countdownUnit, { color: Colors.textMuted }]}>seconds left</Text>
                         </View>
                     </View>
                 ) : (
                     <View style={styles.resultContent}>
-                        <Text style={styles.resultTitle}>Result</Text>
+                        <Text style={[styles.resultTitle, { color: Colors.textSecondary }]}>Result</Text>
                         <Text style={[styles.bpmValue, { color: Colors.green }]}>{result.bpm}</Text>
-                        <Text style={styles.bpmUnit}>BPM</Text>
+                        <Text style={[styles.bpmUnit, { color: Colors.textMuted }]}>BPM</Text>
 
                         <View style={[styles.statusBadge, { backgroundColor: Colors.greenDim }]}>
                             <Text style={[styles.statusText, { color: Colors.green }]}>{result.status}</Text>
                         </View>
 
-                        <View style={styles.tipCard}>
-                            <Text style={styles.tipTitle}>Health Tip</Text>
-                            <Text style={styles.tipBody}>{getHealthTip(result.status)}</Text>
+                        <View style={[styles.tipCard, { backgroundColor: Colors.cardAlt, borderColor: Colors.border }]}>
+                            <Text style={[styles.tipTitle, { color: Colors.textPrimary }]}>Health Tip</Text>
+                            <Text style={[styles.tipBody, { color: Colors.textSecondary }]}>{getHealthTip(result.status)}</Text>
                         </View>
 
 
-                        <TouchableOpacity style={styles.doneBtn} onPress={onClose}>
-                            <Text style={styles.doneBtnText}>Done</Text>
+                        <TouchableOpacity style={[styles.doneBtn, { backgroundColor: Colors.green }]} onPress={onClose}>
+                            <Text style={[styles.doneBtnText, { color: Colors.white }]}>Done</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -143,7 +146,6 @@ export default function PulseScannerSimulation({ visible, onClose }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000',
         padding: Spacing.xl,
         justifyContent: 'center',
         alignItems: 'center',
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     scannerContent: { alignItems: 'center', width: '100%' },
-    instruction: { color: '#9CA3AF', fontSize: FontSize.md, marginBottom: 60 },
+    instruction: { fontSize: FontSize.md, marginBottom: 60 },
     waveformContainer: {
         height: 150,
         width: '100%',
@@ -167,31 +169,28 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: Colors.green,
         position: 'absolute',
     },
     waveformLine: {
         width: '80%',
         height: 2,
-        backgroundColor: Colors.green,
         opacity: 0.5,
     },
-    detectingText: { color: Colors.green, marginTop: 20, fontSize: FontSize.xs, fontWeight: FontWeight.bold },
+    detectingText: { marginTop: 20, fontSize: FontSize.xs, fontWeight: FontWeight.bold },
     countdownCircle: {
         width: 120,
         height: 120,
         borderRadius: 60,
         borderWidth: 2,
-        borderColor: '#374151',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    countdownText: { color: '#fff', fontSize: 48, fontWeight: FontWeight.bold },
-    countdownUnit: { color: '#9CA3AF', fontSize: 10 },
+    countdownText: { fontSize: 48, fontWeight: FontWeight.bold },
+    countdownUnit: { fontSize: 10 },
     resultContent: { alignItems: 'center', width: '100%' },
-    resultTitle: { color: '#9CA3AF', fontSize: FontSize.md, marginBottom: 20 },
+    resultTitle: { fontSize: FontSize.md, marginBottom: 20 },
     bpmValue: { fontSize: 80, fontWeight: FontWeight.bold },
-    bpmUnit: { color: '#9CA3AF', fontSize: FontSize.lg, marginTop: -10 },
+    bpmUnit: { fontSize: FontSize.lg, marginTop: -10 },
     statusBadge: {
         paddingHorizontal: 16,
         paddingVertical: 6,
@@ -200,23 +199,20 @@ const styles = StyleSheet.create({
     },
     statusText: { fontWeight: FontWeight.bold, fontSize: FontSize.md },
     tipCard: {
-        backgroundColor: '#111827',
         padding: Spacing.lg,
         borderRadius: Radius.lg,
         marginTop: 40,
         width: '100%',
         borderWidth: 1,
-        borderColor: '#1F2937',
     },
-    tipTitle: { color: '#fff', fontWeight: FontWeight.bold, marginBottom: 8 },
-    tipBody: { color: '#9CA3AF', lineHeight: 20 },
+    tipTitle: { fontWeight: FontWeight.bold, marginBottom: 8 },
+    tipBody: { lineHeight: 20 },
     doneBtn: {
-        backgroundColor: Colors.green,
         width: '100%',
         padding: 16,
         borderRadius: Radius.md,
         marginTop: 40,
         alignItems: 'center',
     },
-    doneBtnText: { color: '#000', fontWeight: FontWeight.bold, fontSize: FontSize.md },
+    doneBtnText: { fontWeight: FontWeight.bold, fontSize: FontSize.md },
 });

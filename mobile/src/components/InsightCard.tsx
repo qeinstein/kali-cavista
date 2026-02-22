@@ -7,7 +7,7 @@ import {
     Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../constants/theme';
+import { Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../constants/theme';
 
 export type InsightType = 'info' | 'warning' | 'alert';
 
@@ -22,14 +22,18 @@ interface Props extends InsightData {
     onDismiss: (id: string) => void;
 }
 
-const TYPE_CONFIG: Record<InsightType, { color: string; bg: string; icon: string }> = {
-    info: { color: Colors.green, bg: Colors.greenDim, icon: 'bulb-outline' },
-    warning: { color: Colors.warning, bg: Colors.warningDim, icon: 'warning-outline' },
-    alert: { color: Colors.danger, bg: Colors.dangerDim, icon: 'alert-circle-outline' },
+const getTypeConfig = (type: InsightType, Colors: any) => {
+    const map: Record<InsightType, { color: string; bg: string; icon: string }> = {
+        info: { color: Colors.green, bg: Colors.greenDim, icon: 'bulb-outline' },
+        warning: { color: Colors.warning, bg: Colors.warningDim, icon: 'warning-outline' },
+        alert: { color: Colors.danger, bg: Colors.dangerDim, icon: 'alert-circle-outline' },
+    };
+    return map[type];
 };
 
 export default function InsightCard({ id, type, title, body, onDismiss }: Props) {
-    const cfg = TYPE_CONFIG[type];
+    const Colors = useThemeColor();
+    const cfg = getTypeConfig(type, Colors);
     const opacity = useRef(new Animated.Value(1)).current;
     const translateX = useRef(new Animated.Value(0)).current;
     const maxHeight = useRef(new Animated.Value(200)).current;
@@ -68,7 +72,7 @@ export default function InsightCard({ id, type, title, body, onDismiss }: Props)
                     </TouchableOpacity>
                 </View>
 
-                <Text style={styles.body}>{body}</Text>
+                <Text style={[styles.body, { color: Colors.textSecondary }]}>{body}</Text>
             </View>
         </Animated.View>
     );
@@ -109,7 +113,6 @@ const styles = StyleSheet.create({
     },
     body: {
         fontSize: FontSize.sm,
-        color: Colors.textSecondary,
         lineHeight: 19,
     },
 });

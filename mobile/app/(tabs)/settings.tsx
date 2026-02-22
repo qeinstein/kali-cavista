@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -7,48 +7,97 @@ import {
     Switch,
     TouchableOpacity,
     Platform,
+    Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
+import { useAppStore } from '../../src/store/useAppStore';
+import { useAuth } from '../../src/services/api/authService';
 import NotificationPreviewCard from '../../src/components/NotificationPreviewCard';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, Radius, FontSize, FontWeight } from '../../src/constants/theme';
+import { Colors, Spacing, Radius, FontSize, FontWeight, useThemeColor } from '../../src/constants/theme';
 import { sendTestNotification } from '../../src/services/notifications';
-import { Alert } from 'react-native';
+import { useNotificationSettings, NotificationSettingsPayload } from '../../src/services/api/notificationService';
+import ThemeSettingsModal from '../../src/components/ThemeSettingsModal';
 
 export default function SettingsScreen() {
+    const Colors = useThemeColor();
     const router = useRouter();
     const user = useAuthStore((s) => s.user);
     const { notifications, setNotificationSetting, quietHours } = useSettingsStore();
+    const { logout, isLoading: isLoggingOut } = useAuth();
+    const apiSettings = useNotificationSettings();
+    const [showThemeModal, setShowThemeModal] = useState(false);
+
+    // Hydrate local settings from API on first load
+    useEffect(() => {
+        const data = apiSettings?.data as NotificationSettingsPayload | null;
+        if (data && data.hungerAlerts !== undefined) {
+            useSettingsStore.getState().loadFromApi(data);
+        }
+    }, [apiSettings?.data]);
+
+    const handleLogout = () => {
+        Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+            { text: 'Cancel', style: 'cancel' },
+            {
+                text: 'Sign Out',
+                style: 'destructive',
+                onPress: () => logout().catch(() => { }),
+            },
+        ]);
+    };
 
     return (
-        <SafeAreaView style={styles.safeArea} edges={['top']}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Settings</Text>
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors.bg }]} edges={['top']}>
+            <ThemeSettingsModal visible={showThemeModal} onClose={() => setShowThemeModal(false)} />
+            <View style={[styles.header, { borderBottomColor: Colors.border }]}>
+                <Text style={[styles.headerTitle, { color: Colors.textPrimary }]}>Settings</Text>
             </View>
 
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 {/* Profile Section */}
-                <View style={styles.section}>
+                <View style={[styles.section, { backgroundColor: Colors.card, borderColor: Colors.border }]}>
                     <View style={styles.profileRow}>
-                        <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>
+                        <View style={[styles.avatar, { backgroundColor: Colors.green }]}>
+                            <Text style={[styles.avatarText, { color: Colors.white }]}>
                                 {user?.name?.slice(0, 2).toUpperCase() || '??'}
                             </Text>
                         </View>
                         <View style={styles.profileInfo}>
-                            <Text style={styles.profileName}>{user?.name || 'User'}</Text>
-                            <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
+                            <Text style={[styles.profileName, { color: Colors.textPrimary }]}>{user?.name || 'User'}</Text>
+                            <Text style={[styles.profileEmail, { color: Colors.textMuted }]}>{user?.email || 'No email'}</Text>
                         </View>
                         <TouchableOpacity
-                            style={styles.editBtn}
+                            style={[styles.editBtn, { backgroundColor: Colors.bg, borderColor: Colors.border }]}
                             onPress={() => router.push('/settings/profile')}
                         >
-                            <Text style={styles.editBtnText}>Edit</Text>
+                            <Text style={[styles.editBtnText, { color: Colors.textPrimary }]}>Edit</Text>
                         </TouchableOpacity>
                     </View>
+                </View>
+
+                {/* Appearance Settings */}
+                <View style={[styles.section, { gap: Spacing.md, backgroundColor: Colors.card, borderColor: Colors.border }]}>
+                    <Text style={[styles.sectionTitle, { color: Colors.textSecondary }]}>Appearance</Text>
+
+                    <TouchableOpacity
+                        style={styles.settingItem}
+                        onPress={() => setShowThemeModal(true)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.settingText}>
+                            <Text style={[styles.settingLabel, { color: Colors.textPrimary }]}>App Theme</Text>
+                            <Text style={[styles.settingDesc, { color: Colors.textMuted }]}>
+                                {useAppStore.getState().themePreference === 'system' ? 'System Default' :
+                                    useAppStore.getState().themePreference === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                            </Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
+                    </TouchableOpacity>
                 </View>
 
                 {/* Notification Settings */}
@@ -195,7 +244,26 @@ export default function SettingsScreen() {
                 {/* Data & Privacy */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Data & Privacy</Text>
-                    <TouchableOpacity style={styles.dangerItem}>
+                    <TouchableOpacity
+                        style={styles.dangerItem}
+                        onPress={() => {
+                            Alert.alert('Clear Chat History', 'This will permanently delete all your chat messages.', [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'Clear',
+                                    style: 'destructive',
+                                    onPress: async () => {
+                                        try {
+                                            await useAppStore.getState().clearChat();
+                                            Alert.alert('Done', 'Chat history cleared.');
+                                        } catch {
+                                            Alert.alert('Error', 'Failed to clear chat history.');
+                                        }
+                                    },
+                                },
+                            ]);
+                        }}
+                    >
                         <Text style={styles.dangerText}>Clear Chat History</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.linkItem}>
@@ -206,6 +274,25 @@ export default function SettingsScreen() {
                     </TouchableOpacity>
                 </View>
 
+                {/* Sign Out */}
+                <View style={styles.section}>
+                    <TouchableOpacity
+                        style={styles.logoutBtn}
+                        onPress={handleLogout}
+                        disabled={isLoggingOut}
+                        activeOpacity={0.7}
+                    >
+                        {isLoggingOut ? (
+                            <ActivityIndicator size="small" color="#ff4d4d" />
+                        ) : (
+                            <>
+                                <Ionicons name="log-out-outline" size={20} color="#ff4d4d" />
+                                <Text style={styles.logoutText}>Sign Out</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+
                 <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
@@ -213,31 +300,26 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: Colors.bg },
+    safeArea: { flex: 1 },
     header: {
         paddingHorizontal: Spacing.lg,
         paddingVertical: Spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: Colors.border,
     },
     headerTitle: {
         fontSize: FontSize.xl,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
     },
     container: { flex: 1 },
     section: {
-        backgroundColor: Colors.card,
         padding: Spacing.lg,
         marginTop: Spacing.md,
         borderTopWidth: 1,
         borderBottomWidth: 1,
-        borderColor: Colors.border,
     },
     sectionTitle: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.bold,
-        color: Colors.textSecondary,
         marginBottom: Spacing.sm,
         textTransform: 'uppercase',
         letterSpacing: 1,
@@ -251,12 +333,10 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: Colors.green,
         alignItems: 'center',
         justifyContent: 'center',
     },
     avatarText: {
-        color: Colors.bg,
         fontSize: FontSize.lg,
         fontWeight: FontWeight.bold,
     },
@@ -264,24 +344,19 @@ const styles = StyleSheet.create({
     profileName: {
         fontSize: FontSize.lg,
         fontWeight: FontWeight.bold,
-        color: Colors.textPrimary,
     },
     profileEmail: {
         fontSize: FontSize.sm,
-        color: Colors.textMuted,
     },
     editBtn: {
         paddingHorizontal: Spacing.md,
         paddingVertical: 6,
         borderRadius: Radius.full,
-        backgroundColor: Colors.bg,
         borderWidth: 1,
-        borderColor: Colors.border,
     },
     editBtnText: {
         fontSize: FontSize.sm,
         fontWeight: FontWeight.medium,
-        color: Colors.textPrimary,
     },
 
     settingItem: {
@@ -293,11 +368,9 @@ const styles = StyleSheet.create({
     settingLabel: {
         fontSize: FontSize.md,
         fontWeight: FontWeight.semibold,
-        color: Colors.textPrimary,
     },
     settingDesc: {
         fontSize: FontSize.xs,
-        color: Colors.textMuted,
         marginTop: 2,
     },
 
@@ -409,5 +482,18 @@ const styles = StyleSheet.create({
     linkText: {
         fontSize: FontSize.md,
         color: Colors.textPrimary,
+    },
+
+    logoutBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: Spacing.sm,
+        paddingVertical: Spacing.md,
+    },
+    logoutText: {
+        fontSize: FontSize.md,
+        fontWeight: FontWeight.bold,
+        color: '#ff4d4d',
     },
 });

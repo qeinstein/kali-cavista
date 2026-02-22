@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import BaseRequest, { parseNetworkError } from "../../helpers/services";
+import { registerPushToken } from "../notifications";
 import { useAuthStore, AuthUser } from "../../store/useAuthStore";
 import { useRouter } from "expo-router";
 import { useRequest } from "../../helpers/services/useRequest";
@@ -10,12 +11,9 @@ import { GOOGLE_CLIENT_ID } from "../../constants/config";
 WebBrowser.maybeCompleteAuthSession();
 
 export interface RegisterPayload {
-  name: string;
   email: string;
   password: string;
-  water_goal_ml: number;
-  meal_frequency: number;
-  activity_level: string;
+  name: string;
 }
 
 export interface LoginPayload {
@@ -33,6 +31,7 @@ export const register = async (payload: RegisterPayload) => {
     if (token) {
       useAuthStore.setState({ token, user });
       BaseRequest.setToken(token);
+      registerPushToken().catch(() => {}); // fire-and-forget
     }
     return response;
   } catch (error) {
@@ -47,6 +46,7 @@ export const login = async (payload: LoginPayload) => {
     if (token) {
       BaseRequest.setToken(token);
       useAuthStore.setState({ token, user });
+      registerPushToken().catch(() => {}); // fire-and-forget
     }
     return response;
   } catch (error) {
@@ -119,8 +119,7 @@ export const useAuth = () => {
     register: (payload: RegisterPayload) =>
       handleAction(() => register(payload)),
     login: (payload: LoginPayload) => handleAction(() => login(payload)),
-    logout: () =>
-      handleAction(() => logout().then(() => router.replace("/auth/login"))),
+    logout: () => handleAction(() => logout()),
     refreshToken: () => handleAction(() => refreshToken()),
     googleLogin: (idToken: string) => handleAction(() => googleLogin(idToken)),
   };
