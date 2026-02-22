@@ -63,7 +63,7 @@ body {
   height: 100%;
   opacity: 0.2;
   background-size: inherit;
-  background-image: url(../../assets/patterns/curved-pattern.png);
+  background-image: url("/assets/patterns/curved-pattern.png");
   background-repeat: repeat-x;
 }
 @keyframes moveCurve {
