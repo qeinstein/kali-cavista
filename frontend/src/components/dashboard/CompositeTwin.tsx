@@ -411,7 +411,7 @@ export default function CompositeTwin() {
     const data = useMemo(() => genUserData(activeUser.id), [activeUser.id]);
 
     return (
-        <div className="bg-bg-2/50 backdrop-blur-xl rounded-[32px] p-8 border border-ink-2/5 shadow-sm flex flex-col gap-8">
+        <div className="bg-bg-2/50 backdrop-blur-xl rounded-[32px] p-4 md:p-8 border border-ink-2/5 shadow-sm flex flex-col gap-6 md:gap-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-3">
@@ -429,23 +429,25 @@ export default function CompositeTwin() {
                 </div>
 
                 {/* Anonymous User Pills */}
-                <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest mr-1">
+                <div className="flex flex-col gap-3 w-full md:w-auto">
+                    <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
                         Viewing
                     </span>
-                    {USERS.map((user) => (
-                        <button
-                            key={user.id}
-                            onClick={() => setActiveUser(user)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border ${activeUser.id === user.id
-                                ? "bg-primary text-white border-primary shadow-md scale-105"
-                                : "bg-background text-ink-2 border-ink-2/10 hover:border-primary/50 hover:text-primary"
-                                }`}
-                        >
-                            <span className={`w-2 h-2 rounded-full ${user.color} flex-shrink-0`} />
-                            User #{user.id}
-                        </button>
-                    ))}
+                    <div className="flex flex-row overflow-x-auto pb-2 md:pb-0 scrollbar-hide gap-2">
+                        {USERS.map((user) => (
+                            <button
+                                key={user.id}
+                                onClick={() => setActiveUser(user)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border whitespace-nowrap ${activeUser.id === user.id
+                                    ? "bg-primary text-white border-primary shadow-md scale-105"
+                                    : "bg-background text-ink-2 border-ink-2/10 hover:border-primary/50 hover:text-primary"
+                                    }`}
+                            >
+                                <span className={`w-2 h-2 rounded-full ${user.color} flex-shrink-0`} />
+                                User #{user.id}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

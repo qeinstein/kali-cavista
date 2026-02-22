@@ -10,7 +10,7 @@ export default function GlobalHealthMap() {
     const [selectedRegion, setSelectedRegion] = useState(MAP_REGIONS[1]);
 
     return (
-        <div className="bg-bg-2/50 backdrop-blur-xl rounded-[32px] p-8 border border-ink-2/5 shadow-sm h-full flex flex-col overflow-hidden">
+        <div className="bg-bg-2/50 backdrop-blur-xl rounded-[32px] p-4 md:p-8 border border-ink-2/5 shadow-sm h-full flex flex-col overflow-hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-2xl bg-primary/10 text-primary">
@@ -28,9 +28,9 @@ export default function GlobalHealthMap() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 flex-1">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-10 flex-1">
                 {/* Visual Interconnected Map Representation */}
-                <div className="xl:col-span-8 relative min-h-[400px] rounded-[24px] overflow-hidden shadow-inner">
+                <div className="xl:col-span-8 relative min-h-[300px] md:min-h-[400px] rounded-[24px] overflow-hidden shadow-inner">
                     <AnimatedMap
                         activeRegionId={selectedRegion.id}
                         onRegionSelect={setSelectedRegion}
@@ -55,7 +55,7 @@ export default function GlobalHealthMap() {
                         className="flex-1"
                     >
                         <div className="mb-8">
-                            <h4 className="text-3xl font-black text-ink-2 font-outfit leading-tight mb-2 tracking-tighter">{selectedRegion.name}</h4>
+                            <h4 className="text-2xl md:text-3xl font-black text-ink-2 font-outfit leading-tight mb-2 tracking-tighter">{selectedRegion.name}</h4>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(2,41,191,0.4)]" />
                                 <p className="text-[10px] text-muted font-bold uppercase tracking-widest">Network Consensus Verified</p>

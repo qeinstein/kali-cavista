@@ -17,7 +17,7 @@ export default function Hero() {
     return (
         <section id="hero" className="w-full relative overflow-hidden bg-background">
             {/* SPAG Layout Container */}
-            <div className="absolute inset-0 z-0 pointer-events-auto">
+            <div className="hidden md:block absolute inset-0 z-0 pointer-events-auto">
                 <Antigravity
                     count={300}
                     magnetRadius={6}
@@ -56,7 +56,7 @@ export default function Hero() {
 
                 {/* Central Horizontal Character Container (SVG Unified) */}
                 <motion.div
-                    className="flex flex-row items-center gap-6 md:gap-12"
+                    className="flex flex-row items-center justify-center gap-4 md:gap-12 px-4"
                     variants={containerVariants}
                     initial="hidden"
                     animate="show"
@@ -79,7 +79,7 @@ export default function Hero() {
                             className="select-none relative z-20 flex items-center justify-center"
                         >
                             <svg
-                                className="w-[124px] h-[184px] md:w-[155px] md:h-[230px]"
+                                className="w-[80px] h-[120px] sm:w-[100px] sm:h-[150px] md:w-[155px] md:h-[230px]"
                                 viewBox="0 0 110 165"
                                 xmlns="http://www.w3.org/2000/svg"
                             >
@@ -100,7 +100,7 @@ export default function Hero() {
                 </motion.div>
 
                 {/* Corner Words (BALANCED EXPANSION) */}
-                <div className="absolute inset-0 w-full h-full pointer-events-none">
+                <div className="hidden md:block absolute inset-0 w-full h-full pointer-events-none">
                     {/* Top Left - Sovereign */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -171,7 +171,7 @@ export default function Hero() {
                 </div>
 
                 {/* SVG Arrows Overlay (BALANCED RECALIBRATION) */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none z-15 overflow-fill" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <svg className="hidden md:block absolute inset-0 w-full h-full pointer-events-none z-15 overflow-fill" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orientation="auto">
                             <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" className="text-primary/40" />
@@ -251,7 +251,7 @@ export default function Hero() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 3 }}
-                    className="absolute bottom-12 pointer-events-auto"
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 pointer-events-auto"
                 >
                     <Link
                         href="/dashboard"
