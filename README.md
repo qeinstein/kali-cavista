@@ -31,7 +31,7 @@ The project is divided into three primary components:
 The primary user interface and visualization engine.
 - **Tech Stack**: Next.js 16, React 19, Tailwind CSS 4.
 - **Animations**: Framer Motion, React Spring, Three.js (Fiber).
-- **Core Components**: `VoiceNavigator`, `GlobalHealthMap`, `TopNav`.
+- **Core Components**: `VoiceNavigator`, `GlobalHealthMap`, `TopNav`. 
 
 ### 2. [Backend](file:///c:/Users/hp/Desktop/kali-cavista/backend) (FastAPI)
 The central intelligence and data processing hub.
