@@ -1,0 +1,22 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "insights": "Insights",
+        "chat": "Chat",
+        "logs": "Logs",
+        "home": "Home",
+        "about": "About",
+        "modules": "Modules"
+    },
+    "hero": {
+        "enter": "Enter Dashboard"
+    },
+    "languages": {
+        "en": "English",
+        "fr": "French",
+        "es": "Spanish",
+        "de": "German",
+        "pt": "Portuguese"
+    },
+    "search": "Search..."
+}

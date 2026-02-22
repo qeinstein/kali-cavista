@@ -1,0 +1,22 @@
+{
+    "nav": {
+        "dashboard": "Panel de Control",
+        "insights": "Perspectivas",
+        "chat": "Chat",
+        "logs": "Registros",
+        "home": "Inicio",
+        "about": "Acerca de",
+        "modules": "Módulos"
+    },
+    "hero": {
+        "enter": "Entrar al Panel"
+    },
+    "languages": {
+        "en": "Inglés",
+        "fr": "Francés",
+        "es": "Español",
+        "de": "Alemán",
+        "pt": "Portugués"
+    },
+    "search": "Buscar..."
+}
