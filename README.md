@@ -1,6 +1,6 @@
-# Kali-Cavista
+# S.P.A.G
 
-**Kali-Cavista** is a state-of-the-art biological health monitoring and conversational navigation ecosystem. It combines advanced data visualization with an accessibility-first voice navigation system, providing deep insights into health metrics like energy, focus, hydration, and emotional resilience.
+**S.P.A.G** is a state-of-the-art biological health monitoring and conversational navigation ecosystem. It combines advanced data visualization with an accessibility-first voice navigation system, providing deep insights into health metrics like energy, focus, hydration, and emotional resilience.
 
 ## 🌟 Key Features
 
